@@ -3,7 +3,7 @@
 import { type ReactNode, useCallback, useMemo, useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import {
-  Transaction,
+  Transaction as TransactionReact,
   TransactionButton,
   TransactionToast,
   TransactionToastAction,
@@ -348,7 +348,7 @@ function SearchBar({ onSearch, onFilter }: SearchBarProps) {
           </Button>
         </div>
         <div className="flex space-x-2">
-          <Button
+        <Button
             variant={selectedFilter === "todos" ? "primary" : "outline"}
             size="sm"
             onClick={() => {
@@ -357,7 +357,7 @@ function SearchBar({ onSearch, onFilter }: SearchBarProps) {
             }}
           >
             Todos
-          </Button>
+        </Button>
           <Button
             variant={selectedFilter === "nuevo" ? "primary" : "outline"}
             size="sm"
@@ -390,7 +390,7 @@ function SearchBar({ onSearch, onFilter }: SearchBarProps) {
           </Button>
         </div>
       </div>
-    </Card>
+      </Card>
   );
 }
 
@@ -772,7 +772,7 @@ function TransactionCard() {
 
         <div className="flex flex-col items-center">
           {address ? (
-            <Transaction
+            <TransactionReact
               calls={calls}
               onSuccess={handleSuccess}
               onError={(error: TransactionError) =>
@@ -789,7 +789,7 @@ function TransactionCard() {
                 <TransactionToastLabel />
                 <TransactionToastAction />
               </TransactionToast>
-            </Transaction>
+            </TransactionReact>
           ) : (
             <p className="text-yellow-400 text-sm text-center mt-2">
               Connect your wallet to send a transaction
@@ -1655,17 +1655,51 @@ type PaymentOptionsProps = {
 function PaymentOptions({ onClose, onPay }: PaymentOptionsProps) {
   const [amount, setAmount] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedMerchant, setSelectedMerchant] = useState("");
   const [showQR, setShowQR] = useState(false);
   const [qrData, setQrData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
-  const merchants = [
-    { id: "cafeteria", name: "Cafetería Central", category: "Alimentación" },
-    { id: "libreria", name: "Librería Universitaria", category: "Libros" },
-    { id: "copisteria", name: "Copistería", category: "Servicios" },
-    { id: "gimnasio", name: "Gimnasio", category: "Deportes" }
+  const budgetCategories = [
+    {
+      id: "libros",
+      name: "Libros",
+      icon: "📚",
+      merchants: [
+        { id: "libreria_central", name: "Librería Central" },
+        { id: "libreria_digital", name: "Librería Digital" }
+      ]
+    },
+    {
+      id: "alimentos",
+      name: "Alimentos",
+      icon: "🍽️",
+      merchants: [
+        { id: "cafeteria", name: "Cafetería Central" },
+        { id: "snack_bar", name: "Snack Bar" },
+        { id: "comedor", name: "Comedor Universitario" }
+      ]
+    },
+    {
+      id: "transporte",
+      name: "Transporte",
+      icon: "🚌",
+      merchants: [
+        { id: "bus_campus", name: "Bus Universitario" },
+        { id: "estacionamiento", name: "Estacionamiento" }
+      ]
+    },
+    {
+      id: "entretenimiento",
+      name: "Entretenimiento",
+      icon: "🎮",
+      merchants: [
+        { id: "gimnasio", name: "Gimnasio" },
+        { id: "eventos", name: "Eventos Campus" }
+      ]
+    }
   ];
 
   const handlePay = async () => {
@@ -1674,7 +1708,7 @@ function PaymentOptions({ onClose, onPay }: PaymentOptionsProps) {
       return;
     }
 
-    if (!amount || !selectedMethod || !selectedMerchant) {
+    if (!amount || !selectedMethod || !selectedCategory || !selectedMerchant) {
       alert("Por favor, completa todos los campos");
       return;
     }
@@ -1691,39 +1725,65 @@ function PaymentOptions({ onClose, onPay }: PaymentOptionsProps) {
     }
   };
 
+  const selectedCategoryData = budgetCategories.find(cat => cat.id === selectedCategory);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-[#1A1A1A] rounded-lg p-6 w-full max-w-md border border-[#2A2A2A]">
+      <div className="bg-[var(--app-background)] rounded-lg p-6 w-full max-w-md border border-[var(--app-card-border)]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">Realizar Pago</h2>
-          <button onClick={onClose} className="text-[#8A8A8A] hover:text-white">
+          <h2 className="text-xl font-semibold text-[var(--app-foreground)]">Realizar Pago</h2>
+          <button onClick={onClose} className="text-[var(--app-foreground-muted)] hover:text-[var(--app-foreground)]">
             ✕
           </button>
         </div>
 
         <div className="space-y-4">
-          {/* Selección de Comerciante */}
+          {/* Selección de Categoría */}
           <div>
-            <label className="block text-sm font-medium text-[#8A8A8A] mb-1">
-              Comerciante
+            <label className="block text-sm font-medium text-[var(--app-foreground-muted)] mb-1">
+              Categoría de Gasto
             </label>
             <select
-              value={selectedMerchant}
-              onChange={(e) => setSelectedMerchant(e.target.value)}
-              className="w-full px-3 py-2 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setSelectedMerchant("");
+              }}
+              className="w-full px-3 py-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
             >
-              <option value="" className="text-[#8A8A8A]">Selecciona un comerciante</option>
-              {merchants.map((merchant) => (
-                <option key={merchant.id} value={merchant.id} className="text-white">
-                  {merchant.name} - {merchant.category}
+              <option value="" className="text-[var(--app-foreground-muted)]">Selecciona una categoría</option>
+              {budgetCategories.map((category) => (
+                <option key={category.id} value={category.id} className="text-[var(--app-foreground)]">
+                  {category.icon} {category.name}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* Selección de Comerciante (solo si hay categoría seleccionada) */}
+          {selectedCategory && (
+            <div>
+              <label className="block text-sm font-medium text-[var(--app-foreground-muted)] mb-1">
+                Comerciante
+              </label>
+              <select
+                value={selectedMerchant}
+                onChange={(e) => setSelectedMerchant(e.target.value)}
+                className="w-full px-3 py-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
+              >
+                <option value="" className="text-[var(--app-foreground-muted)]">Selecciona un comerciante</option>
+                {selectedCategoryData?.merchants.map((merchant) => (
+                  <option key={merchant.id} value={merchant.id} className="text-[var(--app-foreground)]">
+                    {merchant.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Monto */}
           <div>
-            <label className="block text-sm font-medium text-[#8A8A8A] mb-1">
+            <label className="block text-sm font-medium text-[var(--app-foreground-muted)] mb-1">
               Monto a Pagar
             </label>
             <div className="relative">
@@ -1732,53 +1792,61 @@ function PaymentOptions({ onClose, onPay }: PaymentOptionsProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-3 py-2 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+                className="w-full px-3 py-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
               />
-              <span className="absolute right-3 top-2 text-[#8A8A8A]">CC</span>
+              <span className="absolute right-3 top-2 text-[var(--app-foreground-muted)]">CC</span>
             </div>
           </div>
 
           {/* Método de Pago */}
           <div>
-            <label className="block text-sm font-medium text-[#8A8A8A] mb-1">
+            <label className="block text-sm font-medium text-[var(--app-foreground-muted)] mb-1">
               Método de Pago
             </label>
             <select
               value={selectedMethod}
               onChange={(e) => setSelectedMethod(e.target.value)}
-              className="w-full px-3 py-2 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
+              className="w-full px-3 py-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
             >
-              <option value="" className="text-[#8A8A8A]">Selecciona un método</option>
-              <option value="wallet" className="text-white">Wallet CampusCoin</option>
-              <option value="usdc" className="text-white">USDC</option>
+              <option value="" className="text-[var(--app-foreground-muted)]">Selecciona un método</option>
+              <option value="wallet" className="text-[var(--app-foreground)]">Wallet CampusCoin</option>
+              <option value="usdc" className="text-[var(--app-foreground)]">USDC</option>
             </select>
           </div>
 
           {/* Información de la Transacción */}
-          {selectedMerchant && amount && (
-            <div className="bg-[#2A2A2A] p-4 rounded-lg border border-[#3A3A3A]">
-              <h3 className="font-medium text-white mb-2">Resumen del Pago</h3>
+          {selectedCategory && amount && (
+            <div className="bg-[var(--app-accent-light)] p-4 rounded-lg border border-[var(--app-card-border)]">
+              <h3 className="font-medium text-[var(--app-accent)] mb-2">Resumen del Pago</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#8A8A8A]">Comerciante:</span>
-                  <span className="text-white">
-                    {merchants.find(m => m.id === selectedMerchant)?.name}
+                  <span className="text-[var(--app-foreground-muted)]">Categoría:</span>
+                  <span className="text-[var(--app-foreground)]">
+                    {selectedCategoryData?.icon} {selectedCategoryData?.name}
                   </span>
                 </div>
+                {selectedMerchant && (
+                  <div className="flex justify-between">
+                    <span className="text-[var(--app-foreground-muted)]">Comerciante:</span>
+                    <span className="text-[var(--app-foreground)]">
+                      {selectedCategoryData?.merchants.find(m => m.id === selectedMerchant)?.name}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
-                  <span className="text-[#8A8A8A]">Monto:</span>
-                  <span className="text-white">{amount} CC</span>
+                  <span className="text-[var(--app-foreground-muted)]">Monto:</span>
+                  <span className="text-[var(--app-foreground)]">{amount} CC</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#8A8A8A]">Método:</span>
-                  <span className="text-white">
+                  <span className="text-[var(--app-foreground-muted)]">Método:</span>
+                  <span className="text-[var(--app-foreground)]">
                     {selectedMethod === 'wallet' ? 'Wallet CampusCoin' : 'USDC'}
                   </span>
                 </div>
                 {isConnected && (
                   <div className="flex justify-between">
-                    <span className="text-[#8A8A8A]">Wallet:</span>
-                    <span className="text-white">
+                    <span className="text-[var(--app-foreground-muted)]">Wallet:</span>
+                    <span className="text-[var(--app-foreground)]">
                       {address?.slice(0, 6)}...{address?.slice(-4)}
                     </span>
                   </div>
@@ -1791,15 +1859,15 @@ function PaymentOptions({ onClose, onPay }: PaymentOptionsProps) {
           <div className="flex space-x-2">
             <button
               onClick={handlePay}
-              disabled={!amount || !selectedMethod || !selectedMerchant || !isConnected || isLoading}
-              className="flex-1 px-4 py-2 bg-[#0052FF] text-white rounded-lg hover:bg-[#0047E0] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!amount || !selectedMethod || !selectedCategory || !selectedMerchant || !isConnected || isLoading}
+              className="flex-1 px-4 py-2 bg-[var(--app-accent)] text-white rounded-lg hover:bg-[var(--app-accent-hover)] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Procesando..." : "Pagar"}
             </button>
             <button
               onClick={() => setShowQR(true)}
-              disabled={!amount || !selectedMethod || !selectedMerchant || !isConnected}
-              className="px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed border border-[#3A3A3A]"
+              disabled={!amount || !selectedMethod || !selectedCategory || !selectedMerchant || !isConnected}
+              className="px-4 py-2 bg-[var(--app-gray)] text-[var(--app-foreground)] rounded-lg hover:bg-[var(--app-gray-dark)] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed border border-[var(--app-card-border)]"
             >
               QR
             </button>
@@ -1920,7 +1988,7 @@ function Tutorial({ isOpen, onClose }: TutorialProps) {
   );
 }
 
-type SectionType = "dashboard" | "books" | "groups" | "achievements" | "chat" | "group-details" | "balance" | "scan" | "profile" | "mybooks";
+type SectionType = "dashboard" | "books" | "groups" | "achievements" | "chat" | "group-details" | "balance" | "scan" | "profile" | "mybooks" | "payments" | "transactions";
 
 export function Home({ setActiveTab }: HomeProps) {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -2652,23 +2720,6 @@ export function Home({ setActiveTab }: HomeProps) {
                   <TransactionChart transactions={transactions} />
                 </div>
 
-                <div 
-                  id="achievements"
-                  className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${showTutorial ? 'tutorial-highlight' : ''}`}
-                >
-                  <Card title="Logros">
-                    <div className="space-y-4">
-                      {achievements.map((achievement, index) => (
-                        <Achievement
-                          key={index}
-                          {...achievement}
-                          onClaim={() => handleClaimReward(achievement)}
-                        />
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card title="Actividades Recientes">
                     <div className="space-y-2">
@@ -2678,85 +2729,204 @@ export function Home({ setActiveTab }: HomeProps) {
                     </div>
                   </Card>
 
-                  <Card title="Desafíos Activos">
+                  <Card title="Logros y Desafíos">
                     <div className="space-y-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-[var(--app-foreground-muted)]">Logros Desbloqueados</h3>
+                        <span className="text-xs bg-[var(--app-accent-light)] text-[var(--app-accent)] px-2 py-1 rounded-full">
+                          {achievements.filter(a => a.isCompleted).length}/{achievements.length}
+                        </span>
+                      </div>
+
+                      {/* Logros */}
+                      {achievements.map((achievement, index) => (
+                        <div key={index} className="bg-[var(--app-card-bg)] rounded-lg p-3 border border-[var(--app-card-border)]">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              achievement.isCompleted 
+                                ? 'bg-[var(--app-accent)] text-white' 
+                                : 'bg-[var(--app-accent-light)] text-[var(--app-accent)]'
+                            }`}>
+                              {achievement.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-medium text-[var(--app-foreground)] truncate">{achievement.title}</h4>
+                                {achievement.isCompleted ? (
+                                  <span className="text-xs bg-[var(--app-accent-light)] text-[var(--app-accent)] px-2 py-0.5 rounded-full ml-2">
+                                    Completado
+                                  </span>
+                                ) : (
+                                  achievement.progress >= achievement.total && (
+                                    <span className="text-xs bg-[var(--app-accent)] text-white px-2 py-0.5 rounded-full ml-2 animate-pulse">
+                                      ¡Listo para reclamar!
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                              <p className="text-sm text-[var(--app-foreground-muted)] truncate">{achievement.description}</p>
+                              <div className="mt-2">
+                                <div className="h-1 bg-[var(--app-accent-light)] rounded-full">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ${
+                                      achievement.isCompleted 
+                                        ? 'bg-[var(--app-accent)]' 
+                                        : achievement.progress >= achievement.total
+                                          ? 'bg-[var(--app-accent)] animate-pulse'
+                                          : 'bg-[var(--app-accent-hover)]'
+                                    }`}
+                                    style={{ width: `${(achievement.progress / achievement.total) * 100}%` }}
+                                  />
+                                </div>
+                                <div className="flex justify-between items-center mt-1">
+                                  <p className="text-xs text-[var(--app-foreground-muted)]">
+                                    {achievement.progress}/{achievement.total}
+                                  </p>
+                                  {achievement.reward && (
+                                    <p className="text-xs text-[var(--app-accent)]">
+                                      {achievement.reward.type === 'tokens' && `${achievement.reward.amount} CC`}
+                                      {achievement.reward.type === 'badge' && `Badge: ${achievement.reward.badgeName}`}
+                                      {achievement.reward.type === 'discount' && `${achievement.reward.discountPercentage}% descuento`}
+                                    </p>
+                                  )}
+                                </div>
+                                {achievement.progress >= achievement.total && !achievement.isCompleted && (
+                                  <button
+                                    onClick={() => handleClaimReward(achievement)}
+                                    className="mt-3 w-full px-4 py-2 bg-[var(--app-accent)] hover:bg-[var(--app-accent-hover)] text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-2"
+                                  >
+                                    <span>🎁</span>
+                                    <span>Reclamar Recompensa</span>
+                                  </button>
+                                )}
+                                {achievement.isCompleted && (
+                                  <div className="mt-3 p-2 bg-[var(--app-accent-light)] rounded-lg">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-[var(--app-accent)]">🏆</span>
+                                      <p className="text-sm text-[var(--app-accent)]">
+                                        Recompensa reclamada
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Separador */}
+                      <div className="border-t border-[var(--app-card-border)] my-4"></div>
+
+                      {/* Desafíos Activos */}
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-[var(--app-foreground-muted)]">Desafíos Activos</h3>
+                        <span className="text-xs bg-[var(--app-accent-light)] text-[var(--app-accent)] px-2 py-1 rounded-full">
+                          {challenges.length} activos
+                        </span>
+                      </div>
+
                       {challenges.map((challenge, index) => (
-                        <Challenge key={index} {...challenge} />
+                        <div key={index} className="bg-[var(--app-card-bg)] rounded-lg p-3 border border-[var(--app-card-border)]">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-[var(--app-foreground)]">{challenge.title}</h4>
+                              <p className="text-sm text-[var(--app-foreground-muted)]">{challenge.description}</p>
+                            </div>
+                            <span className="text-[var(--app-accent)] text-sm font-medium ml-2">
+                              {challenge.reward}
+                            </span>
+                          </div>
+                          <div className="mt-2">
+                            <div className="h-1 bg-[var(--app-accent-light)] rounded-full">
+                              <div
+                                className="h-full bg-[var(--app-accent)] rounded-full"
+                                style={{ width: `${(challenge.progress / challenge.total) * 100}%` }}
+                              />
+                            </div>
+                            <div className="flex justify-between mt-1">
+                              <p className="text-xs text-[var(--app-foreground-muted)]">
+                                {challenge.progress}/{challenge.total}
+                              </p>
+                              <p className="text-xs text-[var(--app-foreground-muted)]">
+                                Vence: {challenge.deadline}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       ))}
+
+                      {/* Resumen de Recompensas */}
+                      <div className="mt-4 p-4 bg-[var(--app-accent-light)] rounded-lg">
+                        <h4 className="font-medium text-[var(--app-accent)] mb-3">Resumen de Recompensas</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-[var(--app-foreground-muted)]">Tokens Ganados</p>
+                            <p className="text-lg font-medium text-[var(--app-accent)]">
+                              {achievements.reduce((sum, a) => sum + (a.isCompleted && a.reward.type === 'tokens' ? a.reward.amount || 0 : 0), 0)} CC
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-[var(--app-foreground-muted)]">Badges Obtenidos</p>
+                            <p className="text-lg font-medium text-[var(--app-accent)]">
+                              {achievements.filter(a => a.isCompleted && a.reward.type === 'badge').length}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-[var(--app-foreground-muted)]">Desafíos Completados</p>
+                            <p className="text-lg font-medium text-[var(--app-accent)]">
+                              {achievements.filter(a => a.isCompleted).length}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-[var(--app-foreground-muted)]">Descuentos Activos</p>
+                            <p className="text-lg font-medium text-[var(--app-accent)]">
+                              {achievements.filter(a => a.isCompleted && a.reward.type === 'discount').length}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </Card>
                 </div>
+
+                
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card title="Grupos Sociales">
-                    <div className="space-y-4">
-                      {socialGroups.map((group) => (
-                        <SocialGroup
-                          key={group.id}
-                          {...group}
-                          onJoin={() => handleJoinGroup(group)}
-                          onLeave={() => handleLeaveGroup(group)}
-                          onViewDetails={() => handleViewGroupDetails(group)}
-                        />
+                  <Card title="CampusCoin Agent">
+                    <div className="h-[400px] overflow-y-auto p-4">
+                      {chatMessages.map((message, index) => (
+                        <ChatMessage key={index} {...message} />
                       ))}
                     </div>
+                    <ChatInput onSend={handleSendMessage} isLoading={isLoadingAI} />
                   </Card>
 
-                  <Card title="Reservas de Libros">
-                    <div className="space-y-4">
-                      {reservations.map((reservation, index) => (
-                        <BookReservation
-                          key={index}
-                          {...reservation}
-                          onCancel={() => console.log('Cancel reservation:', reservation.title)}
-                        />
-                      ))}
-                    </div>
-                  </Card>
-                </div>
+                  
 
-                <Card title="Badges y Logros">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <BudgetSection
+                      onUpdateBudget={(category, newLimit) => {
+                        // Aquí iría la lógica para actualizar el límite de una categoría
+                        console.log(`Actualizando límite de ${category} a ${newLimit}`);
+                      }}
+                      onAddCategory={(category, limit, icon) => {
+                        // Aquí iría la lógica para agregar una nueva categoría
+                        console.log(`Nueva categoría: ${category} con límite ${limit} e ícono ${icon}`);
+                      }}
+                      onDeleteCategory={(category) => {
+                        // Aquí iría la lógica para eliminar una categoría
+                        console.log(`Eliminando categoría: ${category}`);
+                      }}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 gap-4">
-                    {badges.map((badge, index) => (
-                      <Badge key={index} {...badge} />
-                    ))}
+                    <TokenComparison 
+                      token={tokenData}
+                      comparisonTokens={comparisonTokens}
+                    />
                   </div>
-                </Card>
-
-                <Card title="CampusCoin Agent">
-                  <div className="h-[400px] overflow-y-auto p-4">
-                    {chatMessages.map((message, index) => (
-                      <ChatMessage key={index} {...message} />
-                    ))}
-                  </div>
-                  <ChatInput onSend={handleSendMessage} isLoading={isLoadingAI} />
-                </Card>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card title="Reseñas de Libros">
-                    <div className="space-y-4">
-                      {reviews.map((review, index) => (
-                        <BookReview key={index} {...review} />
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card title="Presupuesto Mensual">
-                    <div className="space-y-4">
-                      {budgets.map((budget, index) => (
-                        <BudgetCard key={index} {...budget} />
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <TokenComparison 
-                    token={tokenData}
-                    comparisonTokens={comparisonTokens}
-                  />
                 </div>
               </div>
             )}
@@ -2867,7 +3037,7 @@ export function Home({ setActiveTab }: HomeProps) {
   );
 }
 
-type SectionType = "dashboard" | "books" | "groups" | "achievements" | "chat" | "group-details" | "balance" | "scan" | "profile" | "mybooks";
+type SectionType = "dashboard" | "books" | "groups" | "achievements" | "chat" | "group-details" | "balance" | "scan" | "profile" | "mybooks" | "payments" | "transactions";
 
 function BalanceSection() {
   const { transactions } = useApp();
@@ -2880,21 +3050,33 @@ function BalanceSection() {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { showNotification } = useNotification();
+  const notify = useNotification();
+
+  const handleTransaction = async (value: string) => {
+    try {
+      const tx = await TransactionReact({
+        value
+      });
+      return tx;
+    } catch (error) {
+      console.error('Transaction error:', error);
+      throw error;
+    }
+  };
 
   const handleDeposit = async () => {
     if (!isConnected) {
-      showNotification({
-        type: "error",
-        message: "Por favor, conecta tu wallet primero",
+      notify({
+        title: "Error",
+        body: "Por favor, conecta tu wallet primero"
       });
       return;
     }
 
     if (!depositAmount || Number(depositAmount) <= 0) {
-      showNotification({
-        type: "error",
-        message: "Por favor, ingresa un monto válido",
+      notify({
+        title: "Error",
+        body: "Por favor, ingresa un monto válido"
       });
       return;
     }
@@ -2902,29 +3084,19 @@ function BalanceSection() {
     setIsLoading(true);
     try {
       const amount = Number(depositAmount);
-      // Aquí iría la lógica real de depósito usando la wallet
-      const tx = await Transaction({
-        from: address, // Dirección de origen (tu wallet)
-        to: "0x...", // Dirección del contrato de depósito
-        value: amount.toString(),
-        data: "0x", // Datos adicionales si son necesarios
+      await handleTransaction(amount.toString());
+      
+      setBalance(prev => prev + amount);
+      notify({
+        title: "Éxito",
+        body: `Depósito exitoso de ${amount} CC desde ${address?.slice(0, 6)}...${address?.slice(-4)}`
       });
-
-      if (tx.status === "success") {
-        setBalance(prev => prev + amount);
-        showNotification({
-          type: "success",
-          message: `Depósito exitoso de ${amount} CC desde ${address?.slice(0, 6)}...${address?.slice(-4)}`,
-        });
-        setShowDepositModal(false);
-        setDepositAmount("");
-      } else {
-        throw new Error("Error en la transacción");
-      }
+      setShowDepositModal(false);
+      setDepositAmount("");
     } catch (error) {
-      showNotification({
-        type: "error",
-        message: "Error al procesar el depósito",
+      notify({
+        title: "Error",
+        body: "Error al procesar el depósito"
       });
     } finally {
       setIsLoading(false);
@@ -2933,63 +3105,57 @@ function BalanceSection() {
 
   const handleWithdraw = async () => {
     if (!isConnected) {
-      showNotification({
-        type: "error",
-        message: "Por favor, conecta tu wallet primero",
+      notify({
+        title: "Error",
+        body: "Por favor, conecta tu wallet primero"
       });
       return;
     }
 
     if (!withdrawAmount || Number(withdrawAmount) <= 0) {
-      showNotification({
-        type: "error",
-        message: "Por favor, ingresa un monto válido",
+      notify({
+        title: "Error",
+        body: "Por favor, ingresa un monto válido"
       });
       return;
     }
 
     if (!withdrawAddress || !withdrawAddress.startsWith("0x") || withdrawAddress.length !== 42) {
-      showNotification({
-        type: "error",
-        message: "Por favor, ingresa una dirección de wallet válida",
+      notify({
+        title: "Error",
+        body: "Por favor, ingresa una dirección de wallet válida"
       });
       return;
     }
 
     const amount = Number(withdrawAmount);
     if (amount > balance) {
-      showNotification({
-        type: "error",
-        message: "Saldo insuficiente",
+      notify({
+        title: "Error",
+        body: "Saldo insuficiente"
       });
       return;
     }
 
     setIsLoading(true);
     try {
-      // Aquí iría la lógica real de retiro usando la wallet
-      const tx = await Transaction({
-        to: withdrawAddress, // Usamos la dirección ingresada por el usuario
-        value: "0", // No enviamos ETH en el retiro
-        data: "0x", // Datos adicionales si son necesarios
+      const txResult = await TransactionReact({
+        data: "0x",
+        value: "0"
       });
 
-      if (tx.status === "success") {
-        setBalance(prev => prev - amount);
-        showNotification({
-          type: "success",
-          message: `Retiro exitoso de ${amount} CC a ${withdrawAddress.slice(0, 6)}...${withdrawAddress.slice(-4)}`,
-        });
-        setShowWithdrawModal(false);
-        setWithdrawAmount("");
-        setWithdrawAddress("");
-      } else {
-        throw new Error("Error en la transacción");
-      }
+      setBalance(prev => prev - amount);
+      notify({
+        title: "Éxito",
+        body: `Retiro exitoso de ${amount} CC a ${withdrawAddress.slice(0, 6)}...${withdrawAddress.slice(-4)}`
+      });
+      setShowWithdrawModal(false);
+      setWithdrawAmount("");
+      setWithdrawAddress("");
     } catch (error) {
-      showNotification({
-        type: "error",
-        message: "Error al procesar el retiro",
+      notify({
+        title: "Error",
+        body: "Error al procesar el retiro"
       });
     } finally {
       setIsLoading(false);
@@ -3069,14 +3235,14 @@ function BalanceSection() {
           <h3 className="font-medium text-white mb-2">Acciones Rápidas</h3>
           <div className="space-y-2">
             <button
-              onClick={() => setActiveTab('payments')}
+              onClick={() => navigate('payments')}
               className="w-full px-4 py-2 bg-[#0052FF] text-white rounded-lg hover:bg-[#0047E0] transition-colors font-medium text-sm flex items-center justify-center space-x-2"
             >
               <span>💳</span>
               <span>Realizar Pago</span>
             </button>
             <button
-              onClick={() => setActiveTab('scan')}
+              onClick={() => navigate('scan')}
               className="w-full px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium text-sm flex items-center justify-center space-x-2 border border-[#3A3A3A]"
             >
               <span>📱</span>
@@ -3237,5 +3403,233 @@ function BalanceSection() {
         </div>
       )}
     </div>
+  );
+}
+
+type BudgetSectionProps = {
+  onUpdateBudget: (category: string, newLimit: number) => void;
+  onAddCategory: (category: string, limit: number, icon: string) => void;
+  onDeleteCategory: (category: string) => void;
+}
+
+function BudgetSection({ onUpdateBudget, onAddCategory, onDeleteCategory }: BudgetSectionProps) {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+  const [newLimit, setNewLimit] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("💰");
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingLimit, setEditingLimit] = useState("");
+  const [localBudgets, setLocalBudgets] = useState([
+    {
+      category: "Libros",
+      spent: 150,
+      limit: 200,
+      icon: "📚"
+    },
+    {
+      category: "Alimentos",
+      spent: 250,
+      limit: 300,
+      icon: "🍽️"
+    },
+    {
+      category: "Transporte",
+      spent: 80,
+      limit: 150,
+      icon: "🚌"
+    }
+  ]);
+
+  const availableIcons = ["💰", "🍽️", "📚", "🚌", "🎮", "🏠", "👕", "💊", "🎓", "🎨"];
+
+  const handleSaveNewCategory = () => {
+    if (newCategory && newLimit) {
+      onAddCategory(newCategory, Number(newLimit), selectedIcon);
+      setShowAddModal(false);
+      setNewCategory("");
+      setNewLimit("");
+      setSelectedIcon("💰");
+    }
+  };
+
+  const handleUpdateLimit = (category: string) => {
+    if (editingLimit) {
+      onUpdateBudget(category, Number(editingLimit));
+      setEditingCategory(null);
+      setEditingLimit("");
+    }
+  };
+
+  return (
+    <Card title="Presupuesto Mensual">
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium">Categorías de Gastos</h3>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setShowAddModal(true)}
+          >
+            Agregar Categoría
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          {localBudgets.map((budget, index) => (
+            <div key={index} className="relative">
+              <BudgetCard {...budget} />
+              {editingCategory === budget.category ? (
+                <div className="absolute right-2 top-2 flex items-center space-x-2">
+                  <input
+                    type="number"
+                    value={editingLimit}
+                    onChange={(e) => setEditingLimit(e.target.value)}
+                    className="w-24 px-2 py-1 text-sm bg-[var(--app-background)] border border-[var(--app-accent)] rounded"
+                    placeholder="Nuevo límite"
+                  />
+                  <button
+                    onClick={() => handleUpdateLimit(budget.category)}
+                    className="text-[var(--app-accent)] hover:text-[var(--app-accent-hover)]"
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setEditingLimit("");
+                    }}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="absolute right-2 top-2 flex items-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setEditingCategory(budget.category);
+                      setEditingLimit(budget.limit.toString());
+                    }}
+                    className="text-[var(--app-accent)] hover:text-[var(--app-accent-hover)]"
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => onDeleteCategory(budget.category)}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Modal para agregar nueva categoría */}
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-[var(--app-background)] p-6 rounded-xl w-96 border border-[var(--app-card-border)]">
+              <h3 className="text-xl font-semibold mb-4">Nueva Categoría de Gasto</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Nombre de la Categoría
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Ej: Alimentación"
+                    className="w-full p-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Límite Mensual
+                  </label>
+                  <input
+                    type="number"
+                    value={newLimit}
+                    onChange={(e) => setNewLimit(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full p-2 bg-[var(--app-gray)] border border-[var(--app-card-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--app-accent)]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Ícono
+                  </label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {availableIcons.map((icon) => (
+                      <button
+                        key={icon}
+                        onClick={() => setSelectedIcon(icon)}
+                        className={`p-2 rounded-lg text-xl ${
+                          selectedIcon === icon
+                            ? 'bg-[var(--app-accent)] text-white'
+                            : 'bg-[var(--app-gray)] hover:bg-[var(--app-gray-dark)]'
+                        }`}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2 mt-6">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setNewCategory("");
+                    setNewLimit("");
+                    setSelectedIcon("💰");
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSaveNewCategory}
+                  disabled={!newCategory || !newLimit}
+                >
+                  Guardar
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Resumen y Estadísticas */}
+        <div className="mt-6 p-4 bg-[var(--app-gray)] rounded-lg">
+          <h4 className="font-medium mb-3">Resumen del Mes</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-[var(--app-foreground-muted)]">Gasto Total</p>
+              <p className="text-lg font-medium">
+                ${localBudgets.reduce((sum, budget) => sum + budget.spent, 0).toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-foreground-muted)]">Presupuesto Total</p>
+              <p className="text-lg font-medium">
+                ${localBudgets.reduce((sum, budget) => sum + budget.limit, 0).toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-foreground-muted)]">Categorías</p>
+              <p className="text-lg font-medium">{localBudgets.length}</p>
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-foreground-muted)]">Categorías Excedidas</p>
+              <p className="text-lg font-medium text-red-500">
+                {localBudgets.filter(budget => (budget.spent / budget.limit) > 1).length}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }

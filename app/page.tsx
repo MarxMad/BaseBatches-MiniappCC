@@ -102,213 +102,175 @@ export default function App() {
           <>
             {/* Logo Principal */}
             <div className="md:col-span-2 flex justify-center items-center mb-8">
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#FFD700] via-[#FFC000] to-[#FFD700] rounded-full blur opacity-75 animate-pulse"></div>
-                <div className="relative flex items-center space-x-4 bg-[#111111] p-6 rounded-full border-2 border-[#FFD700]">
-                  <div className="relative w-16 h-16">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FFD700] to-[#FFC000] rounded-full animate-spin-slow"></div>
-                    <div className="absolute inset-1 bg-[#111111] rounded-full flex items-center justify-center">
-                      <svg className="w-10 h-10 text-[#FFD700]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5"/>
-                        <path d="M15 8.5C14.315 7.81501 13.1087 7.33855 12 7.26273M12 7.26273C10.4919 7.16644 9 7.87558 9 9.50001C9 12.5 15 11 15 14C15 15.6569 13.2091 16.4678 12 16.4678M12 7.26273V5M12 16.4678C10.4724 16.4678 9.06662 15.8154 8.5 15M12 16.4678V19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-transparent bg-clip-text">
-                      CampusCoin
-                    </h1>
-                    <p className="text-[#B8B8B8] font-medium">WALLET</p>
-                  </div>
+              {/* Background Elements */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#111111] to-[#1A1A1A]">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 left-0 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[128px]"></div>
+                  <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFC000] rounded-full filter blur-[128px]"></div>
                 </div>
-              </div>
-            </div>
-
-            {/* Sección de Bienvenida */}
-            <div className="md:col-span-2 bg-gradient-to-r from-[#111111] to-[#1A1A1A] p-6 rounded-lg shadow-lg border border-[#2A2A2A] mb-4">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-[#FFD700] rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-white">CampusCoin</h1>
-                    <p className="text-[#B8B8B8]">Tu billetera digital universitaria</p>
-                  </div>
-                </div>
-                {!user && (
-                  <button
-                    onClick={handleConnectAndRedirect}
-                    className="px-6 py-3 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium group relative overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                    <div className="relative flex items-center space-x-2">
-                      <span>Comenzar ahora</span>
-                      <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </div>
-                  </button>
-                )}
+                <div className="absolute inset-0" style={{ 
+                  backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,215,0,0.15) 2px, transparent 0)',
+                  backgroundSize: '24px 24px' 
+                }}></div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-                  <div className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center mb-3">
-                    <svg className="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-white font-medium mb-2">Pagos Instantáneos</h3>
-                  <p className="text-[#B8B8B8] text-sm">Realiza pagos en segundos dentro del campus universitario</p>
-                </div>
-
-                <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-                  <div className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center mb-3">
-                    <svg className="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-white font-medium mb-2">100% Seguro</h3>
-                  <p className="text-[#B8B8B8] text-sm">Transacciones protegidas por tecnología blockchain</p>
-                </div>
-
-                <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-                  <div className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center mb-3">
-                    <svg className="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-white font-medium mb-2">Sin Comisiones</h3>
-                  <p className="text-[#B8B8B8] text-sm">Transfiere dinero sin costos adicionales</p>
-                </div>
-              </div>
-
-              <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-                <h3 className="text-white font-medium mb-3">¿Cómo funciona?</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-[#1A1A1A] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#FFD700] font-medium">1</span>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-sm font-medium mb-1">Conecta tu wallet</h4>
-                      <p className="text-[#B8B8B8] text-xs">Vincula tu billetera digital de forma segura</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-[#1A1A1A] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#FFD700] font-medium">2</span>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-sm font-medium mb-1">Recarga saldo</h4>
-                      <p className="text-[#B8B8B8] text-xs">Añade fondos desde cualquier fuente</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-[#1A1A1A] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#FFD700] font-medium">3</span>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-sm font-medium mb-1">Realiza pagos</h4>
-                      <p className="text-[#B8B8B8] text-xs">Paga en cualquier comercio del campus</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-[#1A1A1A] rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#FFD700] font-medium">4</span>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-sm font-medium mb-1">Gestiona gastos</h4>
-                      <p className="text-[#B8B8B8] text-xs">Controla tus finanzas fácilmente</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {user && (
-                <div className="mt-6 flex justify-center">
-                  <button
-                    onClick={() => setActiveTab('dashboard')}
-                    className="group relative px-8 py-4 bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-black rounded-lg hover:from-[#FFC000] hover:to-[#FFB300] transition-all duration-300 shadow-lg hover:shadow-xl"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <span className="text-lg font-medium">Ir al Dashboard</span>
-                      <svg 
-                        className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M13 7l5 5m0 0l-5 5m5-5H6"
-                        />
-                      </svg>
-                    </div>
-                    <div className="absolute inset-0 bg-white rounded-lg opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Sección de Transacciones Recientes */}
-            <div className="md:col-span-2 bg-[#1A1A1A] p-4 rounded-lg shadow-sm border border-[#2A2A2A]">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium text-white">Transacciones Recientes</h3>
-                <select
-                  value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.target.value as "day" | "week" | "month" | "year")}
-                  className="px-3 py-1 bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#0052FF]"
-                >
-                  <option value="day">Hoy</option>
-                  <option value="week">Esta semana</option>
-                  <option value="month">Este mes</option>
-                  <option value="year">Este año</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                {transactions.length > 0 ? (
-                  <>
-                    {transactions.slice(0, 3).map((tx, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 hover:bg-[#2A2A2A] rounded-lg transition-colors">
-                        <div>
-                          <p className="font-medium text-white">{tx.title}</p>
-                          <p className="text-sm text-[#8A8A8A]">{tx.date}</p>
+              {/* Content Container */}
+              <div className="relative p-8 backdrop-blur-sm">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row items-center justify-between mb-16 space-y-6 md:space-y-0">
+                  {/* Logo and Brand Section */}
+                  <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                    {/* Brand Image */}
+                    <div className="relative w-48 h-48 rounded-2xl overflow-hidden backdrop-blur-sm bg-black bg-opacity-30 border border-[#2A2A2A] group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFC000] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        {/* Placeholder para la imagen */}
+                        <div className="text-center">
+                          <svg className="w-12 h-12 mx-auto text-[#FFD700] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-[#B8B8B8] text-sm">Agregar imagen de marca</p>
                         </div>
-                        <div className="text-right">
-                          <p className={`font-medium ${tx.amount?.startsWith('-') ? 'text-red-500' : 'text-[#0052FF]'}`}>
-                            {tx.amount}
-                          </p>
-                          <p className="text-sm text-[#8A8A8A]">{tx.status}</p>
+                      </div>
+                    </div>
+
+                    {/* Logo and Text */}
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700] to-[#FFC000] rounded-full animate-pulse blur-md"></div>
+                        <div className="relative w-16 h-16 bg-gradient-to-br from-[#FFD700] to-[#FFC000] rounded-full flex items-center justify-center shadow-lg">
+                          <div className="absolute inset-1 bg-black rounded-full flex items-center justify-center">
+                            <svg className="w-8 h-8 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-transparent bg-clip-text">
+                          CampusCoin
+                        </h1>
+                        <p className="text-[#B8B8B8] text-lg">La wallet del futuro universitario</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Connect Button */}
+                  {!user && (
+                    <button
+                      onClick={handleConnectAndRedirect}
+                      className="relative group"
+                    >
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FFD700] to-[#FFC000] rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                      <div className="relative px-6 py-3 bg-black rounded-lg leading-none flex items-center">
+                        <span className="text-[#FFD700] group-hover:text-[#FFC000] transition duration-200">
+                          Comenzar ahora
+                        </span>
+                        <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-200 text-[#FFD700] group-hover:text-[#FFC000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
+                    </button>
+                  )}
+                </div>
+
+                {/* Hero Message */}
+                <div className="text-center mb-16 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent opacity-10 blur-xl"></div>
+                  <h2 className="text-5xl font-bold mb-6 leading-tight">
+                    <span className="text-white">El Futuro de las </span>
+                    <span className="bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-transparent bg-clip-text">
+                      Finanzas Universitarias
+                    </span>
+                  </h2>
+                  <p className="text-[#B8B8B8] text-xl max-w-2xl mx-auto leading-relaxed">
+                    Revoluciona tu experiencia universitaria con tecnología blockchain y gestión financiera inteligente
+                  </p>
+                </div>
+
+                {/* Features Grid with Glassmorphism */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                  {[
+                    {
+                      title: "Mercado de Libros",
+                      description: "Marketplace descentralizado para intercambio de libros académicos",
+                      icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+                    },
+                    {
+                      title: "Smart Expenses",
+                      description: "IA que aprende y optimiza tus patrones de gasto",
+                      icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z",
+                    },
+                    {
+                      title: "Crypto Payments",
+                      description: "Pagos instantáneos con tecnología blockchain",
+                      icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+                    },
+                  ].map((feature, index) => (
+                    <div
+                      key={index}
+                      className="group relative backdrop-blur-md bg-black bg-opacity-50 p-6 rounded-xl border border-[#2A2A2A] hover:border-[#FFD700] transition-all duration-300"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFC000] opacity-0 group-hover:opacity-5 rounded-xl transition-opacity duration-300"></div>
+                      <div className="relative">
+                        <div className="w-12 h-12 mb-4 relative">
+                          <div className="absolute inset-0 bg-[#FFD700] opacity-20 rounded-lg blur"></div>
+                          <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center">
+                            <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
+                            </svg>
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                        <p className="text-[#B8B8B8] group-hover:text-white transition-colors duration-300">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Stats Section with Neon Effect */}
+                <div className="relative backdrop-blur-md bg-black bg-opacity-50 rounded-xl border border-[#2A2A2A] p-8 mb-12">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFC000] opacity-5 rounded-xl"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    {[
+                      { value: "2,500+", label: "Estudiantes" },
+                      { value: "15+", label: "Universidades" },
+                      { value: "1,000+", label: "Libros" },
+                      { value: "30%", label: "Ahorro" },
+                    ].map((stat, index) => (
+                      <div key={index} className="text-center relative group">
+                        <div className="text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-transparent bg-clip-text mb-2">
+                          {stat.value}
+                        </div>
+                        <div className="text-[#B8B8B8] group-hover:text-white transition-colors duration-300">
+                          {stat.label}
                         </div>
                       </div>
                     ))}
-                    <button
-                      onClick={() => setActiveTab('transactions')}
-                      className="w-full px-4 py-2 text-[#0052FF] hover:text-[#0047E0] font-medium text-sm"
-                    >
-                      Ver todas las transacciones
-                    </button>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-16 h-16 bg-[#2A2A2A] rounded-full flex items-center justify-center mb-4">
-                      <svg className="w-8 h-8 text-[#8A8A8A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                    </div>
-                    <p className="text-[#8A8A8A] text-lg font-medium mb-2">Aún no hay transacciones</p>
-                    <p className="text-[#666666] text-sm">
-                      Tus transacciones aparecerán aquí cuando realices tu primera operación
+                  </div>
+                </div>
+
+                {/* CTA Section */}
+                {!user && (
+                  <div className="text-center relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent opacity-10 blur-xl"></div>
+                    <p className="text-[#B8B8B8] text-lg mb-6">
+                      Únete a la revolución financiera en tu campus
                     </p>
+                    <button
+                      onClick={handleConnectAndRedirect}
+                      className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-black rounded-lg relative group overflow-hidden font-bold text-lg shadow-2xl"
+                    >
+                      <div className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-[#FFC000] to-[#FFD700]"></div>
+                      <span className="relative flex items-center">
+                        Empieza tu experiencia CampusCoin
+                        <svg className="w-6 h-6 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </span>
+                    </button>
                   </div>
                 )}
               </div>

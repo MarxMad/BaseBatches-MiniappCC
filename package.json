@@ -21,6 +21,7 @@
     "@web3modal/ethereum": "^2.7.1",
     "@web3modal/react": "^2.7.1",
     "ethers": "^6.13.7",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.503.0",
     "next": "^14.2.15",
     "next-themes": "^0.4.6",

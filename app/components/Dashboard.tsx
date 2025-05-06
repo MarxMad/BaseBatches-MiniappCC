@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
+import { TransferScreen } from './TransferScreen';
+import { QRScanner } from './QRScanner';
+import { SwapScreen } from './SwapScreen';
+import { BookMarketplace } from './BookMarketplace';
 
 type Challenge = {
   id: number;
@@ -44,20 +48,16 @@ export function Dashboard() {
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState<{[key: string]: number}>({});
-  const [isNewExpenseModalOpen, setIsNewExpenseModalOpen] = useState(false);
   const [isNewCategoryModalOpen, setIsNewCategoryModalOpen] = useState(false);
-  const [newExpense, setNewExpense] = useState({
-    category: '',
-    amount: '',
-    description: '',
-  });
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState({
     name: '',
     color: '#FFD700',
     icon: '',
   });
+  const [isTransferScreenOpen, setIsTransferScreenOpen] = useState(false);
+  const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
+  const [isSwapScreenOpen, setIsSwapScreenOpen] = useState(false);
 
   const challenges: Challenge[] = [
     {
@@ -219,34 +219,24 @@ export function Dashboard() {
     setExpensesByCategory(byCategory);
   }, [expenses]);
 
-  const handleNewExpense = () => {
-    setIsNewExpenseModalOpen(true);
-    setSelectedCategory('');
-    setNewExpense({ category: '', amount: '', description: '' });
+  const handleNewCategory = () => {
+    setIsNewCategoryModalOpen(true);
   };
 
-  const handleSubmitExpense = () => {
-    if (newExpense.amount && selectedCategory) {
-      const categoryDetails = allCategories.find(cat => cat.id === selectedCategory)!;
-      const expense: ExpenseWithCategory = {
-        id: Date.now(),
-        category: selectedCategory,
-        categoryDetails,
-        amount: parseFloat(newExpense.amount),
-        date: new Date().toISOString(),
-        description: newExpense.description,
+  const handleSaveCategory = () => {
+    if (newCategory.name && newCategory.icon) {
+      const newCategoryItem: Category = {
+        id: `custom-${Date.now()}`,
+        name: newCategory.name,
+        icon: newCategory.icon,
+        color: newCategory.color,
       };
       
-      setExpenses(prev => [...prev, expense]);
-      setNewExpense({ category: '', amount: '', description: '' });
-      setSelectedCategory('');
-      setIsNewExpenseModalOpen(false);
-
-      // Actualizar los totales por categoría
-      setExpensesByCategory(prev => ({
-        ...prev,
-        [selectedCategory]: (prev[selectedCategory] || 0) + parseFloat(newExpense.amount)
-      }));
+      const updatedCategories = [...customCategories, newCategoryItem];
+      setCustomCategories(updatedCategories);
+      console.log('Nueva categoría agregada:', newCategoryItem);
+      setIsNewCategoryModalOpen(false);
+      setNewCategory({ name: '', color: '#FFD700', icon: '' });
     }
   };
 
@@ -265,41 +255,30 @@ export function Dashboard() {
     return category ? category.name : 'Otros';
   };
 
-  const handleNewCategory = () => {
-    setIsNewCategoryModalOpen(true);
-  };
+  const handleQRScan = (result: string) => {
+    // Aquí procesamos el resultado del escaneo
+    // El formato esperado del QR debería ser algo como:
+    // campuscoin://transfer?address=0x...&amount=100&category=food
+    try {
+      const url = new URL(result);
+      if (url.protocol === 'campuscoin:') {
+        const params = new URLSearchParams(url.search);
+        const address = params.get('address');
+        const amount = params.get('amount');
+        const category = params.get('category');
 
-  const handleSaveCategory = () => {
-    if (newCategory.name && newCategory.icon) {
-      const newCategoryItem: Category = {
-        id: `custom-${Date.now()}`,
-        name: newCategory.name,
-        icon: newCategory.icon,
-        color: newCategory.color,
-      };
-      
-      const updatedCategories = [...customCategories, newCategoryItem];
-      setCustomCategories(updatedCategories);
-      console.log('Nueva categoría agregada:', newCategoryItem); // Para debugging
-      
-      // Si estábamos en el modal de nuevo gasto, volvemos a él
-      if (isNewExpenseModalOpen) {
-        setTimeout(() => {
-          setIsNewCategoryModalOpen(false);
-          setIsNewExpenseModalOpen(true);
-          setSelectedCategory(newCategoryItem.id);
-        }, 100);
-      } else {
-        setIsNewCategoryModalOpen(false);
+        if (address) {
+          // Abrir la pantalla de transferencia con los datos escaneados
+          setIsQRScannerOpen(false);
+          setIsTransferScreenOpen(true);
+          // Aquí podrías pasar los datos escaneados al TransferScreen
+          console.log('Datos escaneados:', { address, amount, category });
+        }
       }
-      
-      setNewCategory({ name: '', color: '#FFD700', icon: '' });
+    } catch (error) {
+      console.error('Error al procesar el código QR:', error);
+      alert('El código QR no es válido');
     }
-  };
-
-  const switchToNewCategory = () => {
-    setIsNewExpenseModalOpen(false);
-    setIsNewCategoryModalOpen(true);
   };
 
   return (
@@ -317,7 +296,10 @@ export function Dashboard() {
           <span className="ml-2 text-[#B8B8B8]">USDC</span>
         </div>
         <div className="grid grid-cols-3 gap-4">
-          <button className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group">
+          <button 
+            onClick={() => setIsTransferScreenOpen(true)}
+            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
+          >
             <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
               <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -326,7 +308,10 @@ export function Dashboard() {
             <span className="text-sm font-medium text-white">Enviar</span>
           </button>
 
-          <button className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group">
+          <button 
+            onClick={() => setIsQRScannerOpen(true)}
+            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
+          >
             <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
               <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-2 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -335,7 +320,10 @@ export function Dashboard() {
             <span className="text-sm font-medium text-white">Escanear QR</span>
           </button>
 
-          <button className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group">
+          <button 
+            onClick={() => setIsSwapScreenOpen(true)}
+            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
+          >
             <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
               <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -395,12 +383,6 @@ export function Dashboard() {
               className="px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium"
             >
               Crear Categoría
-            </button>
-            <button 
-              onClick={handleNewExpense}
-              className="px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium"
-            >
-              Nuevo Gasto
             </button>
           </div>
         </div>
@@ -520,188 +502,6 @@ export function Dashboard() {
             ))}
           </div>
         </div>
-
-        {/* New Expense Modal */}
-        {isNewExpenseModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-[#111111] rounded-xl p-6 w-full max-w-md border border-[#2A2A2A]">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white">Agregar Nuevo Gasto</h3>
-                <button
-                  onClick={switchToNewCategory}
-                  className="px-3 py-1 bg-[#2A2A2A] text-[#FFD700] rounded-lg hover:bg-[#3A3A3A] transition-colors text-sm font-medium flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span>Nueva Categoría</span>
-                </button>
-              </div>
-
-              {/* Categories Section */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium text-[#B8B8B8]">
-                    Seleccionar Categoría
-                  </label>
-                  <span className="text-xs text-[#8A8A8A]">
-                    {allCategories.length} categorías disponibles
-                  </span>
-                </div>
-
-                {/* Categories Grid */}
-                <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-[#1A1A1A] scrollbar-thumb-[#2A2A2A]">
-                  {/* Default Categories */}
-                  {defaultCategories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.id)}
-                      className={`flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
-                        selectedCategory === category.id
-                          ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
-                          : 'bg-[#1A1A1A] hover:bg-[#2A2A2A]'
-                      }`}
-                    >
-                      <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
-                        style={{ backgroundColor: category.color + '20' }}
-                      >
-                        <svg 
-                          className="w-6 h-6" 
-                          style={{ color: category.color }}
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-white">{category.name}</span>
-                    </button>
-                  ))}
-
-                  {/* Custom Categories */}
-                  {customCategories.length > 0 && (
-                    <>
-                      <div className="col-span-3 pt-2 pb-1">
-                        <div className="flex items-center">
-                          <div className="flex-grow border-t border-[#2A2A2A]"></div>
-                          <span className="px-2 text-xs text-[#8A8A8A]">Categorías Personalizadas</span>
-                          <div className="flex-grow border-t border-[#2A2A2A]"></div>
-                        </div>
-                      </div>
-
-                      {customCategories.map((category) => (
-                        <button
-                          key={category.id}
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
-                            selectedCategory === category.id
-                              ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
-                              : 'bg-[#1A1A1A] hover:bg-[#2A2A2A]'
-                          }`}
-                        >
-                          <div 
-                            className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
-                            style={{ backgroundColor: category.color + '20' }}
-                          >
-                            <svg 
-                              className="w-6 h-6" 
-                              style={{ color: category.color }}
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
-                            </svg>
-                          </div>
-                          <span className="text-sm font-medium text-white">{category.name}</span>
-                        </button>
-                      ))}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Selected Category Preview */}
-              {selectedCategory && (
-                <div className="mb-4 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{ 
-                        backgroundColor: (allCategories.find(c => c.id === selectedCategory)?.color || '#FFD700') + '20' 
-                      }}
-                    >
-                      <svg 
-                        className="w-5 h-5" 
-                        style={{ color: allCategories.find(c => c.id === selectedCategory)?.color || '#FFD700' }}
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d={allCategories.find(c => c.id === selectedCategory)?.icon || ''} 
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-white font-medium">
-                      {allCategories.find(c => c.id === selectedCategory)?.name}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Amount Input */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Monto
-                </label>
-                <input
-                  type="number"
-                  value={newExpense.amount}
-                  onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#FFD700]"
-                  placeholder="0.00"
-                />
-              </div>
-
-              {/* Description Input */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Descripción
-                </label>
-                <input
-                  type="text"
-                  value={newExpense.description}
-                  onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })}
-                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#FFD700]"
-                  placeholder="Descripción del gasto"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setIsNewExpenseModalOpen(false)}
-                  className="flex-1 px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSubmitExpense}
-                  disabled={!selectedCategory || !newExpense.amount}
-                  className="flex-1 px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Guardar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* New Category Modal */}
         {isNewCategoryModalOpen && (
@@ -824,6 +624,34 @@ export function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Book Marketplace */}
+      <div className="mt-8">
+        <BookMarketplace />
+      </div>
+
+      {/* Transfer Screen */}
+      {isTransferScreenOpen && (
+        <TransferScreen 
+          onBack={() => setIsTransferScreenOpen(false)} 
+          categories={allCategories}
+        />
+      )}
+
+      {/* QR Scanner */}
+      {isQRScannerOpen && (
+        <QRScanner
+          onScan={handleQRScan}
+          onClose={() => setIsQRScannerOpen(false)}
+        />
+      )}
+
+      {/* Swap Screen */}
+      {isSwapScreenOpen && (
+        <SwapScreen
+          onBack={() => setIsSwapScreenOpen(false)}
+        />
+      )}
     </div>
   );
 } 

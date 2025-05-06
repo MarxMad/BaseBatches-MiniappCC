@@ -5,6 +5,7 @@ import './globals.css';
 import { Providers } from './providers';
 import { AppProvider } from './context/AppContext';
 import { Inter } from 'next/font/google';
+import { FloatingChat } from './components/FloatingChat';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -51,6 +52,7 @@ export default function RootLayout({
             {children}
           </AppProvider>
         </Providers>
+        <FloatingChat />
       </body>
     </html>
   );

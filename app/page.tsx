@@ -230,28 +230,6 @@ export default function App() {
                   ))}
                 </div>
 
-                {/* Stats Section with Neon Effect */}
-                <div className="relative backdrop-blur-md bg-black bg-opacity-50 rounded-xl border border-[#2A2A2A] p-8 mb-12">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFC000] opacity-5 rounded-xl"></div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {[
-                      { value: "2,500+", label: "Estudiantes" },
-                      { value: "15+", label: "Universidades" },
-                      { value: "1,000+", label: "Libros" },
-                      { value: "30%", label: "Ahorro" },
-                    ].map((stat, index) => (
-                      <div key={index} className="text-center relative group">
-                        <div className="text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFC000] text-transparent bg-clip-text mb-2">
-                          {stat.value}
-                        </div>
-                        <div className="text-[#B8B8B8] group-hover:text-white transition-colors duration-300">
-                          {stat.label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {/* CTA Section */}
                 {!user && (
                   <div className="text-center relative">

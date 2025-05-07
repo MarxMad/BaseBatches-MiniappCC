@@ -6,6 +6,11 @@ import { TransferScreen } from './TransferScreen';
 import { QRScanner } from './QRScanner';
 import { SwapScreen } from './SwapScreen';
 import { BookMarketplace } from './BookMarketplace';
+import { useAccount, useContractRead, useBalance } from 'wagmi';
+import { formatUnits } from 'viem';
+import { USDC_ADDRESS } from '../constants/addresses';
+import { USDC_ABI } from '../constants/abis';
+import Image from 'next/image';
 
 type Challenge = {
   id: number;
@@ -14,6 +19,14 @@ type Challenge = {
   reward: string;
   progress: number;
   icon: string;
+  endDate: string;
+  type: 'daily' | 'weekly' | 'special';
+  requirements: {
+    current: number;
+    target: number;
+    unit: string;
+  };
+  status: 'active' | 'completed' | 'expired';
 };
 
 type Expense = {
@@ -41,8 +54,30 @@ type IconOption = {
   name: string;
 };
 
+// Agregar estilos base para el dashboard
+const techGradient = "bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]";
+const glowEffect = "hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-300";
+const cardStyle = `${techGradient} rounded-2xl border border-[#333333] backdrop-blur-xl ${glowEffect}`;
+const iconContainerStyle = "bg-[#111111] bg-opacity-50 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-opacity-70";
+
 export function Dashboard() {
   const { user } = useApp();
+  const { address, isConnected } = useAccount();
+  
+  // Leer balance de USDC
+  const { data: usdcBalance } = useContractRead({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'balanceOf',
+    args: [address],
+    watch: true,
+  });
+
+  // Formatear balance
+  const formattedBalance = usdcBalance 
+    ? formatUnits(usdcBalance, 6) // USDC tiene 6 decimales
+    : '0.00';
+
   const [balance, setBalance] = useState("0.00");
   const [activeSlide, setActiveSlide] = useState(0);
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
@@ -50,6 +85,12 @@ export function Dashboard() {
   const [expensesByCategory, setExpensesByCategory] = useState<{[key: string]: number}>({});
   const [isNewCategoryModalOpen, setIsNewCategoryModalOpen] = useState(false);
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
+  const [budget, setBudget] = useState<number>(() => {
+    const savedBudget = localStorage.getItem('monthlyBudget');
+    return savedBudget ? parseFloat(savedBudget) : 600;
+  });
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [newBudget, setNewBudget] = useState(budget.toString());
   const [newCategory, setNewCategory] = useState({
     name: '',
     color: '#FFD700',
@@ -58,32 +99,75 @@ export function Dashboard() {
   const [isTransferScreenOpen, setIsTransferScreenOpen] = useState(false);
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
   const [isSwapScreenOpen, setIsSwapScreenOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<'all' | 'daily' | 'weekly' | 'special'>('all');
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const challenges: Challenge[] = [
     {
       id: 1,
-      title: "Ahorro Semanal",
-      description: "Ahorra 50 USDC esta semana",
-      reward: "5 USDC",
-      progress: 75,
-      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+      title: "Primera Compra",
+      description: "Realiza tu primera compra en el marketplace",
+      icon: "M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z",
+      progress: 0,
+      reward: "50 Puntos",
+      endDate: "2024-03-20",
+      type: 'special',
+      requirements: {
+        current: 0,
+        target: 1,
+        unit: 'compras'
+      },
+      status: 'active'
     },
     {
       id: 2,
-      title: "Primera Compra",
-      description: "Realiza tu primera compra en la cafetería",
-      reward: "2 USDC",
-      progress: 0,
-      icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2",
+      title: "Vendedor Estrella",
+      description: "Vende 3 libros esta semana",
+      icon: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7",
+      progress: 66,
+      reward: "100 Puntos",
+      endDate: "2024-03-15",
+      type: 'weekly',
+      requirements: {
+        current: 2,
+        target: 3,
+        unit: 'ventas'
+      },
+      status: 'active'
     },
     {
       id: 3,
-      title: "Invita Amigos",
-      description: "Invita 3 amigos a usar CampusCoin",
-      reward: "10 USDC",
-      progress: 33,
-      icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+      title: "Transacciones Diarias",
+      description: "Realiza 5 transacciones hoy",
+      icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
+      progress: 80,
+      reward: "30 Puntos",
+      endDate: "2024-03-10",
+      type: 'daily',
+      requirements: {
+        current: 4,
+        target: 5,
+        unit: 'transacciones'
+      },
+      status: 'active'
     },
+    {
+      id: 4,
+      title: "Calificador Experto",
+      description: "Califica 10 libros comprados",
+      icon: "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z",
+      progress: 40,
+      reward: "80 Puntos",
+      endDate: "2024-03-25",
+      type: 'weekly',
+      requirements: {
+        current: 4,
+        target: 10,
+        unit: 'calificaciones'
+      },
+      status: 'active'
+    }
   ];
 
   // Definir las categorías predefinidas
@@ -184,13 +268,12 @@ export function Dashboard() {
   ];
 
   useEffect(() => {
-    // Cargar categorías personalizadas del localStorage al iniciar
     const savedCategories = localStorage.getItem('customCategories');
     if (savedCategories) {
       try {
         const parsed = JSON.parse(savedCategories);
+        console.log('Categorías cargadas del localStorage:', parsed);
         setCustomCategories(parsed);
-        console.log('Categorías cargadas:', parsed); // Para debugging
       } catch (error) {
         console.error('Error al cargar categorías:', error);
       }
@@ -198,10 +281,9 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    // Guardar categorías personalizadas en localStorage cuando cambien
     if (customCategories.length > 0) {
+      console.log('Guardando categorías en localStorage:', customCategories);
       localStorage.setItem('customCategories', JSON.stringify(customCategories));
-      console.log('Categorías guardadas:', customCategories); // Para debugging
     }
   }, [customCategories]);
 
@@ -218,6 +300,24 @@ export function Dashboard() {
     }, {} as {[key: string]: number});
     setExpensesByCategory(byCategory);
   }, [expenses]);
+
+  useEffect(() => {
+    // Guardar presupuesto en localStorage cuando cambie
+    localStorage.setItem('monthlyBudget', budget.toString());
+  }, [budget]);
+
+  // Calcular ahorro
+  const savings = budget - totalExpenses;
+  const savingsPercentage = (savings / budget) * 100;
+
+  // Función para manejar el cambio de presupuesto
+  const handleBudgetChange = () => {
+    const newBudgetValue = parseFloat(newBudget);
+    if (!isNaN(newBudgetValue) && newBudgetValue > 0) {
+      setBudget(newBudgetValue);
+      setIsEditingBudget(false);
+    }
+  };
 
   const handleNewCategory = () => {
     setIsNewCategoryModalOpen(true);
@@ -281,191 +381,424 @@ export function Dashboard() {
     }
   };
 
+  // Componente para el carrusel de desafíos
+  const ChallengesCarousel = () => {
+    const filteredChallenges = selectedType === 'all' 
+      ? challenges 
+      : challenges.filter(challenge => challenge.type === selectedType);
+
+    const getTypeColor = (type: string) => {
+      switch(type) {
+        case 'daily': return 'text-green-400';
+        case 'weekly': return 'text-blue-400';
+        case 'special': return 'text-purple-400';
+        default: return 'text-white';
+      }
+    };
+
+    const getProgressColor = (progress: number) => {
+      if (progress >= 80) return 'bg-green-500';
+      if (progress >= 50) return 'bg-yellow-500';
+      return 'bg-blue-500';
+    };
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredChallenges.map((challenge) => (
+          <div
+            key={challenge.id}
+            className="bg-[#1A1A1A] rounded-lg p-6 border border-[#2A2A2A] hover:border-[#FFD700] transition-all"
+          >
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-[#2A2A2A] rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={challenge.icon} />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <h3 className="font-semibold text-white text-lg">{challenge.title}</h3>
+                  <span className={`text-sm font-medium ${getTypeColor(challenge.type)}`}>
+                    {challenge.type.charAt(0).toUpperCase() + challenge.type.slice(1)}
+                  </span>
+                </div>
+                <p className="text-[#B8B8B8] text-sm mt-1">{challenge.description}</p>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="flex justify-between text-sm text-[#B8B8B8]">
+                <span>Progreso: {challenge.requirements.current}/{challenge.requirements.target} {challenge.requirements.unit}</span>
+                <span>{challenge.progress}%</span>
+              </div>
+              <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                <div
+                  className={`h-full ${getProgressColor(challenge.progress)} rounded-full transition-all duration-500`}
+                  style={{ width: `${challenge.progress}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-center mt-4">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-[#FFD700]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span className="text-[#FFD700] font-semibold">{challenge.reward}</span>
+                </div>
+                <span className="text-sm text-[#B8B8B8]">
+                  Termina: {new Date(challenge.endDate).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    console.log('Eliminando categoría:', categoryId);
+    try {
+      // 1. Actualizar las categorías personalizadas
+      const updatedCategories = customCategories.filter(cat => cat.id !== categoryId);
+      console.log('Categorías actualizadas:', updatedCategories);
+      
+      // Actualizar el estado y localStorage de manera síncrona
+      setCustomCategories(updatedCategories);
+      localStorage.setItem('customCategories', JSON.stringify(updatedCategories));
+
+      // 2. Actualizar gastos asociados
+      const updatedExpenses = expenses.map(expense => {
+        if (expense.category === categoryId) {
+          const otherCategory = defaultCategories.find(cat => cat.id === 'other') || defaultCategories[defaultCategories.length - 1];
+          return {
+            ...expense,
+            category: 'other',
+            categoryDetails: otherCategory
+          };
+        }
+        return expense;
+      });
+      
+      // Actualizar el estado de gastos
+      setExpenses(updatedExpenses);
+
+      console.log('Eliminación completada');
+    } catch (error) {
+      console.error('Error al eliminar categoría:', error);
+      alert('Hubo un error al eliminar la categoría');
+    }
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      {/* Balance Card */}
-      <div className="bg-gradient-to-r from-[#111111] to-[#1A1A1A] rounded-xl p-6 mb-8 border border-[#2A2A2A]">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-white">Balance Total</h2>
-          <button className="px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium">
-            Recargar
-          </button>
+    <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${techGradient} min-h-screen`}>
+      {/* Header con Logo */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-4">
+          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FFA500] p-0.5">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] opacity-50 blur-xl" />
+            <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center">
+              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500]">
+                CC
+              </span>
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">CampusCoin</h1>
+            <p className="text-sm text-[#B8B8B8]">Tu Wallet Universitaria</p>
+          </div>
         </div>
-        <div className="flex items-baseline mb-6">
-          <span className="text-4xl font-bold text-[#FFD700]">{balance}</span>
-          <span className="ml-2 text-[#B8B8B8]">USDC</span>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <button 
-            onClick={() => setIsTransferScreenOpen(true)}
-            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
-          >
-            <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
-              <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-white">Enviar</span>
-          </button>
-
-          <button 
-            onClick={() => setIsQRScannerOpen(true)}
-            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
-          >
-            <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
-              <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-2 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-white">Escanear QR</span>
-          </button>
-
-          <button 
-            onClick={() => setIsSwapScreenOpen(true)}
-            className="flex flex-col items-center justify-center p-3 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors group"
-          >
-            <div className="w-12 h-12 bg-[#111111] rounded-full flex items-center justify-center mb-2 group-hover:bg-[#1A1A1A] transition-colors">
-              <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </div>
-            <span className="text-sm font-medium text-white">Swap</span>
-          </button>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-4 py-2 border border-[#333333]">
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-sm text-[#B8B8B8]">Base Network</span>
+          </div>
+          
         </div>
       </div>
 
-      {/* Challenges Carousel */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-white mb-4">Desafíos Activos</h2>
+      {/* Balance Card */}
+      <div className={`${cardStyle} p-8 mb-8 relative overflow-hidden`}>
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFD700] rounded-full filter blur-[128px] opacity-20" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FFA500] rounded-full filter blur-[96px] opacity-10" />
+        
         <div className="relative">
-          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-            {challenges.map((challenge) => (
-              <div
-                key={challenge.id}
-                className="flex-none w-80 bg-[#111111] rounded-lg p-4 border border-[#2A2A2A]"
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Balance Total</h2>
+              <p className="text-[#B8B8B8] text-sm">Actualizado hace 2 min</p>
+            </div>
+            {!isConnected ? (
+              <span className="text-[#B8B8B8] bg-[#222222] px-4 py-2 rounded-lg">Wallet no conectada</span>
+            ) : (
+              <button className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                Recargar
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-baseline mb-8">
+            <span className="text-5xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
+              {isConnected ? formattedBalance : '-.--'}
+            </span>
+            <span className="ml-3 text-lg text-[#B8B8B8]">USDC</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              {
+                title: "Enviar",
+                icon: "M12 19l9 2-9-18-9 18 9-2zm0 0v-8",
+                onClick: () => setIsTransferScreenOpen(true)
+              },
+              {
+                title: "Escanear QR",
+                icon: "M12 4v1m6 11h2m-2 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z",
+                onClick: () => setIsQRScannerOpen(true)
+              },
+              {
+                title: "Swap",
+                icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4",
+                onClick: () => setIsSwapScreenOpen(true)
+              }
+            ].map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                disabled={!isConnected}
+                className={`group p-4 rounded-xl transition-all duration-300
+                  ${isConnected 
+                    ? 'bg-[#1A1A1A] hover:bg-[#222222] hover:shadow-lg transform hover:-translate-y-0.5' 
+                    : 'bg-[#1A1A1A] opacity-50 cursor-not-allowed'}`}
               >
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-[#1A1A1A] rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={challenge.icon} />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-white">{challenge.title}</h3>
-                    <p className="text-sm text-[#B8B8B8]">{challenge.description}</p>
-                  </div>
+                <div className={`${iconContainerStyle} w-14 h-14 mx-auto mb-3`}>
+                  <svg className="w-7 h-7 text-[#FFD700] group-hover:scale-110 transition-transform duration-300" 
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={action.icon} />
+                  </svg>
                 </div>
-                <div className="mb-3">
-                  <div className="h-2 bg-[#2A2A2A] rounded-full">
-                    <div
-                      className="h-full bg-[#FFD700] rounded-full transition-all duration-300"
-                      style={{ width: `${challenge.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#B8B8B8] text-sm">{challenge.progress}% completado</span>
-                  <span className="text-[#FFD700] font-medium">Recompensa: {challenge.reward}</span>
-                </div>
+                <span className="text-sm font-medium text-white block text-center">{action.title}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-4 mt-8">
+            <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#B8B8B8] text-sm">24h Cambio</span>
+                <span className="text-green-400">+2.5%</span>
               </div>
+              <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
+                <div className="h-full bg-green-400 w-3/4 rounded-full" />
+              </div>
+            </div>
+            <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#B8B8B8] text-sm">Transacciones</span>
+                <span className="text-[#FFD700]">24</span>
+              </div>
+              <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
+                <div className="h-full bg-[#FFD700] w-1/2 rounded-full" />
+              </div>
+            </div>
+            <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#B8B8B8] text-sm">Gas Ahorrado</span>
+                <span className="text-purple-400">0.05 ETH</span>
+              </div>
+              <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
+                <div className="h-full bg-purple-400 w-1/4 rounded-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Challenges Section */}
+      <div className={`${cardStyle} p-8 mb-8`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Desafíos Activos</h2>
+            <p className="text-[#B8B8B8] text-sm">Completa desafíos para ganar recompensas</p>
+          </div>
+          <div className="flex space-x-2">
+            {['all', 'daily', 'weekly', 'special'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type as any)}
+                className={`px-4 py-2 rounded-xl transition-all ${
+                  selectedType === type
+                    ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold shadow-lg'
+                    : 'bg-[#222222] text-white hover:bg-[#333333]'
+                }`}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
             ))}
           </div>
         </div>
+        <ChallengesCarousel />
       </div>
 
-      {/* Expense Manager */}
-      <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Gestor de Gastos</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={handleNewCategory}
-              className="px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors font-medium"
-            >
-              Crear Categoría
-            </button>
+      {/* Expense Manager Section */}
+      <div className={`${cardStyle} p-8 mb-8`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Gestor de Gastos</h2>
+            <p className="text-[#B8B8B8] text-sm">Controla tus gastos y categorías</p>
           </div>
+          <button
+            onClick={handleNewCategory}
+            className="px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Nueva Categoría</span>
+          </button>
         </div>
 
-        {/* Expense Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-medium">Gastos del Mes</h3>
-              <span className="text-[#FFD700] font-bold">${totalExpenses.toFixed(2)}</span>
+        {/* Expense Summary Cards con diseño mejorado */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[
+            {
+              title: "Gastos del Mes",
+              amount: totalExpenses.toFixed(2),
+              color: "#FFD700",
+              progress: (totalExpenses / budget) * 100
+            },
+            {
+              title: "Presupuesto",
+              amount: budget.toFixed(2),
+              color: "#00FF00",
+              progress: 100,
+              isEditable: true
+            },
+            {
+              title: "Ahorro",
+              amount: savings.toFixed(2),
+              color: savings >= 0 ? "#00FFFF" : "#FF5555",
+              progress: Math.abs(savingsPercentage)
+            }
+          ].map((item, index) => (
+            <div key={index} className="bg-[#1A1A1A] rounded-xl p-6 border border-[#333333] relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 rounded-full" 
+                   style={{ background: `${item.color}20`, filter: 'blur(40px)' }} />
+              <div className="relative">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-white font-medium">{item.title}</h3>
+                  {item.isEditable && (
+                    <button
+                      onClick={() => setIsEditingBudget(true)}
+                      className="text-[#B8B8B8] hover:text-white transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                {item.isEditable && isEditingBudget ? (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="number"
+                      value={newBudget}
+                      onChange={(e) => setNewBudget(e.target.value)}
+                      className="w-full bg-[#222222] border border-[#333333] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#FFD700]"
+                      placeholder="Nuevo presupuesto"
+                    />
+                    <button
+                      onClick={handleBudgetChange}
+                      className="px-3 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors"
+                    >
+                      ✓
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline">
+                    <span className="text-2xl font-bold" style={{ color: item.color }}>${item.amount}</span>
+                    <span className="ml-2 text-[#B8B8B8] text-sm">USDC</span>
+                  </div>
+                )}
+                <div className="mt-4 h-1.5 bg-[#333333] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${Math.min(item.progress, 100)}%`,
+                      backgroundColor: item.color
+                    }}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="h-2 bg-[#2A2A2A] rounded-full">
-              <div className="h-full bg-[#FFD700] rounded-full" style={{ width: '70%' }}></div>
-            </div>
-          </div>
-          <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-medium">Presupuesto</h3>
-              <span className="text-[#B8B8B8] font-bold">$600.00</span>
-            </div>
-            <div className="h-2 bg-[#2A2A2A] rounded-full">
-              <div className="h-full bg-[#FFD700] rounded-full" style={{ width: '100%' }}></div>
-            </div>
-          </div>
-          <div className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-medium">Ahorro</h3>
-              <span className="text-[#00FF00] font-bold">$180.00</span>
-            </div>
-            <div className="h-2 bg-[#2A2A2A] rounded-full">
-              <div className="h-full bg-[#00FF00] rounded-full" style={{ width: '30%' }}></div>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Expenses List by Category */}
         <div className="mt-8">
           <h3 className="text-lg font-bold text-white mb-4">Gastos por Categoría</h3>
           <div className="space-y-4">
-            {Object.entries(expensesByCategory).map(([categoryId, amount]) => (
-              <div key={categoryId} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: getCategoryColor(categoryId) + '20' }}
-                    >
-                      <svg 
-                        className="w-6 h-6" 
-                        style={{ color: getCategoryColor(categoryId) }}
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
+            {Object.entries(expensesByCategory).map(([categoryId, amount]) => {
+              const isCustomCategory = customCategories.some(cat => cat.id === categoryId);
+              return (
+                <div key={categoryId} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: getCategoryColor(categoryId) + '20' }}
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={getCategoryIcon(categoryId)} />
-                      </svg>
+                        <svg 
+                          className="w-6 h-6" 
+                          style={{ color: getCategoryColor(categoryId) }}
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={getCategoryIcon(categoryId)} />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-white">{getCategoryName(categoryId)}</h4>
+                        <p className="text-sm text-[#B8B8B8]">
+                          {expenses.filter(e => e.category === categoryId).length} transacciones
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-white">{getCategoryName(categoryId)}</h4>
-                      <p className="text-sm text-[#B8B8B8]">
-                        {expenses.filter(e => e.category === categoryId).length} transacciones
-                      </p>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-right">
+                        <p className="text-[#FFD700] font-bold">${amount.toFixed(2)}</p>
+                        <p className="text-sm text-[#B8B8B8]">
+                          {((amount / totalExpenses) * 100).toFixed(1)}% del total
+                        </p>
+                      </div>
+                      {isCustomCategory && (
+                        <button
+                          onClick={() => handleDeleteCategory(categoryId)}
+                          className="p-2 text-red-500 hover:text-red-400 transition-colors"
+                          title="Eliminar categoría"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[#FFD700] font-bold">${amount.toFixed(2)}</p>
-                    <p className="text-sm text-[#B8B8B8]">
-                      {((amount / totalExpenses) * 100).toFixed(1)}% del total
-                    </p>
+                  {/* Progress bar */}
+                  <div className="mt-3 h-2 bg-[#2A2A2A] rounded-full">
+                    <div 
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${(amount / totalExpenses) * 100}%`,
+                        backgroundColor: getCategoryColor(categoryId)
+                      }}
+                    ></div>
                   </div>
                 </div>
-                {/* Progress bar */}
-                <div className="mt-3 h-2 bg-[#2A2A2A] rounded-full">
-                  <div 
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${(amount / totalExpenses) * 100}%`,
-                      backgroundColor: getCategoryColor(categoryId)
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -635,6 +968,7 @@ export function Dashboard() {
         <TransferScreen 
           onBack={() => setIsTransferScreenOpen(false)} 
           categories={allCategories}
+          onDeleteCategory={handleDeleteCategory}
         />
       )}
 

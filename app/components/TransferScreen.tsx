@@ -10,12 +10,22 @@ type Network = {
   symbol: string;
 };
 
-export function TransferScreen({ onBack, categories }: { onBack: () => void, categories: any[] }) {
+export function TransferScreen({ 
+  onBack, 
+  categories,
+  onDeleteCategory 
+}: { 
+  onBack: () => void, 
+  categories: any[],
+  onDeleteCategory: (categoryId: string) => void 
+}) {
   const [selectedNetwork, setSelectedNetwork] = useState<string>('base');
   const [amount, setAmount] = useState<string>('');
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [note, setNote] = useState<string>('');
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const networks: Network[] = [
     {
@@ -49,6 +59,23 @@ export function TransferScreen({ onBack, categories }: { onBack: () => void, cat
       });
     } catch (error) {
       console.error('Error en la transferencia:', error);
+    }
+  };
+
+  const handleDeleteCategory = (categoryId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setCategoryToDelete(categoryId);
+    setIsDeletingCategory(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (categoryToDelete) {
+      onDeleteCategory(categoryToDelete);
+      setIsDeletingCategory(false);
+      setCategoryToDelete(null);
+      if (selectedCategory === categoryToDelete) {
+        setSelectedCategory('');
+      }
     }
   };
 
@@ -139,31 +166,43 @@ export function TransferScreen({ onBack, categories }: { onBack: () => void, cat
           </label>
           <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#2A2A2A] scrollbar-track-[#1A1A1A]">
             {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
-                  selectedCategory === category.id
-                    ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
-                    : 'bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-[#2A2A2A]'
-                }`}
-              >
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
-                  style={{ backgroundColor: category.color + '20' }}
+              <div key={category.id} className="relative">
+                <button
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`w-full flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
+                    selectedCategory === category.id
+                      ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
+                      : 'bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-[#2A2A2A]'
+                  }`}
                 >
-                  <svg 
-                    className="w-6 h-6" 
-                    style={{ color: category.color }}
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
+                    style={{ backgroundColor: category.color + '20' }}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-white">{category.name}</span>
-              </button>
+                    <svg 
+                      className="w-6 h-6" 
+                      style={{ color: category.color }}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-white">{category.name}</span>
+                </button>
+                {category.id.startsWith('custom-') && (
+                  <button
+                    onClick={(e) => handleDeleteCategory(category.id, e)}
+                    className="absolute top-1 right-1 p-1 text-red-500 hover:text-red-400 transition-colors bg-[#1A1A1A] rounded-full"
+                    title="Eliminar categoría"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -199,6 +238,35 @@ export function TransferScreen({ onBack, categories }: { onBack: () => void, cat
           </button>
         </div>
       </div>
+
+      {/* Delete Category Confirmation Modal */}
+      {isDeletingCategory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-[#111111] rounded-xl p-6 w-full max-w-md border border-[#2A2A2A]">
+            <h3 className="text-xl font-bold text-white mb-4">Eliminar Categoría</h3>
+            <p className="text-[#B8B8B8] mb-6">
+              ¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setIsDeletingCategory(false);
+                  setCategoryToDelete(null);
+                }}
+                className="flex-1 px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeleteCategory}
+                className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

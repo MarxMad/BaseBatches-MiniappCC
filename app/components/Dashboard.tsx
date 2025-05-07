@@ -11,6 +11,8 @@ import { formatUnits } from 'viem';
 import { USDC_ADDRESS } from '../constants/addresses';
 import { USDC_ABI } from '../constants/abis';
 import Image from 'next/image';
+import { toast } from 'react-hot-toast';
+import { useWalletStats } from '../hooks/useWalletStats';
 
 type Challenge = {
   id: number;
@@ -63,14 +65,17 @@ const iconContainerStyle = "bg-[#111111] bg-opacity-50 rounded-xl flex items-cen
 export function Dashboard() {
   const { user } = useApp();
   const { address, isConnected } = useAccount();
+  const { balanceChange24h, transactionCount, gasSaved } = useWalletStats();
   
   // Leer balance de USDC
   const { data: usdcBalance } = useContractRead({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: 'balanceOf',
-    args: [address],
-    watch: true,
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address
+    }
   });
 
   // Formatear balance
@@ -102,6 +107,7 @@ export function Dashboard() {
   const [selectedType, setSelectedType] = useState<'all' | 'daily' | 'weekly' | 'special'>('all');
   const [isDeletingCategory, setIsDeletingCategory] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
 
   const challenges: Challenge[] = [
     {
@@ -489,6 +495,25 @@ export function Dashboard() {
     }
   };
 
+  // Función para manejar el depósito
+  const handleDeposit = () => {
+    const appId = process.env.NEXT_PUBLIC_COINBASE_APP_ID;
+    const destinationWallet = address; // La dirección del usuario
+    const destinationChain = 'base'; // Especificamos Base Network
+    
+    const coinbasePayUrl = new URL('https://pay.coinbase.com/buy/select-asset');
+    
+    // Agregamos los parámetros necesarios
+    coinbasePayUrl.searchParams.append('appId', appId || '');
+    coinbasePayUrl.searchParams.append('destinationWallet', destinationWallet || '');
+    coinbasePayUrl.searchParams.append('chainName', destinationChain);
+    coinbasePayUrl.searchParams.append('asset', 'USDC');
+    coinbasePayUrl.searchParams.append('supportedNetworks', 'base');
+    
+    // Abrimos Coinbase Pay en una nueva pestaña
+    window.open(coinbasePayUrl.toString(), '_blank');
+  };
+
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${techGradient} min-h-screen`}>
       {/* Header con Logo */}
@@ -531,8 +556,14 @@ export function Dashboard() {
             {!isConnected ? (
               <span className="text-[#B8B8B8] bg-[#222222] px-4 py-2 rounded-lg">Wallet no conectada</span>
             ) : (
-              <button className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                Recargar
+              <button 
+                onClick={() => setIsDepositModalOpen(true)}
+                className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Recargar USDC</span>
               </button>
             )}
           </div>
@@ -587,58 +618,43 @@ export function Dashboard() {
             <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[#B8B8B8] text-sm">24h Cambio</span>
-                <span className="text-green-400">+2.5%</span>
+                <span className={balanceChange24h >= 0 ? "text-green-400" : "text-red-400"}>
+                  {balanceChange24h >= 0 ? '+' : ''}{balanceChange24h}%
+                </span>
               </div>
               <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
-                <div className="h-full bg-green-400 w-3/4 rounded-full" />
+                <div 
+                  className={`h-full ${balanceChange24h >= 0 ? 'bg-green-400' : 'bg-red-400'} rounded-full`} 
+                  style={{ width: `${Math.min(Math.abs(balanceChange24h * 4), 100)}%` }}
+                />
               </div>
             </div>
             <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[#B8B8B8] text-sm">Transacciones</span>
-                <span className="text-[#FFD700]">24</span>
+                <span className="text-[#FFD700]">{transactionCount}</span>
               </div>
               <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
-                <div className="h-full bg-[#FFD700] w-1/2 rounded-full" />
+                <div 
+                  className="h-full bg-[#FFD700] rounded-full" 
+                  style={{ width: `${Math.min((transactionCount / 50) * 100, 100)}%` }}
+                />
               </div>
             </div>
             <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[#B8B8B8] text-sm">Gas Ahorrado</span>
-                <span className="text-purple-400">0.05 ETH</span>
+                <span className="text-[#B8B8B8] text-sm">Gas Gastado</span>
+                <span className="text-purple-400">{gasSaved.toFixed(4)} ETH</span>
               </div>
               <div className="h-1 bg-[#333333] rounded-full overflow-hidden">
-                <div className="h-full bg-purple-400 w-1/4 rounded-full" />
+                <div 
+                  className="h-full bg-purple-400 rounded-full" 
+                  style={{ width: `${Math.min((gasSaved / 0.1) * 100, 100)}%` }}
+                />
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Challenges Section */}
-      <div className={`${cardStyle} p-8 mb-8`}>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Desafíos Activos</h2>
-            <p className="text-[#B8B8B8] text-sm">Completa desafíos para ganar recompensas</p>
-          </div>
-          <div className="flex space-x-2">
-            {['all', 'daily', 'weekly', 'special'].map((type) => (
-              <button
-                key={type}
-                onClick={() => setSelectedType(type as any)}
-                className={`px-4 py-2 rounded-xl transition-all ${
-                  selectedType === type
-                    ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold shadow-lg'
-                    : 'bg-[#222222] text-white hover:bg-[#333333]'
-                }`}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <ChallengesCarousel />
       </div>
 
       {/* Expense Manager Section */}
@@ -958,6 +974,32 @@ export function Dashboard() {
         )}
       </div>
 
+      {/* Challenges Section */}
+      <div className={`${cardStyle} p-8 mb-8`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Desafíos Activos</h2>
+            <p className="text-[#B8B8B8] text-sm">Completa desafíos para ganar recompensas</p>
+          </div>
+          <div className="flex space-x-2">
+            {['all', 'daily', 'weekly', 'special'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type as any)}
+                className={`px-4 py-2 rounded-xl transition-all ${
+                  selectedType === type
+                    ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold shadow-lg'
+                    : 'bg-[#222222] text-white hover:bg-[#333333]'
+                }`}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+        <ChallengesCarousel />
+      </div>
+
       {/* Book Marketplace */}
       <div className="mt-8">
         <BookMarketplace />
@@ -985,6 +1027,67 @@ export function Dashboard() {
         <SwapScreen
           onBack={() => setIsSwapScreenOpen(false)}
         />
+      )}
+
+      {/* Modal de Depósito */}
+      {isDepositModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold text-white mb-4">Recargar USDC</h2>
+            
+            <div className="space-y-6">
+              {/* Opción de Coinbase */}
+              <button
+                onClick={() => {
+                  handleDeposit();
+                  setIsDepositModalOpen(false);
+                }}
+                className="w-full p-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] hover:border-[#FFD700] transition-all flex items-center space-x-4"
+              >
+                <div className="w-12 h-12 bg-[#0052FF] rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/>
+                  </svg>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="text-white font-medium">Coinbase Pay</h3>
+                  <p className="text-sm text-[#B8B8B8]">Compra USDC con tarjeta o banco</p>
+                </div>
+                <svg className="w-6 h-6 text-[#B8B8B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Opción de Transferencia */}
+              <div className="p-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A]">
+                <h3 className="text-white font-medium mb-2">Transferir desde otra wallet</h3>
+                <p className="text-sm text-[#B8B8B8] mb-4">Envía USDC a tu dirección:</p>
+                <div className="flex items-center space-x-2 bg-[#2A2A2A] p-2 rounded-lg">
+                  <code className="text-[#FFD700] flex-1 overflow-hidden text-ellipsis">{address}</code>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(address || '');
+                      toast.success('¡Dirección copiada!');
+                    }}
+                    className="p-2 hover:bg-[#333333] rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-[#B8B8B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Botón de cerrar */}
+            <button
+              onClick={() => setIsDepositModalOpen(false)}
+              className="mt-6 w-full px-4 py-3 bg-[#2A2A2A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

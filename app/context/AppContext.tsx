@@ -32,6 +32,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     loadInitialData();
   }, []);
 
+  const loadUserData = async (walletAddress: string) => {
+    try {
+      setLoading(true);
+      const userInfo = await campusCoinService.getUserInfo(walletAddress);
+      setUser(userInfo);
+    } catch (err) {
+      console.error('Error al cargar datos del usuario:', err);
+      setError('Error al cargar datos del usuario');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadInitialData = async () => {
     try {
       setLoading(true);
@@ -48,8 +61,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       const address = await campusCoinService.connectWallet();
-      const userInfo = await campusCoinService.getUserInfo(address);
-      setUser(userInfo);
+      await loadUserData(address);
       return address;
     } catch (err) {
       setError('Error al conectar la wallet');

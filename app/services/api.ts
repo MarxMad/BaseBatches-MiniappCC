@@ -3,33 +3,27 @@
 import { ethers } from 'ethers';
 
 // Tipos de datos
-export type Book = {
+export interface User {
+  address: string;
+  balance: string;
+  transactions: Transaction[];
+}
+
+export interface Transaction {
+  id: string;
+  type: 'payment' | 'book' | 'reservation';
+  amount: string;
+  date: string;
+  status: 'completed' | 'pending' | 'failed';
+}
+
+export interface Book {
   id: string;
   title: string;
   author: string;
   price: string;
-  condition: 'nuevo' | 'usado' | 'excelente';
-  imageUrl?: string;
-  rating: number;
-  reviews: number;
-};
-
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  studentId: string;
-  balance: string;
-};
-
-export type Transaction = {
-  id: string;
-  type: 'payment' | 'book' | 'achievement';
-  title: string;
-  description: string;
-  amount?: string;
-  timestamp: string;
-};
+  available: boolean;
+}
 
 // Servicios
 export class CampusCoinService {
@@ -59,66 +53,78 @@ export class CampusCoinService {
 
   // Métodos de libros
   async getBooks(): Promise<Book[]> {
-    // Implementar lógica para obtener libros
-    return [];
+    // Simulación de libros
+    return [
+      {
+        id: '1',
+        title: 'Introducción a la Blockchain',
+        author: 'Satoshi Nakamoto',
+        price: '50',
+        available: true
+      },
+      {
+        id: '2',
+        title: 'Smart Contracts 101',
+        author: 'Vitalik Buterin',
+        price: '45',
+        available: true
+      }
+    ];
   }
 
   async buyBook(bookId: string): Promise<Transaction> {
-    // Implementar lógica para comprar libro
+    // Simulación de compra
     return {
-      id: '1',
+      id: Math.random().toString(),
       type: 'book',
-      title: 'Compra de libro',
-      description: 'Libro comprado exitosamente',
-      timestamp: new Date().toISOString()
+      amount: '50',
+      date: new Date().toISOString(),
+      status: 'completed'
     };
   }
 
   // Métodos de pagos
   async makePayment(amount: string, recipient: string): Promise<Transaction> {
-    // Implementar lógica para realizar pagos
+    // Simulación de pago
     return {
-      id: '1',
+      id: Math.random().toString(),
       type: 'payment',
-      title: 'Pago realizado',
-      description: 'Pago completado exitosamente',
       amount,
-      timestamp: new Date().toISOString()
+      date: new Date().toISOString(),
+      status: 'completed'
     };
   }
 
   // Métodos de usuario
   async getUserInfo(address: string): Promise<User> {
-    // Implementar lógica para obtener información del usuario
+    // Simulación de datos del usuario
     return {
-      id: address,
-      name: 'Usuario Ejemplo',
-      email: 'usuario@ejemplo.com',
-      studentId: '20240001',
-      balance: '100.00'
+      address,
+      balance: '1000',
+      transactions: []
     };
   }
 
   // Métodos de reservas
-  async reserveBook(bookId: string): Promise<boolean> {
-    // Implementar lógica para reservar libro
-    return true;
+  async reserveBook(bookId: string): Promise<void> {
+    // Simulación de reserva
+    return;
   }
 
-  async cancelReservation(bookId: string): Promise<boolean> {
-    // Implementar lógica para cancelar reserva
-    return true;
+  async cancelReservation(bookId: string): Promise<void> {
+    // Simulación de cancelación
+    return;
   }
 
   // Métodos de grupos sociales
-  async joinGroup(groupId: string): Promise<boolean> {
-    // Implementar lógica para unirse a grupo
-    return true;
+  async joinGroup(groupId: string): Promise<void> {
+    // Simulación de unirse a grupo
+    return;
   }
 
-  async leaveGroup(groupId: string): Promise<boolean> {
-    // Implementar lógica para salir de grupo
-    return true;
+  async leaveGroup(groupId: string): Promise<void> {
+    // Simulación de salir de grupo
+    return;
   }
 }
 

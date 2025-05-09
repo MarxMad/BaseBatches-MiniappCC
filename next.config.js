@@ -12,7 +12,7 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
   },
   // Configuración de seguridad
-  headers: async () => {
+  async headers() {
     return [
       {
         source: '/:path*',
@@ -37,4 +37,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

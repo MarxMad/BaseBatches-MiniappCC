@@ -308,7 +308,6 @@ export default function App() {
                   <div className="relative w-full max-w-2xl mx-auto mb-6 group">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse" />
                     <div className="relative w-full h-32 bg-[#1A1A1A] rounded-2xl flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
-                      {/* Aquí irá la imagen del logo */}
                       <img 
                         src="/logo-campuscoin.png" 
                         alt="CampusCoin Logo" 
@@ -479,22 +478,8 @@ export default function App() {
                   <p className="text-xl text-[#B8B8B8] mb-8 max-w-2xl mx-auto">
                     Únete a la revolución financiera universitaria. Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
                   </p>
-                  <div className="relative inline-block">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 animate-pulse" />
-                    <ConnectWallet onConnect={handleConnectAndRedirect}>
-                      <button className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group">
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#FFA500] to-[#FFD700] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <span className="relative flex items-center justify-center">
-                          {user ? 'Ir al Dashboard' : 'Conectar Wallet'}
-                          <svg className="w-6 h-6 ml-3 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                        </span>
-                      </button>
-                    </ConnectWallet>
-                  </div>
                   <p className="mt-6 text-[#B8B8B8]">
-                    {user ? '¡Bienvenido de nuevo!' : 'Conecta tu wallet para comenzar tu aventura'}
+                    {user ? '¡Bienvenido! Haz clic en Dashboard para comenzar.' : 'Conecta tu wallet para comenzar tu aventura'}
                   </p>
                 </div>
               </div>
@@ -514,18 +499,7 @@ export default function App() {
             <Wallet
               className="z-50 fixed top-4 right-4"
             >
-              <ConnectWallet onConnect={handleConnectAndRedirect}>
-                {user ? (
-                  <div className="flex items-center space-x-2 bg-[#1A1A1A] p-2 rounded-lg border border-[#2A2A2A]">
-                    <Avatar className="h-6 w-6" />
-                    <Name className="text-white" />
-                  </div>
-                ) : (
-                  <button className="px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium">
-                    Conectar Wallet
-                  </button>
-                )}
-              </ConnectWallet>
+              <ConnectWallet onConnect={handleConnectAndRedirect} />
               <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
                 <WalletAdvancedWalletActions />
                 <WalletAdvancedAddressDetails />

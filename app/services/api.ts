@@ -1,7 +1,5 @@
 "use client";
 
-import { ethers } from 'ethers';
-
 // Tipos de datos
 export interface User {
   address: string;
@@ -27,28 +25,14 @@ export interface Book {
 
 // Servicios
 export class CampusCoinService {
-  private provider: ethers.BrowserProvider | null = null;
-  private contract: ethers.Contract | null = null;
-
-  constructor() {
-    // Inicializar provider y contrato
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      this.provider = new ethers.BrowserProvider((window as any).ethereum);
-    }
-  }
-
-  // Métodos de autenticación
-  async connectWallet(): Promise<string> {
-    try {
-      if (!this.provider) {
-        throw new Error('Provider no inicializado');
-      }
-      const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
-      return accounts[0];
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-      throw error;
-    }
+  // Métodos de usuario
+  async getUserInfo(address: string): Promise<User> {
+    // Simulación de datos del usuario
+    return {
+      address,
+      balance: '1000',
+      transactions: []
+    };
   }
 
   // Métodos de libros
@@ -92,16 +76,6 @@ export class CampusCoinService {
       amount,
       date: new Date().toISOString(),
       status: 'completed'
-    };
-  }
-
-  // Métodos de usuario
-  async getUserInfo(address: string): Promise<User> {
-    // Simulación de datos del usuario
-    return {
-      address,
-      balance: '1000',
-      transactions: []
     };
   }
 

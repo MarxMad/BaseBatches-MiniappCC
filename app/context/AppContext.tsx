@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { campusCoinService, User, Transaction, Book } from '../services/api';
+import { useMiniKit } from '@coinbase/onchainkit/minikit';
 
 type AppContextType = {
   user: User | null;
@@ -9,7 +10,6 @@ type AppContextType = {
   books: Book[];
   loading: boolean;
   error: string | null;
-  connectWallet: () => Promise<string>;
   buyBook: (bookId: string) => Promise<void>;
   makePayment: (amount: string, recipient: string) => Promise<void>;
   reserveBook: (bookId: string) => Promise<void>;
@@ -26,11 +26,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { context } = useMiniKit();
 
   useEffect(() => {
     // Cargar datos iniciales
     loadInitialData();
   }, []);
+
+  // Efecto para sincronizar el estado del usuario con la wallet de OnchainKit
+  useEffect(() => {
+    if (context?.client?.address) {
+      loadUserData(context.client.address);
+    } else {
+      setUser(null);
+    }
+  }, [context?.client?.address]);
 
   const loadUserData = async (walletAddress: string) => {
     try {
@@ -52,20 +62,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setBooks(books);
     } catch (err) {
       setError('Error al cargar los datos iniciales');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const connectWallet = async (): Promise<string> => {
-    try {
-      setLoading(true);
-      const address = await campusCoinService.connectWallet();
-      await loadUserData(address);
-      return address;
-    } catch (err) {
-      setError('Error al conectar la wallet');
-      throw err;
     } finally {
       setLoading(false);
     }
@@ -147,7 +143,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         books,
         loading,
         error,
-        connectWallet,
         buyBook,
         makePayment,
         reserveBook,

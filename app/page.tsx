@@ -225,7 +225,7 @@ const styles = `
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
-  const { connectWallet, user } = useApp();
+  const { user } = useApp();
   const [activeTab, setActiveTab] = useState<SectionType>('home');
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -245,14 +245,9 @@ export default function App() {
     setFrameAdded(Boolean(frameAdded));
   }, [addFrame]);
 
-  const handleConnectAndRedirect = async () => {
-    try {
-      await connectWallet();
-      setActiveTab('dashboard');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (error) {
-      console.error('Error al conectar la wallet:', error);
-    }
+  const handleConnectAndRedirect = () => {
+    setActiveTab('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleTabChange = (tab: SectionType) => {
@@ -486,18 +481,17 @@ export default function App() {
                   </p>
                   <div className="relative inline-block">
                     <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 animate-pulse" />
-                    <button
-                      onClick={handleConnectAndRedirect}
-                      className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#FFA500] to-[#FFD700] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <span className="relative flex items-center justify-center">
-                        {user ? 'Ir al Dashboard' : 'Conectar Wallet'}
-                        <svg className="w-6 h-6 ml-3 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </span>
-                    </button>
+                    <ConnectWallet onConnect={handleConnectAndRedirect}>
+                      <button className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#FFA500] to-[#FFD700] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <span className="relative flex items-center justify-center">
+                          {user ? 'Ir al Dashboard' : 'Conectar Wallet'}
+                          <svg className="w-6 h-6 ml-3 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </span>
+                      </button>
+                    </ConnectWallet>
                   </div>
                   <p className="mt-6 text-[#B8B8B8]">
                     {user ? '¡Bienvenido de nuevo!' : 'Conecta tu wallet para comenzar tu aventura'}

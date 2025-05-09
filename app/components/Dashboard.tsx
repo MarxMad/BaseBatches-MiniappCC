@@ -161,7 +161,7 @@ const CatchTheCoin = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd: (s
   };
 
   return (
-    <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+    <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
       <BackButton onBack={onBack} />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-white">Catch the Coin</h2>
@@ -394,7 +394,7 @@ const MemoryCard = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd: (sco
   };
 
   return (
-    <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+    <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
       <BackButton onBack={onBack} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-white">Memory Card</h2>
@@ -480,9 +480,9 @@ const allQuestions: Question[] = [
       "Una red social"
     ],
     correctAnswer: 1
-  },
-  {
-    id: 4,
+    },
+    {
+      id: 4,
     question: "¿Qué significa HODL?",
     options: [
       "Hold On for Dear Life",
@@ -1088,7 +1088,7 @@ const CryptoQuiz = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd: (sco
 
   if (gameQuestions.length === 0) {
     return (
-      <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+      <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
         <BackButton onBack={onBack} />
         <div className="text-center py-8">
           <p className="text-[#B8B8B8]">Cargando preguntas...</p>
@@ -1100,7 +1100,7 @@ const CryptoQuiz = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd: (sco
   const currentQuestion = gameQuestions[currentQuestionIndex];
 
   return (
-    <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+    <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
       <BackButton onBack={onBack} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-white">Crypto Quiz</h2>
@@ -1294,7 +1294,7 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
   const roe = position ? (profit / positionSize) * 100 : 0;
 
   return (
-    <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+    <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
       <BackButton onBack={onBack} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-white">Trading Simulator</h2>
@@ -1523,7 +1523,7 @@ const BlockchainPuzzle = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
   };
 
   return (
-    <div className="bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 border border-[#333333]/50 relative">
+    <div className={`bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-6 pt-16 border border-[#333333]/50 relative`}>
       <BackButton onBack={onBack} />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-white">Blockchain Puzzle</h2>
@@ -1571,99 +1571,99 @@ const BlockchainPuzzle = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
   );
 };
 
-// Definir las categorías predefinidas
-const defaultCategories: Category[] = [
-  {
-    id: 'food',
-    name: 'Comida',
-    icon: 'M3 3h18v18H3V3zm15 3h-3v3h3V6zm0 5h-3v3h3v-3zm0 5h-3v3h3v-3zM9 6H6v3h3V6zm0 5H6v3h3v-3zm0 5H6v3h3v-3z',
-    color: '#FFB86C',
-  },
-  {
-    id: 'transport',
-    name: 'Transporte',
-    icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
-    color: '#8BE9FD',
-  },
-  {
-    id: 'entertainment',
-    name: 'Entretenimiento',
-    icon: 'M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z',
-    color: '#FF79C6',
-  },
-  {
-    id: 'books',
-    name: 'Libros',
-    icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
-    color: '#50FA7B',
-  },
-  {
-    id: 'utilities',
-    name: 'Servicios',
-    icon: 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z',
-    color: '#BD93F9',
-  },
-  {
-    id: 'other',
-    name: 'Otros',
-    icon: 'M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z',
-    color: '#FF5555',
-  },
-];
+  // Definir las categorías predefinidas
+  const defaultCategories: Category[] = [
+    {
+      id: 'food',
+      name: 'Comida',
+      icon: 'M3 3h18v18H3V3zm15 3h-3v3h3V6zm0 5h-3v3h3v-3zm0 5h-3v3h3v-3zM9 6H6v3h3V6zm0 5H6v3h3v-3zm0 5H6v3h3v-3z',
+      color: '#FFB86C',
+    },
+    {
+      id: 'transport',
+      name: 'Transporte',
+      icon: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+      color: '#8BE9FD',
+    },
+    {
+      id: 'entertainment',
+      name: 'Entretenimiento',
+      icon: 'M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z',
+      color: '#FF79C6',
+    },
+    {
+      id: 'books',
+      name: 'Libros',
+      icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+      color: '#50FA7B',
+    },
+    {
+      id: 'utilities',
+      name: 'Servicios',
+      icon: 'M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z',
+      color: '#BD93F9',
+    },
+    {
+      id: 'other',
+      name: 'Otros',
+      icon: 'M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z',
+      color: '#FF5555',
+    },
+  ];
 
-// Lista de íconos disponibles para nuevas categorías
-const availableIcons: IconOption[] = [
-  {
-    id: 'shopping',
-    path: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
-    name: 'Compras'
-  },
-  {
-    id: 'food',
-    path: 'M3 3h18v18H3V3zm15 3h-3v3h3V6zm0 5h-3v3h3v-3zm0 5h-3v3h3v-3zM9 6H6v3h3V6zm0 5H6v3h3v-3zm0 5H6v3h3v-3z',
-    name: 'Comida'
-  },
-  {
-    id: 'transport',
-    path: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
-    name: 'Transporte'
-  },
-  {
-    id: 'education',
-    path: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
-    name: 'Educación'
-  },
-  {
-    id: 'health',
-    path: 'M4.5 12.5l8-8a4.94 4.94 0 017 7l-8 8a4.94 4.94 0 01-7-7z',
-    name: 'Salud'
-  },
-  {
-    id: 'entertainment',
-    path: 'M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z',
-    name: 'Entretenimiento'
-  },
-  {
-    id: 'bills',
-    path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
-    name: 'Facturas'
-  },
-  {
-    id: 'savings',
-    path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-    name: 'Ahorros'
-  },
-  {
-    id: 'gift',
-    path: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
-    name: 'Regalos'
-  },
-  {
-    id: 'other',
-    path: 'M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z',
-    name: 'Otros'
-  }
-];
+  // Lista de íconos disponibles para nuevas categorías
+  const availableIcons: IconOption[] = [
+    {
+      id: 'shopping',
+      path: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+      name: 'Compras'
+    },
+    {
+      id: 'food',
+      path: 'M3 3h18v18H3V3zm15 3h-3v3h3V6zm0 5h-3v3h3v-3zm0 5h-3v3h3v-3zM9 6H6v3h3V6zm0 5H6v3h3v-3zm0 5H6v3h3v-3z',
+      name: 'Comida'
+    },
+    {
+      id: 'transport',
+      path: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+      name: 'Transporte'
+    },
+    {
+      id: 'education',
+      path: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
+      name: 'Educación'
+    },
+    {
+      id: 'health',
+      path: 'M4.5 12.5l8-8a4.94 4.94 0 017 7l-8 8a4.94 4.94 0 01-7-7z',
+      name: 'Salud'
+    },
+    {
+      id: 'entertainment',
+      path: 'M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z',
+      name: 'Entretenimiento'
+    },
+    {
+      id: 'bills',
+      path: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+      name: 'Facturas'
+    },
+    {
+      id: 'savings',
+      path: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      name: 'Ahorros'
+    },
+    {
+      id: 'gift',
+      path: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
+      name: 'Regalos'
+    },
+    {
+      id: 'other',
+      path: 'M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z',
+      name: 'Otros'
+    }
+  ];
 
 export function Dashboard() {
   const { user } = useApp();
@@ -2223,7 +2223,7 @@ export function Dashboard() {
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${techGradient} min-h-screen`}>
       {/* Header con Logo */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-8">
         <div className="flex items-center space-x-4">
           <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FFA500] p-0.5">
             <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] opacity-50 blur-xl" />
@@ -2254,7 +2254,7 @@ export function Dashboard() {
               <h2 className="text-2xl font-bold text-white">Juegos del Campus</h2>
               <p className="text-[#B8B8B8] text-sm">¡Gana recompensas mientras te diviertes!</p>
             </div>
-            <button
+              <button 
               onClick={() => setShowGameStats(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700] group"
             >
@@ -2270,12 +2270,12 @@ export function Dashboard() {
                   strokeWidth={2} 
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
                 />
-              </svg>
+                  </svg>
               <div className="flex flex-col items-start">
                 <span className="font-medium">Estadísticas</span>
                 <span className="text-xs text-[#B8B8B8]">Ver progreso</span>
-              </div>
-            </button>
+                </div>
+              </button>
           </div>
           {activeGame === 'catch-coin' && (
             <CatchTheCoin 
@@ -2318,10 +2318,10 @@ export function Dashboard() {
             <h2 className="text-2xl font-bold text-white mb-2">Gestor de Gastos</h2>
             <p className="text-[#B8B8B8] text-sm">Controla tus gastos y categorías</p>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 w-full sm:w-auto mt-4 sm:mt-0">
             <button
               onClick={() => setIsTransferScreenOpen(true)}
-              className="px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center space-x-2"
+              className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -2330,7 +2330,7 @@ export function Dashboard() {
             </button>
           <button
             onClick={handleNewCategory}
-            className="px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center space-x-2"
+              className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

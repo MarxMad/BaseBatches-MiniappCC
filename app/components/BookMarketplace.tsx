@@ -552,278 +552,296 @@ export const BookMarketplace = () => {
             {/* Modal de Publicación de Guía */}
             {isPublishGuideModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-                    <div className="bg-[#1A1A1A] p-6 rounded-lg w-full max-w-md border border-[#333333] shadow-2xl">
-                        <h3 className="text-xl font-bold text-white mb-4">Publicar Nueva Guía de Estudio</h3>
-                        <form onSubmit={handlePublishGuide} className="space-y-4">
-                            {/* Imagen de la guía */}
-                            <div>
-                                <label className="block text-white mb-2">Imagen de la Guía</label>
-                                <div className="flex flex-col items-center space-y-4">
-                                    {previewImage ? (
-                                        <div className="relative w-full h-48">
-                                            <img
-                                                src={previewImage}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover rounded-lg border border-[#333333]"
+                    <div className="bg-[#1A1A1A] rounded-lg w-full max-w-md border border-[#333333] shadow-2xl">
+                        <div className="p-6 border-b border-[#333333]">
+                            <h3 className="text-xl font-bold text-white">Publicar Nueva Guía de Estudio</h3>
+                        </div>
+                        <form onSubmit={handlePublishGuide} className="relative">
+                            <div className="max-h-[60vh] overflow-y-auto p-6">
+                                <div className="space-y-4">
+                                    {/* Imagen de la guía */}
+                                    <div>
+                                        <label className="block text-white mb-2">Imagen de la Guía</label>
+                                        <div className="flex flex-col items-center space-y-4">
+                                            {previewImage ? (
+                                                <div className="relative w-full h-48">
+                                                    <img
+                                                        src={previewImage}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-cover rounded-lg border border-[#333333]"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setPreviewImage('');
+                                                            setNewGuide(prev => ({ ...prev, image: '' }));
+                                                            if (fileInputRef.current) {
+                                                                fileInputRef.current.value = '';
+                                                            }
+                                                        }}
+                                                        className="absolute top-2 right-2 bg-[#FF4444] text-white p-1 rounded-full hover:bg-[#CC3333] transition-colors"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="w-full h-48 border-2 border-dashed border-[#333333] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#FFD700] transition-colors bg-[#222222]"
+                                                >
+                                                    <svg className="w-12 h-12 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                    </svg>
+                                                    <span className="text-[#666666] mt-2">Subir imagen</span>
+                                                </div>
+                                            )}
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                                className="hidden"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setPreviewImage('');
-                                                    setNewGuide(prev => ({ ...prev, image: '' }));
-                                                    if (fileInputRef.current) {
-                                                        fileInputRef.current.value = '';
-                                                    }
-                                                }}
-                                                className="absolute top-2 right-2 bg-[#FF4444] text-white p-1 rounded-full hover:bg-[#CC3333] transition-colors"
-                                            >
-                                                ✕
-                                            </button>
                                         </div>
-                                    ) : (
-                                        <div
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="w-full h-48 border-2 border-dashed border-[#333333] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#FFD700] transition-colors bg-[#222222]"
-                                        >
-                                            <svg className="w-12 h-12 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            <span className="text-[#666666] mt-2">Subir imagen</span>
-                                        </div>
-                                    )}
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="hidden"
-                                    />
+                                    </div>
+
+                                    {/* Campos del formulario */}
+                                    <div>
+                                        <label className="block text-white mb-2">Título</label>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            value={newGuide.title}
+                                            onChange={(e) => setNewGuide(prev => ({ ...prev, title: e.target.value }))}
+                                            placeholder="Título de la guía"
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Autor</label>
+                                        <input
+                                            type="text"
+                                            name="author"
+                                            value={newGuide.author}
+                                            onChange={(e) => setNewGuide(prev => ({ ...prev, author: e.target.value }))}
+                                            placeholder="Autor de la guía"
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Materia</label>
+                                        <input
+                                            type="text"
+                                            name="subject"
+                                            value={newGuide.subject}
+                                            onChange={(e) => setNewGuide(prev => ({ ...prev, subject: e.target.value }))}
+                                            placeholder="Materia de la guía"
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Descripción</label>
+                                        <textarea
+                                            name="description"
+                                            value={newGuide.description}
+                                            onChange={(e) => setNewGuide(prev => ({ ...prev, description: e.target.value }))}
+                                            placeholder="Descripción de la guía"
+                                            required
+                                            rows={4}
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Precio (USDC)</label>
+                                        <input
+                                            type="number"
+                                            inputMode="decimal"
+                                            name="price"
+                                            value={newGuide.price}
+                                            onChange={(e) => setNewGuide(prev => ({ ...prev, price: e.target.value }))}
+                                            placeholder="Precio en USDC"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Campos del formulario */}
-                            <div>
-                                <label className="block text-white mb-2">Título</label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={newGuide.title}
-                                    onChange={(e) => setNewGuide(prev => ({ ...prev, title: e.target.value }))}
-                                    placeholder="Título de la guía"
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Autor</label>
-                                <input
-                                    type="text"
-                                    name="author"
-                                    value={newGuide.author}
-                                    onChange={(e) => setNewGuide(prev => ({ ...prev, author: e.target.value }))}
-                                    placeholder="Autor de la guía"
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Materia</label>
-                                <input
-                                    type="text"
-                                    name="subject"
-                                    value={newGuide.subject}
-                                    onChange={(e) => setNewGuide(prev => ({ ...prev, subject: e.target.value }))}
-                                    placeholder="Materia de la guía"
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Descripción</label>
-                                <textarea
-                                    name="description"
-                                    value={newGuide.description}
-                                    onChange={(e) => setNewGuide(prev => ({ ...prev, description: e.target.value }))}
-                                    placeholder="Descripción de la guía"
-                                    required
-                                    rows={4}
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Precio (USDC)</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={newGuide.price}
-                                    onChange={(e) => setNewGuide(prev => ({ ...prev, price: e.target.value }))}
-                                    placeholder="Precio en USDC"
-                                    required
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div className="flex gap-4 justify-end mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsPublishGuideModalOpen(false);
-                                        setPreviewImage('');
-                                    }}
-                                    className="px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
-                                >
-                                    Publicar
-                                </button>
+                            <div className="p-6 border-t border-[#333333] bg-[#1A1A1A]">
+                                <div className="flex gap-4 justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsPublishGuideModalOpen(false);
+                                            setPreviewImage('');
+                                        }}
+                                        className="px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
+                                    >
+                                        Publicar
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            {/* Modal de Publicación de Libro (existente) */}
+            {/* Modal de Publicación de Libro */}
             {isPublishModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-                    <div className="bg-[#1A1A1A] p-6 rounded-lg w-full max-w-md border border-[#333333] shadow-2xl">
-                        <h3 className="text-xl font-bold text-white mb-4">Publicar Nuevo Libro</h3>
-                        <form onSubmit={handlePublishBook} className="space-y-4">
-                            {/* Imagen del libro */}
-                            <div>
-                                <label className="block text-white mb-2">Imagen del Libro</label>
-                                <div className="flex flex-col items-center space-y-4">
-                                    {previewImage ? (
-                                        <div className="relative w-full h-48">
-                                            <img
-                                                src={previewImage}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover rounded-lg border border-[#333333]"
+                    <div className="bg-[#1A1A1A] rounded-lg w-full max-w-md border border-[#333333] shadow-2xl">
+                        <div className="p-6 border-b border-[#333333]">
+                            <h3 className="text-xl font-bold text-white">Publicar Nuevo Libro</h3>
+                        </div>
+                        <form onSubmit={handlePublishBook} className="relative">
+                            <div className="max-h-[60vh] overflow-y-auto p-6">
+                                <div className="space-y-4">
+                                    {/* Imagen del libro */}
+                                    <div>
+                                        <label className="block text-white mb-2">Imagen del Libro</label>
+                                        <div className="flex flex-col items-center space-y-4">
+                                            {previewImage ? (
+                                                <div className="relative w-full h-48">
+                                                    <img
+                                                        src={previewImage}
+                                                        alt="Preview"
+                                                        className="w-full h-full object-cover rounded-lg border border-[#333333]"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setPreviewImage('');
+                                                            setNewBook(prev => ({ ...prev, image: '' }));
+                                                            if (fileInputRef.current) {
+                                                                fileInputRef.current.value = '';
+                                                            }
+                                                        }}
+                                                        className="absolute top-2 right-2 bg-[#FF4444] text-white p-1 rounded-full hover:bg-[#CC3333] transition-colors"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="w-full h-48 border-2 border-dashed border-[#333333] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#FFD700] transition-colors bg-[#222222]"
+                                                >
+                                                    <svg className="w-12 h-12 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                    </svg>
+                                                    <span className="text-[#666666] mt-2">Subir imagen</span>
+                                                </div>
+                                            )}
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                                className="hidden"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setPreviewImage('');
-                                                    setNewBook(prev => ({ ...prev, image: '' }));
-                                                    if (fileInputRef.current) {
-                                                        fileInputRef.current.value = '';
-                                                    }
-                                                }}
-                                                className="absolute top-2 right-2 bg-[#FF4444] text-white p-1 rounded-full hover:bg-[#CC3333] transition-colors"
-                                            >
-                                                ✕
-                                            </button>
                                         </div>
-                                    ) : (
-                                        <div
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="w-full h-48 border-2 border-dashed border-[#333333] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#FFD700] transition-colors bg-[#222222]"
+                                    </div>
+
+                                    {/* Campos del formulario */}
+                                    <div>
+                                        <label className="block text-white mb-2">Título</label>
+                                        <input
+                                            type="text"
+                                            name="title"
+                                            value={newBook.title}
+                                            onChange={handleInputChange}
+                                            placeholder="Título del libro"
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Autor</label>
+                                        <input
+                                            type="text"
+                                            name="author"
+                                            value={newBook.author}
+                                            onChange={handleInputChange}
+                                            placeholder="Autor del libro"
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Descripción</label>
+                                        <textarea
+                                            name="description"
+                                            value={newBook.description}
+                                            onChange={handleInputChange}
+                                            placeholder="Descripción del libro"
+                                            required
+                                            rows={4}
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Precio (USDC)</label>
+                                        <input
+                                            type="number"
+                                            inputMode="decimal"
+                                            name="price"
+                                            value={newBook.price}
+                                            onChange={handleInputChange}
+                                            placeholder="Precio en USDC"
+                                            required
+                                            min="0"
+                                            step="0.01"
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-white mb-2">Categoría</label>
+                                        <select
+                                            name="category"
+                                            value={newBook.category}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all"
                                         >
-                                            <svg className="w-12 h-12 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                            </svg>
-                                            <span className="text-[#666666] mt-2">Subir imagen</span>
-                                        </div>
-                                    )}
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="hidden"
-                                    />
+                                            <option value="">Seleccionar categoría</option>
+                                            {categories.map(cat => (
+                                                <option key={cat.id} value={cat.id}>
+                                                    {cat.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Campos del formulario */}
-                            <div>
-                                <label className="block text-white mb-2">Título</label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={newBook.title}
-                                    onChange={handleInputChange}
-                                    placeholder="Título del libro"
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Autor</label>
-                                <input
-                                    type="text"
-                                    name="author"
-                                    value={newBook.author}
-                                    onChange={handleInputChange}
-                                    placeholder="Autor del libro"
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Descripción</label>
-                                <textarea
-                                    name="description"
-                                    value={newBook.description}
-                                    onChange={handleInputChange}
-                                    placeholder="Descripción del libro"
-                                    required
-                                    rows={4}
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Precio (USDC)</label>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={newBook.price}
-                                    onChange={handleInputChange}
-                                    placeholder="Precio en USDC"
-                                    required
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-white mb-2">Categoría</label>
-                                <select
-                                    name="category"
-                                    value={newBook.category}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all"
-                                >
-                                    <option value="">Seleccionar categoría</option>
-                                    {categories.map(cat => (
-                                        <option key={cat.id} value={cat.id}>
-                                            {cat.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex gap-4 justify-end mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setIsPublishModalOpen(false);
-                                        setPreviewImage('');
-                                    }}
-                                    className="px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
-                                >
-                                    Publicar
-                                </button>
+                            <div className="p-6 border-t border-[#333333] bg-[#1A1A1A]">
+                                <div className="flex gap-4 justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsPublishModalOpen(false);
+                                            setPreviewImage('');
+                                        }}
+                                        className="px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
+                                    >
+                                        Publicar
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>

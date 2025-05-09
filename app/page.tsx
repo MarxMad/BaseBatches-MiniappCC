@@ -91,16 +91,15 @@ const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
         
         {/* Logo Animado */}
         <div className="relative w-32 h-32 mx-auto mb-6">
-          <div className={`absolute inset-0 transition-all duration-1000 ${isAnimating ? 'rotate-y-180 scale-110' : 'scale-100'}`}>
-            <div className="w-full h-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-xl shadow-lg flex items-center justify-center relative overflow-hidden">
-              {/* Efecto de brillo en el logo */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shine" />
-              <img 
-                src="/logo-campuscoin.png" 
-                alt="CampusCoin Logo" 
-                className="w-20 h-20 object-contain relative z-10"
-              />
-            </div>
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FFD700] to-[#FFA500] blur-2xl opacity-40 animate-pulse" />
+          <div className="absolute inset-0 rounded-3xl border-4 border-[#FFD700] opacity-60 animate-gradient-x" />
+          <div className="relative w-full h-full overflow-hidden rounded-3xl shadow-xl">
+            <img 
+              src="/logoCC.svg" 
+              alt="CampusCoin Logo" 
+              className="w-full h-full object-cover rounded-3xl transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-transparent via-white/10 to-transparent pointer-events-none animate-shine" />
           </div>
         </div>
 
@@ -309,7 +308,7 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse" />
                     <div className="relative w-full h-32 bg-[#1A1A1A] rounded-2xl flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
                       <img 
-                        src="/logo-campuscoin.png" 
+                        src="/LogoCC.svg" 
                         alt="CampusCoin Logo" 
                         className="w-full h-full object-contain p-4"
                       />

@@ -1,9 +1,13 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+let openai: OpenAI | null = null;
+
+if (process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
+}
 
 const systemPrompt = `Eres un asistente virtual para la plataforma CampusCoin, una aplicación de pagos y gestión estudiantil.
 Tu objetivo es ayudar a los estudiantes con:
@@ -17,6 +21,10 @@ Mantén un tono amigable y profesional, y siempre responde en español.
 Si no estás seguro de algo, sé honesto y sugiere contactar al soporte técnico.`;
 
 export async function getAIResponse(message: string): Promise<string> {
+  if (!openai) {
+    return "Lo siento, el servicio de asistente virtual no está disponible en este momento. Por favor, intenta más tarde o contacta al soporte técnico.";
+  }
+
   try {
     const completion = await openai.chat.completions.create({
       messages: [

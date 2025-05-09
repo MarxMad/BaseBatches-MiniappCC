@@ -478,6 +478,15 @@ export default function App() {
                   <p className="text-xl text-[#B8B8B8] mb-8 max-w-2xl mx-auto">
                     Únete a la revolución financiera universitaria. Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
                   </p>
+                  <button
+                    className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group mb-4"
+                    onClick={() => {
+                      setActiveTab('dashboard');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    Comenzar
+                  </button>
                   <p className="mt-6 text-[#B8B8B8]">
                     {user ? '¡Bienvenido! Haz clic en Dashboard para comenzar.' : 'Conecta tu wallet para comenzar tu aventura'}
                   </p>

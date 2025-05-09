@@ -3,7 +3,26 @@ export const USDC_ABI = [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "spender",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
                 "type": "address"
             },
             {
@@ -12,7 +31,7 @@ export const USDC_ABI = [
                 "type": "uint256"
             }
         ],
-        "name": "approve",
+        "name": "transfer",
         "outputs": [
             {
                 "internalType": "bool",
@@ -22,21 +41,19 @@ export const USDC_ABI = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
-    },
+    }
+] as const;
+
+export const CAMPUS_COIN_ABI = [
     {
         "inputs": [
             {
                 "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "spender",
+                "name": "account",
                 "type": "address"
             }
         ],
-        "name": "allowance",
+        "name": "balanceOf",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -48,28 +65,195 @@ export const USDC_ABI = [
         "type": "function"
     },
     {
-        "constant": true,
-        "inputs": [{"name": "account", "type": "address"}],
-        "name": "balanceOf",
-        "outputs": [{"name": "", "type": "uint256"}],
-        "payable": false,
-        "stateMutability": "view",
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "transfer",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
         "type": "function"
     }
 ] as const;
 
-export const CAMPUS_COIN_ABI = [
+export const STUDY_GUIDE_NFT_ABI = [
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "title",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "author",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "description",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "subject",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "uri",
+                "type": "string"
+            }
+        ],
+        "name": "createGuide",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
     {
         "inputs": [
             {
                 "internalType": "uint256",
-                "name": "bookId",
+                "name": "id",
                 "type": "uint256"
             }
         ],
-        "name": "purchaseBook",
+        "name": "getGuideInfo",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "id",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "title",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "author",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "description",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "subject",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "price",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "creator",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isAvailable",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "totalSupply",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "minted",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "uri",
+                        "type": "string"
+                    }
+                ],
+                "internalType": "struct StudyGuideNFT.StudyGuide",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            }
+        ],
+        "name": "isGuideAvailable",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            }
+        ],
+        "name": "purchaseGuide",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            }
+        ],
+        "name": "uri",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     }
 ] as const; 

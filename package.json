@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.38.8",
+    "@coinbase/onchainkit": "^0.38.13",
     "@coinbase/wallet-sdk": "^4.3.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",

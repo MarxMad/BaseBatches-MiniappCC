@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const bookId = searchParams.get('bookId');
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://campuscoin.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://base-batches-miniapp-cc.vercel.app/';
 
   const html = `
     <!DOCTYPE html>

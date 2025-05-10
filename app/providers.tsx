@@ -14,7 +14,12 @@ export function Providers(props: { children: ReactNode }) {
           mode: "auto",
           theme: "mini-app-theme",
           name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
-          logo: process.env.NEXT_PUBLIC_ICON_URL,
+          logo: "/LogoCC.svg",
+        },
+        wallet: {
+          display: "modal",
+          termsUrl: "https://tusitio.com/terminos",
+          privacyUrl: "https://tusitio.com/privacidad",
         },
       }}
     >

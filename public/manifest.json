@@ -1,0 +1,10 @@
+{
+  "name": "CampusCoin",
+  "description": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain.",
+  "logo": "/LogoCC.svg",
+  "website": "https://campuscoin.app",
+  "frame_url": "https://campuscoin.app/api/frame",
+  "contact": "tu-email@dominio.com",
+  "terms_url": "https://campuscoin.app/terminos",
+  "privacy_url": "https://campuscoin.app/privacidad"
+} 

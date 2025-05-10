@@ -25,6 +25,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
+import { sdk } from "@farcaster/frame-sdk";
 
 // Tipos
 type Transaction = {
@@ -95,7 +96,7 @@ const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
           <div className="absolute inset-0 rounded-3xl border-4 border-[#FFD700] opacity-60 animate-gradient-x" />
           <div className="relative w-full h-full overflow-hidden rounded-3xl shadow-xl">
             <img 
-              src="/logoCC.svg" 
+              src="/LogoCC.svg" 
               alt="CampusCoin Logo" 
               className="w-full h-full object-cover rounded-3xl transition-transform duration-700 group-hover:scale-105"
             />
@@ -238,6 +239,10 @@ export default function App() {
       setFrameReady();
     }
   }, [setFrameReady, isFrameReady]);
+
+  useEffect(() => {
+    sdk.actions.ready();
+  }, []);
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();

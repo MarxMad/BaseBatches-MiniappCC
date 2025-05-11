@@ -4,10 +4,14 @@ import React, { useState, useRef } from 'react';
 import { useContractWrite, useContractRead, useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { parseUnits } from 'viem';
 import { toast } from 'react-hot-toast';
-import { USDC_ADDRESS, CAMPUS_COIN_ADDRESS, STUDY_GUIDE_NFT_ADDRESS } from '../constants/addresses';
-import { CAMPUS_COIN_ABI, USDC_ABI, STUDY_GUIDE_NFT_ABI } from '../constants/abis';
+import { CAMPUS_COIN_ADDRESS, STUDY_GUIDE_NFT_ADDRESS } from '../constants/addresses';
+import { CAMPUS_COIN_ABI, STUDY_GUIDE_NFT_ABI } from '../constants/abis';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ContractWriteResult, ContractWriteParams, UseContractWriteResult } from '../types/contracts';
+import { Transaction, TransactionButton, TransactionSponsor, TransactionStatus, TransactionStatusLabel, TransactionStatusAction } from "@coinbase/onchainkit/transaction";
+import { getBuyBookCall, getBuyGuideCall, getMintAndListCall } from "../calls";
+import { MARKETPLACE_ADDRESS, MARKETPLACE_ABI } from "../constants/marketplace";
+import { uploadFileToPinata } from '../utils/pinataUpload';
 
 interface Book {
     id: number;
@@ -45,6 +49,80 @@ interface Category {
 const techGradient = "bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]";
 const glowEffect = "hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-300";
 const cardStyle = `${techGradient} rounded-2xl border border-[#333333] backdrop-blur-xl ${glowEffect}`;
+
+function ComprarLibroButton({ book }) {
+  const { address } = useAccount();
+  const CHAIN_ID = 8453;
+  const calls = [{
+    to: MARKETPLACE_ADDRESS as `0x${string}`,
+    abi: MARKETPLACE_ABI,
+    functionName: "buy",
+    args: [book.id],
+    value: parseUnits(book.price.toString(), 18) // ETH, 18 decimales
+  }];
+
+  const handleOnStatus = (status: any) => {
+    console.log("Estado de la transacción:", status);
+  };
+
+  return address ? (
+    <Transaction
+      chainId={CHAIN_ID}
+      calls={calls}
+      onStatus={handleOnStatus}
+    >
+      <TransactionButton>
+        Comprar por {book.price} ETH
+      </TransactionButton>
+      <TransactionSponsor />
+      <TransactionStatus>
+        <TransactionStatusLabel />
+        <TransactionStatusAction />
+      </TransactionStatus>
+    </Transaction>
+  ) : (
+    <button disabled className="w-full px-4 py-3 bg-gray-400 text-white rounded-lg">
+      Conecta tu wallet para comprar
+    </button>
+  );
+}
+
+function ComprarGuiaButton({ guide }) {
+  const { address } = useAccount();
+  const CHAIN_ID = 8453;
+  const calls = [{
+    to: MARKETPLACE_ADDRESS as `0x${string}`,
+    abi: MARKETPLACE_ABI,
+    functionName: "buy",
+    args: [guide.id],
+    value: parseUnits(guide.price.toString(), 18) // ETH, 18 decimales
+  }];
+
+  const handleOnStatus = (status: any) => {
+    console.log("Estado de la transacción (guía):", status);
+  };
+
+  return address ? (
+    <Transaction
+      chainId={CHAIN_ID}
+      calls={calls}
+      onStatus={handleOnStatus}
+    >
+      <TransactionButton>
+        Comprar NFT por {guide.price} ETH
+      </TransactionButton>
+      <TransactionSponsor />
+      <TransactionStatus>
+        <TransactionStatusLabel />
+        <TransactionStatusAction />
+      </TransactionStatus>
+    </Transaction>
+  ) : (
+    <button disabled className="w-full px-4 py-3 bg-gray-400 text-white rounded-lg">
+      Conecta tu wallet para comprar
+    </button>
+  );
+}
 
 export const BookMarketplace = () => {
     const { address } = useAccount();
@@ -87,27 +165,6 @@ export const BookMarketplace = () => {
         { id: 4, name: 'Revistas', icon: 'MAG' }
     ];
 
-    // Leer allowance de USDC
-    const { data: usdcAllowance } = useContractRead({
-        address: USDC_ADDRESS,
-        abi: USDC_ABI,
-        functionName: 'allowance',
-        args: [address, CAMPUS_COIN_ADDRESS],
-        watch: true,
-    });
-
-    // Aprobar USDC
-    const { writeAsync: approveUsdc, data: approveData } = useContractWrite({
-        address: USDC_ADDRESS,
-        abi: USDC_ABI,
-        functionName: 'approve',
-    });
-
-    // Esperar transacción de aprobación
-    const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({
-        hash: approveData?.hash,
-    });
-
     // Comprar libro
     const { writeAsync: purchaseBook, data: purchaseData } = useContractWrite({
         address: CAMPUS_COIN_ADDRESS,
@@ -128,6 +185,28 @@ export const BookMarketplace = () => {
         hash: purchaseGuideData,
     });
 
+    // Dentro del componente BookMarketplace:
+    // 1. Publicar libro/guía (mintAndList)
+    const { writeAsync: mintAndList } = useContractWrite({
+        address: MARKETPLACE_ADDRESS,
+        abi: MARKETPLACE_ABI,
+        functionName: "mintAndList",
+    });
+
+    // 2. Comprar libro/guía (buy)
+    const { writeAsync: buy } = useContractWrite({
+        address: MARKETPLACE_ADDRESS,
+        abi: MARKETPLACE_ABI,
+        functionName: "buy",
+    });
+
+    // 3. Confirmar entrega (confirmDelivery)
+    const { writeAsync: confirmDelivery } = useContractWrite({
+        address: MARKETPLACE_ADDRESS,
+        abi: MARKETPLACE_ABI,
+        functionName: "confirmDelivery",
+    });
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setNewBook(prev => ({
@@ -136,41 +215,54 @@ export const BookMarketplace = () => {
         }));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setPreviewImage(base64String);
-                setNewBook(prev => ({
-                    ...prev,
-                    image: base64String
-                }));
-            };
-            reader.readAsDataURL(file);
+            // Sube la imagen a Pinata
+            const ipfsUrl = await uploadFileToPinata(file);
+            setPreviewImage(ipfsUrl); // Para mostrar el preview
+            setNewBook(prev => ({
+                ...prev,
+                image: ipfsUrl // Guarda la URL de IPFS como tokenURI
+            }));
         }
     };
 
     const handlePublishBook = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Crear nuevo libro con imagen
-            const newBookWithDetails: Book = {
+            // Validar datos
+            if (!newBook.title || !newBook.author || !newBook.price) {
+                toast.error('Completa todos los campos obligatorios');
+                return;
+            }
+            if (!newBook.image || !newBook.image.startsWith('ipfs://')) {
+                toast.error('Debes subir una imagen válida (IPFS) antes de publicar.');
+                return;
+            }
+            if (!newBook.price || isNaN(Number(newBook.price)) || Number(newBook.price) <= 0) {
+                toast.error('El precio debe ser un número mayor a cero.');
+                return;
+            }
+            // Convertir el precio a wei (ETH, 18 decimales)
+            const priceInWei = parseUnits(newBook.price.toString(), 18);
+            // Usar la imagen como tokenURI (debería ser un enlace a IPFS o similar)
+            const tokenURI = newBook.image;
+            // Llamar a mintAndList
+            const tx = await mintAndList({ args: [tokenURI, priceInWei] });
+            toast.success('¡Libro publicado y minteado correctamente!');
+            // Actualizar la lista de libros
+            setBooks(prevBooks => [...prevBooks, {
                 id: books.length + 1,
                 title: newBook.title,
                 author: newBook.author,
                 description: newBook.description,
                 price: parseFloat(newBook.price),
                 category: newBook.category,
-                image: newBook.image || '/placeholder-book.jpg',
-                seller: 'Usuario Actual', // Esto se actualizará con la dirección del wallet
+                image: tokenURI,
+                seller: address || '',
                 rating: 0
-            };
-
-            // Actualizar la lista de libros
-            setBooks(prevBooks => [...prevBooks, newBookWithDetails]);
-            
+            }]);
             // Resetear el formulario
             setNewBook({
                 title: '',
@@ -184,12 +276,26 @@ export const BookMarketplace = () => {
             setIsPublishModalOpen(false);
         } catch (error) {
             console.error('Error al publicar libro:', error);
+            toast.error('Error al publicar libro');
         }
     };
 
     const handlePublishGuide = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // Validar datos
+            if (!newGuide.title || !newGuide.author || !newGuide.price) {
+                toast.error('Completa todos los campos obligatorios');
+                return;
+            }
+            if (!newGuide.image || !newGuide.image.startsWith('ipfs://')) {
+                toast.error('Debes subir una imagen válida (IPFS) antes de publicar.');
+                return;
+            }
+            if (!newGuide.price || isNaN(Number(newGuide.price)) || Number(newGuide.price) <= 0) {
+                toast.error('El precio debe ser un número mayor a cero.');
+                return;
+            }
             // Crear nueva guía
             const newGuideWithDetails: StudyGuide = {
                 id: studyGuides.length + 1,
@@ -198,15 +304,13 @@ export const BookMarketplace = () => {
                 description: newGuide.description,
                 subject: newGuide.subject,
                 price: parseFloat(newGuide.price),
-                image: newGuide.image || '/placeholder-guide.jpg',
+                image: newGuide.image,
                 creator: 'Usuario Actual', // Esto se actualizará con la dirección del wallet
                 totalSupply: 100,
                 minted: 0
             };
-
             // Actualizar la lista de guías
             setStudyGuides(prevGuides => [...prevGuides, newGuideWithDetails]);
-            
             // Resetear el formulario
             setNewGuide({
                 title: '',
@@ -218,38 +322,20 @@ export const BookMarketplace = () => {
             });
             setPreviewImage('');
             setIsPublishGuideModalOpen(false);
+            // Publicar guía
+            await mintAndList({ args: [newGuideWithDetails.image, parseUnits(newGuide.price.toString(), 18)] });
         } catch (error) {
             console.error('Error al publicar guía:', error);
+            toast.error('Error al publicar guía');
         }
     };
 
     const handlePurchase = async (book: Book) => {
         try {
-            const priceInWei = parseUnits(book.price.toString(), 6); // USDC tiene 6 decimales
-
-            // Verificar si necesitamos aprobación
-            if (!usdcAllowance || usdcAllowance < priceInWei) {
-                setIsApproving(true);
-                try {
-                    const tx = await approveUsdc({
-                        args: [CAMPUS_COIN_ADDRESS, priceInWei],
-                    });
-                    await tx.wait();
-                    toast.success('¡USDC aprobado correctamente!');
-                } catch (error) {
-                    console.error('Error al aprobar:', error);
-                    toast.error('Error al aprobar USDC');
-                    return;
-                } finally {
-                    setIsApproving(false);
-                }
-            }
-
+            const priceInWei = parseUnits(book.price.toString(), 18); // ETH tiene 18 decimales
             // Comprar el libro
             try {
-                const tx = await purchaseBook({
-                    args: [book.id],
-                });
+                const tx = await buy({ args: [book.id], value: priceInWei });
                 await tx.wait();
                 toast.success('¡Libro comprado correctamente!');
                 // Actualizar la lista de libros
@@ -260,7 +346,6 @@ export const BookMarketplace = () => {
                 console.error('Error al comprar:', error);
                 toast.error('Error al comprar el libro');
             }
-
         } catch (error) {
             console.error('Error en la transacción:', error);
             toast.error('Error al procesar la compra');
@@ -273,17 +358,9 @@ export const BookMarketplace = () => {
 
             // Comprar la guía
             try {
-                const params: ContractWriteParams = {
-                    address: STUDY_GUIDE_NFT_ADDRESS,
-                    abi: STUDY_GUIDE_NFT_ABI,
-                    functionName: 'purchaseGuide',
-                    args: [guide.id],
-                    value: priceInWei,
-                };
+                const tx = await buy({ args: [guide.id], value: priceInWei });
 
-                const result = await writeContract(params);
-
-                if (result.hash) {
+                if (tx.hash) {
                     toast.success('¡Guía comprada correctamente!');
                     // Actualizar la lista de guías
                     setStudyGuides(prevGuides => prevGuides.map(g => 
@@ -424,16 +501,11 @@ export const BookMarketplace = () => {
                                         </div>
                                         <span className="text-[#B8B8B8] text-sm">({book.rating})</span>
                                     </div>
-                                    <span className="text-[#FFD700] font-bold">{book.price} USDC</span>
+                                    <span className="text-[#FFD700] font-bold">{book.price} ETH</span>
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
-                                    <button
-                                        onClick={() => handlePurchase(book)}
-                                        className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium"
-                                    >
-                                        Comprar por {book.price} USDC
-                                    </button>
+                                    <ComprarLibroButton book={book} />
                                     
                                     <button
                                         onClick={() => {
@@ -492,23 +564,11 @@ export const BookMarketplace = () => {
                                             {guide.minted} / {guide.totalSupply} minted
                                         </div>
                                     </div>
-                                    <span className="text-[#FFD700] font-bold">{guide.price} USDC</span>
+                                    <span className="text-[#FFD700] font-bold">{guide.price} ETH</span>
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
-                                    <button
-                                        onClick={() => handlePurchaseGuide(guide)}
-                                        disabled={isPurchaseGuideLoading}
-                                        className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isPurchaseGuideLoading ? (
-                                            <div className="flex items-center justify-center">
-                                                <LoadingSpinner />
-                                            </div>
-                                        ) : (
-                                            `Comprar NFT por ${guide.price} USDC`
-                                        )}
-                                    </button>
+                                    <ComprarGuiaButton guide={guide} />
                                     
                                     <button
                                         onClick={() => {
@@ -556,7 +616,7 @@ export const BookMarketplace = () => {
                         <div className="p-6 border-b border-[#333333]">
                             <h3 className="text-xl font-bold text-white">Publicar Nueva Guía de Estudio</h3>
                         </div>
-                        <form onSubmit={handlePublishGuide} className="relative">
+                        <form className="relative">
                             <div className="max-h-[60vh] overflow-y-auto p-6">
                                 <div className="space-y-4">
                                     {/* Imagen de la guía */}
@@ -655,14 +715,14 @@ export const BookMarketplace = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-white mb-2">Precio (USDC)</label>
+                                        <label className="block text-white mb-2">Precio (ETH)</label>
                                         <input
                                             type="number"
                                             inputMode="decimal"
                                             name="price"
                                             value={newGuide.price}
                                             onChange={(e) => setNewGuide(prev => ({ ...prev, price: e.target.value }))}
-                                            placeholder="Precio en USDC"
+                                            placeholder="Precio en ETH"
                                             required
                                             min="0"
                                             step="0.01"
@@ -683,12 +743,51 @@ export const BookMarketplace = () => {
                                     >
                                         Cancelar
                                     </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
+                                    <Transaction
+                                        chainId={8453}
+                                        calls={[{
+                                            to: MARKETPLACE_ADDRESS as `0x${string}`,
+                                            abi: MARKETPLACE_ABI,
+                                            functionName: "mintAndList",
+                                            args: [
+                                                newGuide.image, // URL de IPFS
+                                                parseUnits(newGuide.price.toString(), 18) // ETH, 18 decimales
+                                            ]
+                                        }]}
+                                        onStatus={(status) => {
+                                            if (status.statusName === "success") {
+                                                setIsPublishGuideModalOpen(false);
+                                                toast.success("¡Guía publicada y minteada correctamente!");
+                                                setStudyGuides(prevGuides => [...prevGuides, {
+                                                    id: prevGuides.length + 1,
+                                                    title: newGuide.title,
+                                                    author: newGuide.author,
+                                                    description: newGuide.description,
+                                                    subject: newGuide.subject,
+                                                    price: parseFloat(newGuide.price),
+                                                    image: newGuide.image,
+                                                    creator: address || '',
+                                                    totalSupply: 100,
+                                                    minted: 0
+                                                }]);
+                                                setNewGuide({
+                                                    title: '',
+                                                    author: '',
+                                                    description: '',
+                                                    subject: '',
+                                                    price: '',
+                                                    image: ''
+                                                });
+                                                setPreviewImage('');
+                                            } else if (status.statusName === "error") {
+                                                toast.error("Error al publicar la guía");
+                                            }
+                                        }}
                                     >
-                                        Publicar
-                                    </button>
+                                        <TransactionButton>
+                                            <span>Publicar y mintear guía</span>
+                                        </TransactionButton>
+                                    </Transaction>
                                 </div>
                             </div>
                         </form>
@@ -703,7 +802,7 @@ export const BookMarketplace = () => {
                         <div className="p-6 border-b border-[#333333]">
                             <h3 className="text-xl font-bold text-white">Publicar Nuevo Libro</h3>
                         </div>
-                        <form onSubmit={handlePublishBook} className="relative">
+                        <form className="relative">
                             <div className="max-h-[60vh] overflow-y-auto p-6">
                                 <div className="space-y-4">
                                     {/* Imagen del libro */}
@@ -790,14 +889,14 @@ export const BookMarketplace = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-white mb-2">Precio (USDC)</label>
+                                        <label className="block text-white mb-2">Precio (ETH)</label>
                                         <input
                                             type="number"
                                             inputMode="decimal"
                                             name="price"
                                             value={newBook.price}
                                             onChange={handleInputChange}
-                                            placeholder="Precio en USDC"
+                                            placeholder="Precio en ETH"
                                             required
                                             min="0"
                                             step="0.01"
@@ -835,12 +934,50 @@ export const BookMarketplace = () => {
                                     >
                                         Cancelar
                                     </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-semibold rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all shadow-lg hover:shadow-xl"
+                                    <Transaction
+                                        chainId={8453}
+                                        calls={[{
+                                            to: MARKETPLACE_ADDRESS as `0x${string}`,
+                                            abi: MARKETPLACE_ABI,
+                                            functionName: "mintAndList",
+                                            args: [
+                                                newBook.image, // URL de IPFS
+                                                parseUnits(newBook.price.toString(), 18) // ETH, 18 decimales
+                                            ]
+                                        }]}
+                                        onStatus={(status) => {
+                                            if (status.statusName === "success") {
+                                                setIsPublishModalOpen(false);
+                                                toast.success("¡Libro publicado y minteado correctamente!");
+                                                setBooks(prevBooks => [...prevBooks, {
+                                                    id: prevBooks.length + 1,
+                                                    title: newBook.title,
+                                                    author: newBook.author,
+                                                    description: newBook.description,
+                                                    price: parseFloat(newBook.price),
+                                                    category: newBook.category,
+                                                    image: newBook.image,
+                                                    seller: address || '',
+                                                    rating: 0
+                                                }]);
+                                                setNewBook({
+                                                    title: '',
+                                                    author: '',
+                                                    description: '',
+                                                    price: '',
+                                                    category: '',
+                                                    image: ''
+                                                });
+                                                setPreviewImage('');
+                                            } else if (status.statusName === "error") {
+                                                toast.error("Error al publicar el libro");
+                                            }
+                                        }}
                                     >
-                                        Publicar
-                                    </button>
+                                        <TransactionButton>
+                                            <span>Publicar y mintear libro</span>
+                                        </TransactionButton>
+                                    </Transaction>
                                 </div>
                             </div>
                         </form>

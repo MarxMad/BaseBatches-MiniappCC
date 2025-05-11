@@ -63,4 +63,12 @@ export type ContractWriteParams = {
 export type UseContractWriteResult = {
     writeContract: (params: ContractWriteParams) => Promise<ContractWriteResult>;
     data: `0x${string}` | undefined;
-}; 
+};
+
+export interface Call {
+    to: `0x${string}`;
+    abi: any[];
+    functionName: string;
+    args: any[];
+    value: bigint;
+} 

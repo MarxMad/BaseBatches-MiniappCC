@@ -41,24 +41,159 @@ export const USDC_ABI = [
         ],
         "stateMutability": "nonpayable",
         "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "owner", "type": "address" },
+            { "internalType": "address", "name": "spender", "type": "address" }
+        ],
+        "name": "allowance",
+        "outputs": [
+            { "internalType": "uint256", "name": "", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "spender", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "approve",
+        "outputs": [
+            { "internalType": "bool", "name": "", "type": "bool" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ] as const;
 
 export const CAMPUS_COIN_ABI = [
     {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
         "inputs": [
             {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
                 "internalType": "address",
-                "name": "account",
+                "name": "seller",
                 "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
             }
         ],
-        "name": "balanceOf",
-        "outputs": [
+        "name": "BookMinted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "BookPurchased",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "ipfsHash",
+                "type": "string"
+            }
+        ],
+        "name": "DeliveryConfirmed",
+        "type": "event"
+    },
+    {
+        "inputs": [
             {
                 "internalType": "uint256",
-                "name": "",
+                "name": "tokenId",
                 "type": "uint256"
+            }
+        ],
+        "name": "buy",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "ipfsHash",
+                "type": "string"
+            }
+        ],
+        "name": "confirmDelivery",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "deliveryProof",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
             }
         ],
         "stateMutability": "view",
@@ -67,24 +202,70 @@ export const CAMPUS_COIN_ABI = [
     {
         "inputs": [
             {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+            }
+        ],
+        "name": "listings",
+        "outputs": [
+            {
                 "internalType": "address",
-                "name": "to",
+                "name": "seller",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "amount",
+                "name": "price",
                 "type": "uint256"
-            }
-        ],
-        "name": "transfer",
-        "outputs": [
+            },
             {
                 "internalType": "bool",
-                "name": "",
+                "name": "sold",
+                "type": "bool"
+            },
+            {
+                "internalType": "address",
+                "name": "buyer",
+                "type": "address"
+            },
+            {
+                "internalType": "bool",
+                "name": "delivered",
                 "type": "bool"
             }
         ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "tokenURI",
+                "type": "string"
+            },
+            {
+                "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "mintAndList",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "withdraw",
+        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     }

@@ -14,7 +14,12 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   images: {
-    domains: ['localhost'],
+    domains: [
+      'localhost',
+      'gateway.pinata.cloud',
+      'ipfs.io',
+      'cloudflare-ipfs.com'
+    ],
     unoptimized: process.env.NODE_ENV === 'development',
   },
   // Configuración de seguridad

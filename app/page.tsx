@@ -56,7 +56,7 @@ const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
       size: Math.random() * 3 + 1,
       duration: Math.random() * 15 + 5,
       delay: Math.random() * 2,
-      path: ['circle', 'zigzag', 'wave', 'spiral'][Math.floor(Math.random() * 4)],
+      path: 'zigzag', // Usar una única animación para evitar la discrepancia
       color: Math.random() > 0.7 ? '#FFA500' : '#FFD700',
       opacity: Math.random() * 0.4 + 0.4
     }));
@@ -69,7 +69,7 @@ const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className={`absolute rounded-full ${`animate-float-${particle.path}`}`}
+            className="absolute rounded-full animate-float-zigzag"
             style={{
               width: `${particle.size}px`,
               height: `${particle.size}px`,

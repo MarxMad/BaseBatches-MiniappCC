@@ -6,11 +6,9 @@ import { TransferScreen } from './TransferScreen';
 import { QRScanner } from './QRScanner';
 import { SwapScreen } from './SwapScreen';
 import { BookMarketplace } from './BookMarketplace';
-import { useAccount, useContractRead, useBalance, usePublicClient, useWalletClient } from 'wagmi';
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi';
 import { formatUnits, parseUnits, type Log, decodeEventLog } from 'viem';
 import type { ContractEventArgs } from 'viem';
-import { USDC_ADDRESS } from '../constants/addresses';
-import { USDC_ABI } from '../constants/abis';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import { useWalletStats } from '../hooks/useWalletStats';
@@ -1670,22 +1668,6 @@ export function Dashboard() {
   const { address, isConnected } = useAccount();
   const { balanceChange24h, transactionCount, gasSaved } = useWalletStats();
   
-  // Leer balance de USDC
-  const { data: usdcBalance } = useContractRead({
-    address: USDC_ADDRESS,
-    abi: USDC_ABI,
-    functionName: 'balanceOf',
-    args: address ? [address] : undefined,
-    query: {
-      enabled: !!address
-    }
-  });
-
-  // Formatear balance
-  const formattedBalance = usdcBalance 
-    ? formatUnits(usdcBalance, 6) // USDC tiene 6 decimales
-    : '0.00';
-
   const [balance, setBalance] = useState("0.00");
   const [activeSlide, setActiveSlide] = useState(0);
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
@@ -2181,37 +2163,6 @@ export function Dashboard() {
 
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
-
-  // Configurar el listener para eventos de transferencia
-  useEffect(() => {
-    if (!publicClient || !address) return;
-
-    const unwatch = publicClient.watchContractEvent({
-      address: USDC_ADDRESS,
-      abi: USDC_ABI,
-      eventName: 'Transfer',
-      onLogs: (logs) => {
-        logs.forEach((log: any) => {
-          if (log.args && log.args.to === address) {
-            // Convertir el monto a decimales
-            const amountInDecimals = parseFloat(formatUnits(log.args.amount, 6));
-            
-            // Guardar el monto y abrir el TransferScreen
-            setTransferAmount(amountInDecimals);
-            setIsTransferScreenOpen(true);
-            
-            // Mostrar notificación
-            toast.success(`¡Nueva transferencia recibida de ${amountInDecimals} USDC!`);
-          }
-        });
-      },
-    });
-
-    // Limpiar el listener cuando el componente se desmonte
-    return () => {
-      unwatch();
-    };
-  }, [publicClient, address]);
 
   const handleGameEnd = (gameId: string, score: number, duration: number, result: 'win' | 'lose' | 'completed') => {
     updateGameStats(gameId, score, duration, result);

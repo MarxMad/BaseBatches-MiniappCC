@@ -1,34 +1,4 @@
-import type { Abi } from 'viem';
-import MARKETPLACE_ABI_JSON from './marketplace.abi.json';
-
-export const MARKETPLACE_ADDRESS = "0xe1801cC08D01D9D4fa49a09B8eca6533252aB00e";
-export const MARKETPLACE_ABI = MARKETPLACE_ABI_JSON as Abi;
-
-export const MARKETPLACE_ABI_ARRAY = [
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "tokenURI",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			}
-		],
-		"name": "mintAndList",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
+[
 	{
 		"inputs": [
 			{
@@ -342,6 +312,30 @@ export const MARKETPLACE_ABI_ARRAY = [
 		],
 		"name": "MetadataUpdate",
 		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "tokenURI",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "mintAndList",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"inputs": [
@@ -670,4 +664,4 @@ export const MARKETPLACE_ABI_ARRAY = [
 		"stateMutability": "view",
 		"type": "function"
 	}
-] as Abi; 
+] 

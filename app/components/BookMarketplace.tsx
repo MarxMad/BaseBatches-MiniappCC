@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useContractRead, useAccount, useWaitForTransactionReceipt, useContractWrite } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
+import { parseUnits } from 'viem';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ContractWriteResult, ContractWriteParams, UseContractWriteResult } from '../types/contracts';
@@ -20,7 +20,6 @@ interface Book {
     author: string;
     description: string;
     price: number;
-    priceWei: bigint;
     category: string;
     image: string;
     seller: string;
@@ -36,18 +35,206 @@ interface Category {
 }
 
 interface Listing {
-    [key: number]: string | bigint | boolean;
-    0: string;  // seller
-    1: bigint;  // price
-    2: boolean; // sold
-    3: string;  // buyer
-    4: boolean; // delivered
+    seller: string;
+    price: bigint;
+    sold: boolean;
+    buyer: string;
+    delivered: boolean;
 }
 
 // Estilos base
 const techGradient = "bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]";
 const glowEffect = "hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-300";
 const cardStyle = `${techGradient} rounded-2xl border border-[#333333] backdrop-blur-xl ${glowEffect}`;
+
+function MintNFTCard({ 
+  tokenURI, 
+  price, 
+  imageUrl, 
+  onSuccess,
+  setBooks,
+  onClose 
+}: { 
+  tokenURI: string, 
+  price: string, 
+  imageUrl: string, 
+  onSuccess: () => void,
+  setBooks: React.Dispatch<React.SetStateAction<Book[]>>,
+  onClose: () => void
+}) {
+  const { address, isConnected } = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactionStatus, setTransactionStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+
+  // Validar y convertir el precio
+  const priceInWei = (() => {
+    try {
+      const priceNum = Number(price);
+      if (isNaN(priceNum) || priceNum <= 0) {
+        throw new Error('Precio inválido');
+      }
+      return parseUnits(priceNum.toString(), 18);
+    } catch (error) {
+      console.error('Error al convertir precio:', error);
+      return BigInt(0);
+    }
+  })();
+
+  const validTokenURI = tokenURI.startsWith('ipfs://') ? tokenURI : `ipfs://${tokenURI}`;
+
+  const { writeContract, isPending, isSuccess, isError, error } = useContractWrite();
+
+  // Obtener el total de libros para asignar el nuevo ID
+  const { data: totalBooks } = useContractRead({
+    address: MARKETPLACE_ADDRESS as `0x${string}`,
+        abi: MARKETPLACE_ABI,
+    functionName: 'totalSupply'
+  }) as { data: bigint | undefined };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setTransactionStatus('success');
+      toast.success("¡NFT minteado y listado correctamente!");
+      
+      // Decodificar el tokenURI para obtener los metadatos
+      try {
+        const base64Data = tokenURI.split(',')[1];
+        const metadata = JSON.parse(atob(base64Data));
+        
+        // Crear el nuevo libro
+        const newBook: Book = {
+          id: Number(totalBooks || 0),
+          title: metadata.name,
+          author: metadata.attributes?.find((attr: any) => attr.trait_type === "Autor")?.value || "Anónimo",
+          description: metadata.description,
+          price: Number(price),
+          category: metadata.attributes?.find((attr: any) => attr.trait_type === "Categoría")?.value || "General",
+          image: metadata.image,
+          seller: address || '',
+          rating: 0,
+          tokenURI: tokenURI,
+          isAvailable: true
+        };
+
+        // Actualizar el estado de los libros
+        setBooks(prevBooks => [...prevBooks, newBook]);
+        
+        // Esperar un momento antes de cerrar para que el usuario vea el mensaje
+        setTimeout(() => {
+          onSuccess();
+        }, 2000);
+      } catch (error) {
+        console.error('Error al procesar metadatos:', error);
+        toast.error('Error al procesar los metadatos del libro');
+      }
+    }
+  }, [isSuccess, tokenURI, price, address, totalBooks, onSuccess, setBooks]);
+
+  useEffect(() => {
+    if (isError) {
+      setTransactionStatus('error');
+      const errorMessage = error?.message || 'Error desconocido';
+      console.error('Error en la transacción:', errorMessage);
+      if (errorMessage.includes('user denied')) {
+        toast.error('Transacción cancelada por el usuario');
+      } else if (errorMessage.includes('network')) {
+        toast.error('Error de red. Por favor, verifica tu conexión');
+      } else if (errorMessage.includes('insufficient funds')) {
+        toast.error('Fondos insuficientes para la transacción');
+      } else {
+        toast.error(`Error: ${errorMessage}`);
+      }
+    }
+  }, [isError, error]);
+
+  if (!isConnected) {
+    return (
+      <div className="w-full text-center p-4 bg-[#1A1A1A] rounded-lg">
+        <p className="text-[#B8B8B8]">Por favor, conecta tu wallet primero</p>
+      </div>
+    );
+  }
+
+  if (!imageUrl) {
+  return (
+      <div className="w-full text-center p-4 bg-[#1A1A1A] rounded-lg">
+        <p className="text-[#B8B8B8]">Por favor, proporciona una imagen válida</p>
+      </div>
+    );
+  }
+
+  if (priceInWei === BigInt(0)) {
+    return (
+      <div className="w-full text-center p-4 bg-[#1A1A1A] rounded-lg">
+        <p className="text-[#B8B8B8]">El precio debe ser mayor a cero</p>
+      </div>
+    );
+  }
+
+  const handleMint = async () => {
+    try {
+      setIsLoading(true);
+      setTransactionStatus('pending');
+      console.log('Enviando transacción con:', {
+        to: MARKETPLACE_ADDRESS,
+        functionName: "mintAndList",
+        args: [validTokenURI, priceInWei],
+        value: BigInt(0)
+      });
+
+      await writeContract({
+        address: MARKETPLACE_ADDRESS as `0x${string}`,
+        abi: MARKETPLACE_ABI,
+        functionName: 'mintAndList',
+        args: [validTokenURI, priceInWei],
+        value: BigInt(0)
+      });
+    } catch (error) {
+      console.error('Error al mintear:', error);
+      toast.error('Error al mintear el NFT');
+      setTransactionStatus('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full relative">
+      {transactionStatus === 'error' && (
+      <button
+          onClick={onClose}
+          className="absolute top-2 right-2 bg-[#FF4444] text-white p-2 rounded-full hover:bg-[#CC3333] transition-colors"
+        >
+          ✕
+        </button>
+      )}
+      <button
+        onClick={transactionStatus === 'error' ? onClose : handleMint}
+        disabled={isLoading || isPending}
+        className={`w-full px-4 py-2 rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
+          transactionStatus === 'error' 
+            ? 'bg-[#FF4444] text-white hover:bg-[#CC3333]'
+            : transactionStatus === 'success'
+            ? 'bg-[#4CAF50] text-white hover:bg-[#45a049]'
+            : 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black hover:from-[#FFA500] hover:to-[#FF8C00]'
+        }`}
+      >
+        {isLoading || isPending ? (
+          <div className="flex items-center justify-center">
+            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+            Minteando NFT...
+          </div>
+        ) : transactionStatus === 'error' ? (
+          'Cerrar'
+        ) : transactionStatus === 'success' ? (
+          '¡Minteado Exitoso!'
+        ) : (
+          'Mintear NFT'
+        )}
+      </button>
+    </div>
+  );
+}
 
 export const BookMarketplace = () => {
     const { address } = useAccount();
@@ -269,29 +456,20 @@ export const BookMarketplace = () => {
                     const listing = listings[i].data;
                     const tokenURI = tokenURIs[i].data;
 
-                    // Log del objeto listing completo
-                    console.log(`Libro ${i} - Listing completo:`, listing);
-
-                    // Validar que listing y listing[1] (precio) existan
-                    if (!listing || typeof listing[1] === 'undefined') {
-                        console.log(`Libro ${i} - Listing sin precio o no disponible:`, listing);
-                        continue;
-                    }
-
                     if (listing && tokenURI) {
                         try {
-                            const sellerAddress = listing[0]?.toString();
+                            const sellerAddress = listing.seller?.toString();
                             const isOwner = address && sellerAddress && 
                                 address.toLowerCase() === sellerAddress.toLowerCase();
                             
-                            // Convertir el precio de wei a ETH de manera segura
-                            const priceInWei = listing[1];
-                            const priceInEth = Number(priceInWei.toString()) / 1e18;
-                            
-                            console.log(`Libro ${i} - Precio original en wei:`, priceInWei?.toString());
-                            console.log(`Libro ${i} - Precio en ETH:`, priceInEth);
-                            console.log(`Libro ${i} - Precio en wei (bigint):`, priceInWei);
-                            
+                            console.log(`Procesando libro ${i}:`, { 
+                                listing, 
+                                tokenURI,
+                                seller: sellerAddress,
+                                currentAddress: address,
+                                isOwner
+                            });
+
                             const metadata = await getBookMetadata(tokenURI);
                             
                             loadedBooks.push({
@@ -299,14 +477,13 @@ export const BookMarketplace = () => {
                                 title: metadata.name || '',
                                 author: metadata.attributes?.find((attr: any) => attr.trait_type === "Autor")?.value || '',
                                 description: metadata.description || '',
-                                price: priceInEth,
-                                priceWei: priceInWei,
+                                price: Number(listing.price) / 1e18,
                                 category: metadata.attributes?.find((attr: any) => attr.trait_type === "Categoría")?.value || '',
                                 image: metadata.image || '',
                                 seller: sellerAddress,
                                 rating: 0,
                                 tokenURI: tokenURI,
-                                isAvailable: !listing[2] // sold
+                                isAvailable: !listing.sold
                             });
                         } catch (error) {
                             console.error(`Error al procesar libro ${i}:`, error);
@@ -436,21 +613,19 @@ export const BookMarketplace = () => {
                     <h2 className="text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
                         Marketplace
                     </h2>
-                    <p className="text-[#B8B8B8] mt-2">Descubre y comparte recursos académicos</p>
+                    <p className="text-[#B8B8B8] mt-2">Descubre y comparte libros académicos</p>
                 </div>
-                <div className="flex space-x-4">
-                    <button
-                        onClick={() => setIsPublishModalOpen(true)}
-                        className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
-                                 hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        <span>Publicar Libro</span>
-                    </button>
-                </div>
+                <button
+                    onClick={() => setIsPublishModalOpen(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
+                             hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                             hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Publicar Libro</span>
+                </button>
             </div>
 
             {/* Barra de búsqueda y filtros */}
@@ -471,18 +646,18 @@ export const BookMarketplace = () => {
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
-                                 focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
-                                 transition-all appearance-none cursor-pointer w-full md:w-48"
-                    >
-                        <option value="all">Todas las categorías</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                             focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
+                             transition-all appearance-none cursor-pointer w-full md:w-48"
+                >
+                    <option value="all">Todas las categorías</option>
+                    {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Grid de Libros */}
@@ -491,28 +666,26 @@ export const BookMarketplace = () => {
                     const isOwner = address && book.seller && 
                         address.toLowerCase() === book.seller.toLowerCase();
                     
-                    console.log('Renderizando libro:', {
-                        bookId: book.id,
-                        bookSeller: book.seller,
-                        currentAddress: address,
-                        isOwner,
-                        isAvailable: book.isAvailable,
-                        price: book.price
-                    });
-                    
                     return (
                         <div key={book.id} className={`${cardStyle} group relative overflow-hidden transform transition-all duration-300 hover:-translate-y-2`}>
+                            {/* Efecto de brillo */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700] to-[#FFA500] opacity-0 
+                                          group-hover:opacity-10 transition-opacity duration-300" />
+                            
                             {/* Imagen del libro */}
                             <div className="relative h-64 overflow-hidden rounded-t-2xl">
-                                <img 
-                                    src={book.image} 
+                                <img
+                                    src={book.image || '/placeholder-book.jpg'}
                                     alt={book.title}
-                                    className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
+                                    className="w-full h-full object-cover transform transition-transform duration-300 
+                                             group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                                <div className="absolute top-4 right-4 bg-[#FFD700] text-black px-3 py-1 rounded-full text-sm font-medium">
-                                    {book.price > 0 ? book.price.toFixed(4) : '0.0000'} ETH
-                                </div>
+                                {isOwner && (
+                                    <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        Tu Libro
+                                    </div>
+                                )}
                             </div>
 
                             {/* Contenido */}
@@ -525,65 +698,37 @@ export const BookMarketplace = () => {
 
                                 <p className="text-[#999999] text-sm line-clamp-2">{book.description}</p>
 
-                                <div className="flex flex-col space-y-2">
-                                    {address ? (
-                                        <>
-                                            {isOwner ? (
-                                                <div className="flex items-center justify-center">
-                                                    <span className="w-full px-4 py-3 bg-gradient-to-r from-[#4CAF50] to-[#45a049] text-white rounded-lg text-sm font-medium text-center">
-                                                        Tu Libro
-                                                    </span>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="flex items-center">
+                                            {[...Array(5)].map((_, i) => (
+                                                <svg
+                                                    key={i}
+                                                    className={`w-4 h-4 ${
+                                                        i < book.rating ? 'text-[#FFD700]' : 'text-[#333333]'
+                                                    }`}
+                                                    fill="currentColor"
+                                                    viewBox="0 0 20 20"
+                                                >
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-[#FFD700] font-bold">{book.price} ETH</span>
                                 </div>
-                                            ) : (
-                                    <Transaction
-                                        chainId={8453}
-                                        calls={[{
-                                            to: MARKETPLACE_ADDRESS as `0x${string}`,
-                                            abi: MARKETPLACE_ABI,
-                                            functionName: "buy",
-                                            args: [book.id],
-                                            value: book.priceWei,
-                                            data: undefined
-                                        }]}
-                                        onStatus={(status) => {
-                                            console.log('Estado de la transacción:', status);
-                                            console.log('Detalles de la transacción:', {
-                                                address: MARKETPLACE_ADDRESS,
-                                                tokenId: book.id,
-                                                priceWei: book.priceWei.toString(),
-                                                isAvailable: book.isAvailable,
-                                                seller: book.seller,
-                                                value: book.priceWei.toString()
-                                            });
-                                            if (status.statusName === "success") {
-                                                toast.success('¡Libro comprado correctamente!');
-                                                setBooks(prevBooks => prevBooks.map(b => {
-                                                    if (b.id === book.id) {
-                                                        return {
-                                                            ...b,
-                                                            isAvailable: false
-                                                        };
-                                                    }
-                                                    return b;
-                                                }));
-                                            } else if (status.statusName === "error") {
-                                                console.error('Error en la transacción:', status.statusData);
-                                                toast.error('Error al comprar el libro');
-                                            }
-                                        }}
+
+                                {/* Botones de acción */}
+                                {!isOwner && (
+                                    <button
+                                        onClick={() => handlePurchase(book.id)}
+                                        className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg 
+                                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium"
                                     >
-                                        <TransactionButton 
-                                                        text={`Comprar por ${book.price.toFixed(4)} ETH`}
-                                                        className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium flex items-center justify-center space-x-2"
-                                        />
-                                    </Transaction>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <p className="text-center text-[#B8B8B8]">Conecta tu wallet para comprar</p>
+                                        Comprar por {book.price} ETH
+                                    </button>
                                 )}
                             </div>
-                        </div>
                         </div>
                     );
                 })}
@@ -770,18 +915,12 @@ export const BookMarketplace = () => {
                             <h3 className="text-xl font-bold text-white">Confirmar Publicación</h3>
                         </div>
                         <div className="p-6">
-                            <Transaction
-                                chainId={8453}
-                                calls={[{
-                                    to: MARKETPLACE_ADDRESS as `0x${string}`,
-                                    abi: MARKETPLACE_ABI,
-                                    functionName: "mintAndList",
-                                    args: [newBook.tokenURI, parseUnits(newBook.price, 18)],
-                                    value: BigInt(0)
-                                }]}
-                                onStatus={(status) => {
-                                    if (status.statusName === "success") {
-                                        toast.success('¡Libro publicado correctamente!');
+                            <MintNFTCard 
+                                tokenURI={newBook.tokenURI || ''} 
+                                price={newBook.price} 
+                                imageUrl={previewImage} 
+                                setBooks={setBooks}
+                                onSuccess={() => {
                                                 setIsPublishModalOpen(false);
                                                 setShowTransaction(false);
                                                 setNewBook({
@@ -794,16 +933,21 @@ export const BookMarketplace = () => {
                                         tokenURI: ''
                                                 });
                                                 setPreviewImage('');
-                                    } else if (status.statusName === "error") {
-                                        toast.error('Error al publicar el libro');
-                                    }
                                 }} 
-                            >
-                                <TransactionButton 
-                                    text="Publicar Libro"
-                                    className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium flex items-center justify-center space-x-2"
+                                onClose={() => {
+                                                setShowTransaction(false);
+                                                setNewBook({
+                                                    title: '',
+                                                    author: '',
+                                                    description: '',
+                                                    price: '',
+                                                    category: '',
+                                        image: '',
+                                        tokenURI: ''
+                                                });
+                                                setPreviewImage('');
+                                }} 
                             />
-                            </Transaction>
                         </div>
                     </div>
                 </div>

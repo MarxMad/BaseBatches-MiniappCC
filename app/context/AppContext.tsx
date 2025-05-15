@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { campusCoinService, User, Transaction, Book } from '../services/api';
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 type AppContextType = {
   user: User | null;
@@ -29,33 +30,59 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { context } = useMiniKit();
+  const { address, isConnected } = useAccount();
+  const { connectAsync } = useConnect();
+  const { disconnect } = useDisconnect();
 
+  // Efecto para cargar datos iniciales
   useEffect(() => {
-    // Cargar datos iniciales
     loadInitialData();
   }, []);
 
-  // Efecto para sincronizar el estado del usuario con la wallet de OnchainKit
+  // Efecto para sincronizar el estado del usuario con la wallet
   useEffect(() => {
-    if (context?.client?.address) {
-      loadUserData(context.client.address);
-    } else {
-      setUser(null);
-    }
-  }, [context?.client?.address]);
+    const loadUserData = async () => {
+      if (isConnected && address) {
+        try {
+          const userData = await campusCoinService.getUserInfo(address);
+          setUser(userData);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        }
+      }
+    };
 
-  const loadUserData = async (walletAddress: string) => {
-    try {
-      setLoading(true);
-      const userInfo = await campusCoinService.getUserInfo(walletAddress);
-      setUser(userInfo);
-    } catch (err) {
-      console.error('Error al cargar datos del usuario:', err);
-      setError('Error al cargar datos del usuario');
-    } finally {
-      setLoading(false);
-    }
+    // Solo intentar reconectar si es un refresco de página
+    const attemptReconnect = async () => {
+      try {
+        const lastConnector = localStorage.getItem('campuscoin-wagmi');
+        const wasManuallyDisconnected = sessionStorage.getItem('manually-disconnected');
+        
+        // Solo reconectamos si hay una sesión guardada y NO fue una desconexión manual
+        if (lastConnector && !isConnected && !wasManuallyDisconnected) {
+          await connectAsync({ connector: JSON.parse(lastConnector) });
+        }
+      } catch (error) {
+        console.error('Error reconnecting:', error);
+      }
+    };
+
+    loadUserData();
+    attemptReconnect();
+  }, [isConnected, address, connectAsync]);
+
+  // Manejar la desconexión manual
+  const handleDisconnect = () => {
+    sessionStorage.setItem('manually-disconnected', 'true');
+    disconnect();
   };
+
+  // Limpiar la bandera de desconexión manual cuando se conecta
+  useEffect(() => {
+    if (isConnected) {
+      sessionStorage.removeItem('manually-disconnected');
+    }
+  }, [isConnected]);
 
   const loadInitialData = async () => {
     try {
@@ -145,8 +172,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         books,
         loading,
         error,
-        isConnected: !!context?.client?.address,
-        address: context?.client?.address,
+        isConnected,
+        address,
         buyBook,
         makePayment,
         reserveBook,

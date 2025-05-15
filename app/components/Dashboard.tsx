@@ -12,7 +12,7 @@ import type { ContractEventArgs } from 'viem';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import { useWalletStats } from '../hooks/useWalletStats';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { type Address } from 'viem';
 import { GameStats } from './GameStats';
 import { type GameStats as GameStatsType } from '../types';
@@ -1228,7 +1228,24 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [leverage, setLeverage] = useState(1);
   const [inputAmount, setInputAmount] = useState('');
+  const [marginUsed, setMarginUsed] = useState(0);
+  const [liquidationPrice, setLiquidationPrice] = useState<number | null>(null);
   const startTimeRef = useRef<number>(Date.now());
+
+  // Calcular el precio de liquidación
+  const calculateLiquidationPrice = (positionType: 'long' | 'short', entryPrice: number, leverage: number, marginUsed: number) => {
+    const maintenanceMargin = 0.005; // 0.5% de margen de mantenimiento
+    if (positionType === 'long') {
+      return entryPrice * (1 - (1 / leverage) + maintenanceMargin);
+    } else {
+      return entryPrice * (1 + (1 / leverage) - maintenanceMargin);
+    }
+  };
+
+  // Calcular el margen requerido
+  const calculateRequiredMargin = (positionSize: number, leverage: number) => {
+    return positionSize; // Ahora el margen es igual al tamaño de la posición
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -1249,11 +1266,32 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
           ? (priceDiff / entryPrice) * positionSize * leverage
           : (-priceDiff / entryPrice) * positionSize * leverage;
         setProfit(newProfit);
+
+        // Verificar liquidación
+        if (liquidationPrice && (
+          (position === 'long' && newPrice <= liquidationPrice) ||
+          (position === 'short' && newPrice >= liquidationPrice)
+        )) {
+          // Liquidación
+          setBalance(prev => Math.max(0, prev - marginUsed));
+          setHistory(prev => [...prev, { 
+            type: `${position}-liquidated`, 
+            price: newPrice, 
+            profit: -marginUsed 
+          }]);
+          setPosition(null);
+          setPositionSize(0);
+          setEntryPrice(0);
+          setProfit(0);
+          setMarginUsed(0);
+          setLiquidationPrice(null);
+          setInputAmount('');
+        }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [position, price, entryPrice, positionSize, leverage]);
+  }, [position, price, entryPrice, positionSize, leverage, liquidationPrice, marginUsed]);
 
   const handleTrade = (type: 'long' | 'short') => {
     const amount = parseFloat(inputAmount);
@@ -1264,16 +1302,25 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
       setPositionSize(0);
       setEntryPrice(0);
       setProfit(0);
+      setMarginUsed(0);
+      setLiquidationPrice(null);
       setInputAmount('');
 
       const duration = (Date.now() - startTimeRef.current) / 1000;
       onGameEnd(balance + profit, duration, 'completed');
       startTimeRef.current = Date.now();
-    } else if (!isNaN(amount) && amount > 0 && amount <= balance) {
-      setPosition(type);
-      setPositionSize(amount);
-      setEntryPrice(price);
-      setInputAmount('');
+    } else if (!isNaN(amount) && amount > 0) {
+      const requiredMargin = calculateRequiredMargin(amount, leverage);
+      if (requiredMargin <= balance) {
+        setPosition(type);
+        setPositionSize(amount);
+        setEntryPrice(price);
+        setMarginUsed(requiredMargin);
+        setLiquidationPrice(calculateLiquidationPrice(type, price, leverage, requiredMargin));
+        setInputAmount('');
+      } else {
+        alert('Margen insuficiente para esta operación');
+      }
     }
   };
 
@@ -1326,6 +1373,11 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
                 <div className="text-sm text-[#B8B8B8]">
                   Entry: ${entryPrice.toFixed(2)}
                 </div>
+                {liquidationPrice && (
+                  <div className="text-sm text-[#FF5555]">
+                    Liquidation: ${liquidationPrice.toFixed(2)}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1365,11 +1417,37 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
                   <Line
                     type="monotone"
                     dataKey={() => entryPrice}
-                    stroke={position === 'long' ? '#50FA7B' : '#FF5555'}
+                    stroke="#FFD700"
                     strokeWidth={1}
                     strokeDasharray="3 3"
+                    name="Precio de Entrada"
                   />
                 )}
+                {liquidationPrice && (
+                  <Line
+                    type="monotone"
+                    dataKey={() => liquidationPrice}
+                    stroke="#FF5555"
+                    strokeWidth={1}
+                    strokeDasharray="5 5"
+                    name="Precio de Liquidación"
+                  />
+                )}
+                <Legend 
+                  content={({ payload }) => (
+                    <div className="flex justify-center space-x-4 mt-2">
+                      {payload?.map((entry, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: entry.color as string }}
+                          />
+                          <span className="text-xs text-[#B8B8B8]">{entry.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1384,13 +1462,18 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
                 className="w-full bg-[#2A2A2A] border border-[#333333] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#FFD700]"
                 placeholder="Ingresa la cantidad..."
                 min="0"
-                max={balance}
+                max={balance * leverage}
               />
+              {position && (
+                <div className="mt-2 text-sm text-[#B8B8B8]">
+                  Margen usado: ${marginUsed.toFixed(2)}
+                </div>
+              )}
             </div>
             <div className="bg-[#1A1A1A] p-4 rounded-lg">
               <label className="block text-sm text-[#B8B8B8] mb-2">Apalancamiento</label>
               <div className="flex space-x-2">
-                {[1, 2, 5, 10].map((lev) => (
+                {[1, 2, 5, 10, 25, 50].map((lev) => (
                   <button
                     key={lev}
                     onClick={() => setLeverage(lev)}
@@ -1415,7 +1498,7 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
                   ? 'bg-[#50FA7B] text-black'
                   : 'bg-[#1A1A1A] text-white hover:bg-[#333333]'
               }`}
-              disabled={position ? false : !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > balance}
+              disabled={position ? false : !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > balance * leverage}
             >
               {position === 'long' ? 'Cerrar Long' : 'Abrir Long'}
             </button>
@@ -1426,7 +1509,7 @@ const TradingSimulator = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
                   ? 'bg-[#FF5555] text-black'
                   : 'bg-[#1A1A1A] text-white hover:bg-[#333333]'
               }`}
-              disabled={position ? false : !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > balance}
+              disabled={position ? false : !inputAmount || parseFloat(inputAmount) <= 0 || parseFloat(inputAmount) > balance * leverage}
             >
               {position === 'short' ? 'Cerrar Short' : 'Abrir Short'}
             </button>

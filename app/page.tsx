@@ -38,101 +38,6 @@ type Transaction = {
 
 type SectionType = 'home' | 'transactions' | 'budget' | 'settings' | 'dashboard';
 
-// Componente de Bienvenida
-const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
-  const [isAnimating, setIsAnimating] = useState(true);
-  const [showContent, setShowContent] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAnimating(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Generar partículas con diferentes propiedades
-  const particles = useMemo(() => {
-    return [...Array(40)].map((_, i) => ({
-      id: i,
-      size: Math.random() * 3 + 1,
-      duration: Math.random() * 15 + 5,
-      delay: Math.random() * 2,
-      path: 'zigzag', // Usar una única animación para evitar la discrepancia
-      color: Math.random() > 0.7 ? '#FFA500' : '#FFD700',
-      opacity: Math.random() * 0.4 + 0.4
-    }));
-  }, []);
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      {/* Efecto de partículas mejorado */}
-      <div className="absolute inset-0 overflow-hidden">
-        {particles.map((particle) => (
-          <div
-            key={particle.id}
-            className="absolute rounded-full animate-float-zigzag"
-            style={{
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              backgroundColor: particle.color,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDuration: `${particle.duration}s`,
-              animationDelay: `${particle.delay}s`,
-              opacity: particle.opacity,
-              filter: 'blur(0.5px)',
-              boxShadow: `0 0 ${particle.size * 2}px ${particle.color}`
-            }}
-          />
-        ))}
-      </div>
-
-      <div className={`relative bg-[#1A1A1A] rounded-3xl p-8 max-w-md w-full mx-4 transform transition-all duration-300 ${showContent ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
-        {/* Efecto de borde brillante */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] opacity-20 blur-xl animate-gradient-x" />
-        
-        {/* Logo Animado */}
-        <div className="relative w-32 h-32 mx-auto mb-6">
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FFD700] to-[#FFA500] blur-2xl opacity-40 animate-pulse" />
-          <div className="absolute inset-0 rounded-3xl border-4 border-[#FFD700] opacity-60 animate-gradient-x" />
-          <div className="relative w-full h-full overflow-hidden rounded-3xl shadow-xl">
-            <img 
-              src="/Ensigna.png" 
-              alt="CampusCoin Logo" 
-              className="w-full h-full object-cover rounded-3xl transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-transparent via-white/10 to-transparent pointer-events-none animate-shine" />
-          </div>
-        </div>
-
-        {/* Contenido */}
-        <div className="text-center relative">
-          <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] mb-4 animate-gradient-x">
-            ¡Bienvenido a CampusCoin!
-          </h2>
-          <p className="text-[#B8B8B8] mb-6">
-            Tu ecosistema universitario inteligente
-          </p>
-          
-          {/* Botón de Acción */}
-          <button
-            onClick={onClose}
-            className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-medium py-3 rounded-xl relative overflow-hidden group transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,215,0,0.3)]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFA500] to-[#FFD700] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <span className="relative flex items-center justify-center">
-              Explorar CampusCoin
-              <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Actualizar los estilos de animación
 const styles = `
 @keyframes float-circle {
@@ -187,6 +92,28 @@ const styles = `
   100% { transform: translate(0, 0) rotate(360deg) scale(1); }
 }
 
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+  100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
 .animate-float-circle {
   animation: float-circle linear infinite;
 }
@@ -203,16 +130,6 @@ const styles = `
   animation: float-spiral ease-in-out infinite;
 }
 
-@keyframes shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes gradient-x {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
 .animate-shine {
   animation: shine 2s linear infinite;
 }
@@ -220,6 +137,83 @@ const styles = `
 .animate-gradient-x {
   animation: gradient-x 3s ease infinite;
   background-size: 200% 200%;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float-up {
+  animation: float-up 3s ease-in-out infinite;
+}
+
+.hero-gradient {
+  background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+  background-size: 200% 200%;
+  animation: gradient-x 3s ease infinite;
+}
+
+.hero-text-shadow {
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.hero-button-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-button-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.4),
+    transparent
+  );
+  animation: shine 3s infinite;
+}
+
+@keyframes line-draw {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  20% {
+    width: 100%;
+    opacity: 1;
+  }
+  40% {
+    width: 100%;
+    opacity: 1;
+  }
+  60% {
+    width: 0;
+    opacity: 0;
+  }
+  80% {
+    width: 100%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.animated-line {
+  position: relative;
+  height: 4px;
+  background: linear-gradient(90deg, #FFD700, #FFA500);
+  border-radius: 2px;
+  margin: 1rem auto;
+  width: 0;
+  animation: line-draw 4s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 `;
 
@@ -230,7 +224,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<SectionType>('home');
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   const addFrame = useAddFrame();
@@ -312,35 +305,71 @@ export default function App() {
         return (
           <>
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] p-4 relative overflow-hidden">
-              {/* Efectos de fondo */}
-              <div className="absolute inset-0">
-                <div className="absolute top-0 left-0 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[128px] opacity-20 animate-pulse" />
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFA500] rounded-full filter blur-[128px] opacity-20 animate-pulse delay-1000" />
-                <div className="absolute inset-0" style={{ 
-                  backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,215,0,0.15) 2px, transparent 0)',
-                  backgroundSize: '24px 24px' 
-                }}></div>
-              </div>
+              {/* Hero Section */}
+              <div className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]">
+                {/* Efectos de fondo animados */}
+                <div className="absolute inset-0">
+                  <div className="absolute top-0 left-0 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[128px] opacity-20 animate-pulse" />
+                  <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFA500] rounded-full filter blur-[128px] opacity-20 animate-pulse delay-1000" />
+                  <div className="absolute inset-0" style={{ 
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,215,0,0.15) 2px, transparent 0)',
+                    backgroundSize: '24px 24px' 
+                  }}></div>
+                </div>
 
-              <div className="max-w-4xl w-full space-y-8 relative z-10">
-                {/* Logo y Título */}
-                <div className="text-center mb-12">
-                  <div className="relative w-full max-w-2xl mx-auto mb-6 group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse" />
-                    <div className="relative w-full h-32 bg-[#1A1A1A] rounded-2xl flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
+                {/* Elementos flotantes decorativos */}
+                <div className="absolute inset-0 overflow-hidden">
+                  <div className="absolute top-1/4 left-1/4 w-20 h-20 bg-[#FFD700]/20 rounded-full animate-float-circle" />
+                  <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-[#FFA500]/20 rounded-full animate-float-zigzag" />
+                  <div className="absolute bottom-1/4 left-1/3 w-24 h-24 bg-[#FFD700]/20 rounded-full animate-float-wave" />
+                  <div className="absolute bottom-1/3 right-1/3 w-20 h-20 bg-[#FFA500]/20 rounded-full animate-float-spiral" />
+                </div>
+
+                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                  {/* Logo con efecto de brillo */}
+                  <div className="relative w-48 h-48 mx-auto mb-8 group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse-glow" />
+                    <div className="relative w-full h-full bg-[#1A1A1A] rounded-full flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
                       <img 
                         src="/Ensigna.png" 
                         alt="CampusCoin Logo" 
-                        className="w-full h-full object-contain p-4"
+                        className="w-full h-full object-contain p-6"
                       />
                     </div>
                   </div>
-                  <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] mb-4 animate-gradient">
+
+                  {/* Título principal con efectos */}
+                  <h1 className="text-6xl md:text-7xl font-bold mb-6 text-white hero-text-shadow animate-float-up">
                     CampusCoin
                   </h1>
-                  <p className="text-xl text-[#B8B8B8]">Tu Ecosistema Universitario Inteligente</p>
-                </div>
 
+                  {/* Línea animada */}
+                  <div className="animated-line w-48 mx-auto"></div>
+
+                  {/* Subtítulo con animación */}
+                  <p className="text-2xl md:text-3xl text-[#FFD700] mb-12 animate-float-up" style={{ animationDelay: '0.2s' }}>
+                    Tu Ecosistema Universitario Inteligente
+                  </p>
+
+                  {/* Botón de llamada a la acción */}
+                  <button
+                    className="hero-button-glow px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] transform hover:scale-105"
+                    onClick={() => {
+                      setActiveTab('dashboard');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    Comenzar Ahora
+                  </button>
+
+                  {/* Texto descriptivo */}
+                  <p className="mt-8 text-lg text-[#B8B8B8] max-w-2xl mx-auto animate-float-up" style={{ animationDelay: '0.4s' }}>
+                    Únete a la revolución financiera universitaria. Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
+                  </p>
+                </div>
+              </div>
+
+              <div className="max-w-4xl w-full space-y-8 relative z-10">
                 {/* Características Principales */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
                   {/* Marketplace de Libros */}
@@ -524,7 +553,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
-      {showWelcome && <WelcomePopup onClose={() => setShowWelcome(false)} />}
+      <style>{styles}</style>
       <div className="w-full max-w-7xl mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>{saveFrameButton}</div>

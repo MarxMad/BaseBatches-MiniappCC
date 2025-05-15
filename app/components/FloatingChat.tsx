@@ -76,10 +76,10 @@ export function FloatingChat() {
           {/* Header */}
           <div className="bg-[var(--app-accent)] p-4 rounded-t-lg flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                <img src="/LogoCC.svg" alt="Bot" className="w-6 h-6" />
+              <div className="w-8 h-8 flex items-center justify-center">
+                <img src="/Ensigna.png" alt="Bot" className="w-8 h-8 object-contain" />
               </div>
-              <span className="text-white font-medium">Asistente Campus</span>
+              <span className="text-white font-medium">CampusBot</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}

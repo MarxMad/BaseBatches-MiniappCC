@@ -15,7 +15,7 @@ export const LoadingScreen = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 animate-pulse" />
           <div className="relative w-full h-full bg-[#1A1A1A] rounded-2xl flex items-center justify-center overflow-hidden">
             <img 
-              src="/LogoCC.svg" 
+              src="/Ensigna.png" 
               alt="CampusCoin Logo" 
               className="w-full h-full object-contain p-4"
             />

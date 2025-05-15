@@ -24,6 +24,20 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: "/Ensigna.png",
       apple: "/Ensigna.png",
     },
+    openGraph: {
+      title: "CampusCoin",
+      description: "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
+      images: [
+        {
+          url: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+          width: 1200,
+          height: 630,
+          alt: "CampusCoin"
+        }
+      ],
+      type: "website",
+      url: "https://base-batches-miniapp-cc.vercel.app/"
+    },
     other: {
       "fc:frame": JSON.stringify({
         version: "1",
@@ -53,6 +67,15 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0A0A0A" />
+        <meta property="og:title" content="CampusCoin" />
+        <meta property="og:description" content="Mini app universitaria para pagos, marketplace y juegos educativos en blockchain" />
+        <meta property="og:image" content="https://base-batches-miniapp-cc.vercel.app/Ensigna.png" />
+        <meta property="og:url" content="https://base-batches-miniapp-cc.vercel.app/" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="CampusCoin" />
+        <meta name="twitter:description" content="Mini app universitaria para pagos, marketplace y juegos educativos en blockchain" />
+        <meta name="twitter:image" content="https://base-batches-miniapp-cc.vercel.app/Ensigna.png" />
       </head>
       <body className={inter.className}>
         <Providers>

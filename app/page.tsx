@@ -27,6 +27,8 @@ import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
 import { sdk } from "@farcaster/frame-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
+import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
+import { useConnect } from 'wagmi';
 
 // Tipos
 type Transaction = {
@@ -221,6 +223,7 @@ export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
   const { user, isConnected, address } = useApp();
+  const { connect } = useConnect();
   const [activeTab, setActiveTab] = useState<SectionType>('home');
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -258,9 +261,14 @@ export default function App() {
     setFrameAdded(Boolean(frameAdded));
   }, [addFrame]);
 
-  const handleConnectAndRedirect = () => {
-    setActiveTab('dashboard');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleConnectAndRedirect = async () => {
+    try {
+      await connect({ connector: miniAppConnector() });
+      setActiveTab('dashboard');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      console.error('Error al conectar wallet:', error);
+    }
   };
 
   const handleTabChange = (tab: SectionType) => {

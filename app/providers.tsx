@@ -19,18 +19,18 @@ export function Providers({ children }: { children: ReactNode }) {
             name: "CampusCoin",
             logo: "/LogoCC.svg",
           },
-          wallet: {
-            display: "modal",
-            termsUrl: "https://tusitio.com/terminos",
-            privacyUrl: "https://tusitio.com/privacidad",
-            preference: "eoaOnly",
-            supportedWallets: {
-              frame: true,      // Warpcast/Farcaster Frame Wallet
-              rabby: true,      // Rabby Wallet
-              trust: true,      // Trust Wallet
-            },
-            signUpEnabled: false,
-          },
+          // wallet: {
+          //   display: "modal",
+          //   termsUrl: "https://tusitio.com/terminos",
+          //   privacyUrl: "https://tusitio.com/privacidad",
+          //   preference: "eoaOnly",
+          //   supportedWallets: {
+          //     frame: true,      // Warpcast/Farcaster Frame Wallet
+          //     rabby: true,      // Rabby Wallet
+          //     trust: true,      // Trust Wallet
+          //   },
+          //   signUpEnabled: false,
+          // },
         }}
       >
         {children}

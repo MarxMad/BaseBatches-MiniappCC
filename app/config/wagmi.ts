@@ -3,6 +3,7 @@ import { base } from 'wagmi/chains';
 import { createConfig } from 'wagmi';
 import { createStorage } from 'wagmi';
 import { injected, coinbaseWallet } from 'wagmi/connectors';
+import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
 
 const storage = createStorage({
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,
@@ -21,6 +22,7 @@ export const config = createConfig({
       appLogoUrl: '/LogoCC.svg',
       darkMode: true,
     }),
+    miniAppConnector()
   ],
   transports: {
     [base.id]: http(),

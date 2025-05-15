@@ -16,7 +16,6 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const URL = process.env.NEXT_PUBLIC_URL;
   return {
     title: "CampusCoin",
     description: "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
@@ -27,16 +26,16 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fc:frame": JSON.stringify({
-        version: process.env.NEXT_PUBLIC_VERSION,
-        imageUrl: process.env.NEXT_PUBLIC_IMAGE_URL,
+        version: "1",
+        imageUrl: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
         button: {
-          title: `Launch ${process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME}`,
+          title: "🚀 Iniciar CampusCoin",
           action: {
             type: "launch_frame",
-            name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
-            url: URL,
-            splashImageUrl: process.env.NEXT_PUBLIC_SPLASH_IMAGE_URL,
-            splashBackgroundColor: `#${process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR}`,
+            name: "CampusCoin",
+            url: "https://base-batches-miniapp-cc.vercel.app/",
+            splashImageUrl: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+            splashBackgroundColor: "#0A0A0A",
           },
         },
       }),

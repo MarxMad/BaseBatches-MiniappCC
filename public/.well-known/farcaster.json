@@ -12,6 +12,15 @@
     "splashImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
     "splashBackgroundColor": "#0A0A0A",
     "primaryCategory": "education",
-    "description": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain."
+    "description": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
+    "subtitle": "Plataforma educativa blockchain",
+    "tags": ["education", "blockchain", "payments", "marketplace", "games"],
+    "heroImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+    "tagline": "Tu campus en blockchain",
+    "ogTitle": "CampusCoin",
+    "ogDescription": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
+    "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+    "buttonTitle": "🚀 Iniciar",
+    "webhookUrl": "https://base-batches-miniapp-cc.vercel.app/api/webhook"
   }
 }

@@ -1,0 +1,37 @@
+{
+  "name": "CampusCoin",
+  "description": "Tu ecosistema universitario inteligente para comprar y vender libros académicos",
+  "image": "/LogoCC.svg",
+  "external_url": "https://campuscoin.app",
+  "attributes": [
+    {
+      "trait_type": "Categoría",
+      "value": "Educación"
+    },
+    {
+      "trait_type": "Tipo",
+      "value": "Marketplace"
+    },
+    {
+      "trait_type": "Plataforma",
+      "value": "Farcaster"
+    },
+    {
+      "trait_type": "Versión",
+      "value": "1.0.0"
+    }
+  ],
+  "properties": {
+    "splash_screen": {
+      "background_color": "#0A0A0A",
+      "text_color": "#FFD700",
+      "logo_url": "/LogoCC.svg"
+    },
+    "theme": {
+      "primary_color": "#FFD700",
+      "secondary_color": "#FFA500",
+      "background_color": "#0A0A0A",
+      "text_color": "#FFFFFF"
+    }
+  }
+} 

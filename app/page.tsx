@@ -26,6 +26,7 @@ import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
 import { sdk } from "@farcaster/frame-sdk";
+import { LoadingScreen } from './components/LoadingScreen';
 
 // Tipos
 type Transaction = {
@@ -225,11 +226,12 @@ const styles = `
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
-  const { user } = useApp();
+  const { user, isConnected, address } = useApp();
   const [activeTab, setActiveTab] = useState<SectionType>('home');
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -241,8 +243,22 @@ export default function App() {
   }, [setFrameReady, isFrameReady]);
 
   useEffect(() => {
-    sdk.actions.ready();
-  }, []);
+    const initializeApp = async () => {
+      try {
+        // Esperar a que la aplicación esté lista
+        await sdk.actions.ready({ disableNativeGestures: true });
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error al inicializar la app:', error);
+        setIsLoading(false);
+      }
+    };
+
+    // Solo inicializar si no está en modo de carga
+    if (isLoading) {
+      initializeApp();
+    }
+  }, [isLoading]);
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();
@@ -501,6 +517,10 @@ export default function App() {
         );
     }
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">

@@ -10,6 +10,8 @@ type AppContextType = {
   books: Book[];
   loading: boolean;
   error: string | null;
+  isConnected: boolean;
+  address: string | undefined;
   buyBook: (bookId: string) => Promise<void>;
   makePayment: (amount: string, recipient: string) => Promise<void>;
   reserveBook: (bookId: string) => Promise<void>;
@@ -143,6 +145,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         books,
         loading,
         error,
+        isConnected: !!context?.client?.address,
+        address: context?.client?.address,
         buyBook,
         makePayment,
         reserveBook,

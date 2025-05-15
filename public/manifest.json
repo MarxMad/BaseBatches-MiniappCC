@@ -1,10 +1,5 @@
 {
-  "name": "CampusCoin",
-  "description": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain.",
-  "logo": "/LogoCC.svg",
-  "website": "https://campuscoin.app",
-  "frame_url": "https://campuscoin.app/api/frame",
-  "contact": "tu-email@dominio.com",
-  "terms_url": "https://campuscoin.app/terminos",
-  "privacy_url": "https://campuscoin.app/privacidad"
-} 
+  "header": "eyJmaWQiOjc0NDI5NiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEI1MzlDQTJiNDQ0YTA3QjEyOTVmZTVFMkNGNjBCNTA5YkE1QjFhNTQifQ",
+  "payload": "eyJkb21haW4iOiJiYXNlLWJhdGNoZXMtbWluaWFwcC1jYy52ZXJjZWwuYXBwIn0",
+  "signature": "MHg3ZjYzMmJlZTcxMGFjNTIwM2I2NGJhMjdkOTU5ZWFiNDBjYmI2NDBkODNkN2U5NDM0YmQ3YzQyMjBhYzBmMDcwMTM5ZjBkYzcyOTNlMGMxY2QyMjc1OTkzYzE0NzJkNmNlNWQ2YzUxYzVmNzFhOGIzNzdjZmI3Y2I1MjA4MzNhNjFj"
+}

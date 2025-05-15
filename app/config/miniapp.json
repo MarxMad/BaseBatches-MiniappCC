@@ -1,7 +1,7 @@
 {
   "name": "CampusCoin",
   "description": "Tu ecosistema universitario inteligente para comprar y vender libros académicos",
-  "image": "/LogoCC.svg",
+  "image": "/Ensigna.png",
   "external_url": "https://campuscoin.app",
   "attributes": [
     {
@@ -25,7 +25,7 @@
     "splash_screen": {
       "background_color": "#0A0A0A",
       "text_color": "#FFD700",
-      "logo_url": "/LogoCC.svg"
+      "logo_url": "/Ensigna.png"
     },
     "theme": {
       "primary_color": "#FFD700",

@@ -97,7 +97,7 @@ const WelcomePopup = ({ onClose }: { onClose: () => void }) => {
           <div className="absolute inset-0 rounded-3xl border-4 border-[#FFD700] opacity-60 animate-gradient-x" />
           <div className="relative w-full h-full overflow-hidden rounded-3xl shadow-xl">
             <img 
-              src="/LogoCC.svg" 
+              src="/Ensigna.png" 
               alt="CampusCoin Logo" 
               className="w-full h-full object-cover rounded-3xl transition-transform duration-700 group-hover:scale-105"
             />
@@ -329,7 +329,7 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse" />
                     <div className="relative w-full h-32 bg-[#1A1A1A] rounded-2xl flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
                       <img 
-                        src="/LogoCC.svg" 
+                        src="/Ensigna.png" 
                         alt="CampusCoin Logo" 
                         className="w-full h-full object-contain p-4"
                       />

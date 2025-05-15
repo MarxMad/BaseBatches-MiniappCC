@@ -7,22 +7,27 @@ import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ContractWriteResult, ContractWriteParams, UseContractWriteResult } from '../types/contracts';
 import { Transaction, TransactionButton, TransactionSponsor, TransactionStatus, TransactionStatusLabel, TransactionStatusAction } from "@coinbase/onchainkit/transaction";
-import { getBuyBookCall, getBuyGuideCall, getMintAndListCall } from "../calls";
+// import { getBuyBookCall, getBuyGuideCall, getMintAndListCall } from "../calls";
 import { MARKETPLACE_ABI, MARKETPLACE_ADDRESS } from "../constants/marketplace";
 import { uploadFileToPinata } from '../utils/pinataUpload';
 import { NFTMintCard } from '@coinbase/onchainkit/nft';
 import type { Abi } from 'viem';
 import Image from 'next/image';
+import { writeContract } from 'wagmi/actions';
+import { sepolia } from 'viem/chains';
+import { config } from "../config/wagmi";
 
 interface Book {
     id: number;
     title: string;
     author: string;
     description: string;
-    price: number;
+    price: number | bigint;
     category: string;
     image: string;
     seller: string;
+    buyer?: string;
+    delivered: boolean;
     rating: number;
     tokenURI: string;
     isAvailable?: boolean;
@@ -113,7 +118,8 @@ function MintNFTCard({
           seller: address || '',
           rating: 0,
           tokenURI: tokenURI,
-          isAvailable: true
+          isAvailable: true,
+          delivered: false
         };
 
         // Actualizar el estado de los libros
@@ -206,7 +212,7 @@ function MintNFTCard({
           className="absolute top-2 right-2 bg-[#FF4444] text-white p-2 rounded-full hover:bg-[#CC3333] transition-colors"
         >
           ✕
-        </button>
+      </button>
       )}
       <button
         onClick={transactionStatus === 'error' ? onClose : handleMint}
@@ -244,6 +250,7 @@ export const BookMarketplace = () => {
     const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string>('');
     const [isApproving, setIsApproving] = useState(false);
+    const [isBuying, setIsBuying] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     // Estado para el formulario
@@ -268,7 +275,7 @@ export const BookMarketplace = () => {
     const [showTransaction, setShowTransaction] = useState(false);
 
     // Crear arrays para los listings y tokenURIs
-    const listings = Array.from({ length: 20 }, (_, i) => 
+    const listings = Array.from({ length: 30 }, (_, i) => 
         useContractRead({
             address: MARKETPLACE_ADDRESS as `0x${string}`,
             abi: MARKETPLACE_ABI,
@@ -277,7 +284,7 @@ export const BookMarketplace = () => {
         }) as { data: Listing | undefined }
     );
 
-    const tokenURIs = Array.from({ length: 20 }, (_, i) =>
+    const tokenURIs = Array.from({ length: 30 }, (_, i) =>
         useContractRead({
             address: MARKETPLACE_ADDRESS as `0x${string}`,
             abi: MARKETPLACE_ABI,
@@ -449,60 +456,108 @@ export const BookMarketplace = () => {
         const loadAllBooks = async () => {
             try {
                 console.log('Iniciando carga de libros...');
-                console.log('Dirección de la wallet:', address);
+                console.log('Dirección de la wallet conectada:', address);
                 const loadedBooks: Book[] = [];
-
-                for (let i = 0; i < 20; i++) {
+    
+                for (let i = 10; i < 30; i++) {
+                    // Verificar primero si los hooks existen y tienen datos
+                    if (!listings[i] || !tokenURIs[i]) {
+                        console.log(`No hay datos para el índice ${i}`);
+                        continue;
+                    }
+    
                     const listing = listings[i].data;
                     const tokenURI = tokenURIs[i].data;
-
-                    if (listing && tokenURI) {
-                        try {
-                            const sellerAddress = listing.seller?.toString();
-                            const isOwner = address && sellerAddress && 
-                                address.toLowerCase() === sellerAddress.toLowerCase();
-                            
-                            console.log(`Procesando libro ${i}:`, { 
-                                listing, 
-                                tokenURI,
-                                seller: sellerAddress,
-                                currentAddress: address,
-                                isOwner
-                            });
-
-                            const metadata = await getBookMetadata(tokenURI);
-                            
-                            loadedBooks.push({
-                                id: i,
-                                title: metadata.name || '',
-                                author: metadata.attributes?.find((attr: any) => attr.trait_type === "Autor")?.value || '',
-                                description: metadata.description || '',
-                                price: Number(listing.price) / 1e18,
-                                category: metadata.attributes?.find((attr: any) => attr.trait_type === "Categoría")?.value || '',
-                                image: metadata.image || '',
-                                seller: sellerAddress,
-                                rating: 0,
-                                tokenURI: tokenURI,
-                                isAvailable: !listing.sold
-                            });
-                        } catch (error) {
-                            console.error(`Error al procesar libro ${i}:`, error);
+    
+                    // Si no hay listing o tokenURI, continuar con el siguiente
+                    if (!listing || !tokenURI) {
+                        console.log(`Datos incompletos para el índice ${i}:`, { listing, tokenURI });
+                        continue;
+                    }
+    
+                    try {
+                        // Verificar si el listing es válido (tiene los campos necesarios)
+                        if (!listing.seller && !Array.isArray(listing)) {
+                            console.log(`Listing inválido para el índice ${i}:`, listing);
                             continue;
                         }
+    
+                        const sellerAddress = Array.isArray(listing) ? listing[0]?.toString().toLowerCase() : listing.seller?.toLowerCase();
+                        const buyerAddress = Array.isArray(listing) ? listing[3]?.toString().toLowerCase() : listing.buyer?.toLowerCase();
+                        const delivered = Array.isArray(listing) ? listing[4] : listing.delivered;
+                        const userAddress = address?.toLowerCase();
+                        
+                        // Verificar si tenemos los datos mínimos necesarios
+                        if (!sellerAddress) {
+                            console.log(`No hay dirección de vendedor para el índice ${i}`);
+                            continue;
+                        }
+    
+                        const isOwner = userAddress && (
+                            (sellerAddress && userAddress === sellerAddress && !buyerAddress) ||
+                            (buyerAddress && userAddress === buyerAddress)
+                        );
+                        
+                        console.log(`Procesando libro ${i}:`, { 
+                            listing, 
+                            tokenURI,
+                            seller: sellerAddress,
+                            buyer: buyerAddress,
+                            delivered: delivered,
+                            userAddress: userAddress,
+                            isOwner
+                        });
+    
+                        const metadata = await getBookMetadata(tokenURI);
+                        
+                        // Verificar si tenemos los metadatos mínimos necesarios
+                        if (!metadata || !metadata.name) {
+                            console.log(`Metadatos incompletos para el índice ${i}:`, metadata);
+                            continue;
+                        }
+    
+                        const rawPrice = Array.isArray(listing) ? listing[1] : (listing?.price ?? 0);
+                        
+                        loadedBooks.push({
+                            id: i,
+                            title: metadata.name || '',
+                            author: metadata.attributes?.find((attr: any) => attr.trait_type === "Autor")?.value || '',
+                            description: metadata.description || '',
+                            price: rawPrice,
+                            category: metadata.attributes?.find((attr: any) => attr.trait_type === "Categoría")?.value || '',
+                            image: metadata.image || '',
+                            seller: sellerAddress || '',
+                            buyer: buyerAddress,
+                            delivered: delivered,
+                            rating: 0,
+                            tokenURI: tokenURI,
+                            isAvailable: !listing.sold
+                        });
+                    } catch (error) {
+                        console.error(`Error al procesar libro ${i}:`, error);
+                        continue;
                     }
                 }
-
-                console.log('Libros cargados:', loadedBooks);
+    
+                console.log('Libros cargados:', loadedBooks.map(book => ({
+                    id: book.id,
+                    title: book.title,
+                    seller: book.seller,
+                    buyer: book.buyer,
+                    delivered: book.delivered,
+                    isOwner: address?.toLowerCase() === (book.delivered ? book.buyer?.toLowerCase() : book.seller?.toLowerCase())
+                })));
+                
                 setBooks(loadedBooks);
             } catch (error) {
                 console.error('Error al cargar libros:', error);
                 toast.error('Error al cargar los libros');
             }
         };
-
+    
         if (listings && tokenURIs) {
-        loadAllBooks();
-        }
+            loadAllBooks();
+        } 
     }, [listings, tokenURIs, address]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -605,6 +660,61 @@ export const BookMarketplace = () => {
         }
     };
 
+    const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+    const txWait = useWaitForTransactionReceipt({
+        hash: txHash,
+    });
+
+    /*
+    const {
+        data: buyData,
+        isPending: isBuyPending,
+        isSuccess: isBuySuccess,
+        isError: isBuyError,
+        writeAsync,
+        write,
+        error: buyError
+    } = useContractWrite({
+        address: MARKETPLACE_ADDRESS as `0x${string}`,
+        abi: MARKETPLACE_ABI,
+        functionName: 'buy',
+    });
+    */
+
+    const handlePurchase = async (bookId: number, price: string) => {
+        console.log("[handlePurchase] Iniciando función handlePurchase", { bookId, price, address });
+        if (!address) {
+            console.error("[handlePurchase] Dirección (address) no encontrada.");
+            toast.error('Por favor, conecta tu wallet primero');
+            return;
+        }
+        console.log("[handlePurchase] Dirección (address) encontrada, procediendo...");
+        try {
+            // Pasando 'config' como primer argumento
+            const tx = await writeContract(config, {
+                address: MARKETPLACE_ADDRESS as `0x${string}`,
+                    abi: MARKETPLACE_ABI,
+                functionName: 'buy',
+                args: [BigInt(bookId)],
+                value: parseUnits(price, 18),
+            });
+            toast.success('Transacción enviada. Esperando confirmación...');
+        } catch (error) {
+            console.error('Error en handlePurchase:', error);
+            toast.error('Error al enviar la transacción');
+        }
+    };
+
+    useEffect(() => {
+        if (txWait.isSuccess) {
+            toast.success('¡Libro comprado correctamente!');
+            // Aquí podrías actualizar el estado local de los libros si lo deseas
+        }
+        if (txWait.isError) {
+            toast.error('Error al confirmar la transacción');
+        }
+    }, [txWait.isSuccess, txWait.isError]);
+
     return (
         <div className="space-y-8">
             {/* Header del Marketplace */}
@@ -615,17 +725,17 @@ export const BookMarketplace = () => {
                     </h2>
                     <p className="text-[#B8B8B8] mt-2">Descubre y comparte libros académicos</p>
                 </div>
-                <button
+                    <button
                     onClick={() => setIsPublishModalOpen(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                             hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
-                             hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
-                >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                        className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
+                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                                 hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
                     <span>Publicar Libro</span>
-                </button>
+                    </button>
             </div>
 
             {/* Barra de búsqueda y filtros */}
@@ -646,46 +756,106 @@ export const BookMarketplace = () => {
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
-                             focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
-                             transition-all appearance-none cursor-pointer w-full md:w-48"
-                >
-                    <option value="all">Todas las categorías</option>
-                    {categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                </select>
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                                 focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
+                                 transition-all appearance-none cursor-pointer w-full md:w-48"
+                    >
+                        <option value="all">Todas las categorías</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
             </div>
 
             {/* Grid de Libros */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {books.map((book) => {
-                    const isOwner = address && book.seller && 
-                        address.toLowerCase() === book.seller.toLowerCase();
+                    const userAddress = address?.toLowerCase();
+                    const sellerAddress = book.seller?.toLowerCase();
+                    const buyerAddress = book.buyer?.toLowerCase();
+                    const delivered = book.delivered;
                     
+                    // Determinar el estado del libro
+                    const getBookStatus = () => {
+                        // Considerar buyerAddress válido solo si no es 0x0 y es diferente al seller
+                        const isValidBuyer = buyerAddress && buyerAddress !== '0x0000000000000000000000000000000000000000' && buyerAddress !== sellerAddress;
+                        if (userAddress === sellerAddress) {
+                            if (!isValidBuyer) {
+                                return { isOwner: true, status: 'Tu Libro (En Venta)', color: 'from-[#FFD700] to-[#FFA500]' };
+                            } else if (!delivered) {
+                                return { isOwner: true, status: 'Tu Libro (Pendiente de Entrega)', color: 'from-[#FF8C00] to-[#FF4500]' };
+                            } else {
+                                return { isOwner: true, status: 'Tu Libro (Vendido)', color: 'from-[#4CAF50] to-[#45a049]' };
+                            }
+                        }
+                        if (userAddress === buyerAddress && isValidBuyer) {
+                            if (delivered) {
+                                return { isOwner: true, status: 'Tu Libro (Entregado)', color: 'from-[#4CAF50] to-[#45a049]' };
+                            } else {
+                                return { isOwner: true, status: 'Tu Libro (Esperando Entrega)', color: 'from-[#FF8C00] to-[#FF4500]' };
+                            }
+                        }
+                        if (isValidBuyer) {
+                            return { isOwner: false, status: 'Vendido', color: 'from-[#FF4444] to-[#CC3333]' };
+                        }
+                        return { isOwner: false, status: 'Disponible', color: 'from-[#FFD700] to-[#FFA500]' };
+                    };
+
+                    const bookStatus = getBookStatus();
+                    
+                    console.log(`Estado final del libro ${book.id}:`, {
+                        status: bookStatus.status,
+                        isOwner: bookStatus.isOwner,
+                        color: bookStatus.color
+                    });
+
+                    // Conversión robusta del precio de Wei a ETH (siempre usando BigInt para evitar pérdida de precisión)
+                    let priceInEth: number | undefined = undefined;
+                    try {
+                        if (typeof book.price === 'bigint') {
+                            priceInEth = Number(book.price) / 1e18;
+                        } else if (typeof book.price === 'string') {
+                            priceInEth = Number(BigInt(book.price)) / 1e18;
+                        } else if (typeof book.price === 'number' && !isNaN(book.price)) {
+                            priceInEth = Number(BigInt(book.price.toString())) / 1e18;
+                        }
+                    } catch {
+                        priceInEth = undefined;
+                    }
+                    const priceLabel = (typeof priceInEth === 'number' && !isNaN(priceInEth))
+                        ? `${priceInEth.toFixed(4)} ETH`
+                        : 'Precio no disponible';
+                    
+                    // Determinar si el libro está disponible para comprar
+                    const isValidBuyer = book.buyer &&
+                        book.buyer !== '0x0000000000000000000000000000000000000000' &&
+                        book.buyer !== book.seller;
+                    const isAvailable = !isValidBuyer && book.isAvailable !== false;
+                    
+                    // LOG ADICIONAL PARA DEPURAR CONDICIONES DE RENDERIZADO DEL BOTÓN
+                    console.log(`[Render Libro ID: ${book.id}] Condiciones:`, {
+                        isWalletConnected: !!address,
+                        isOwner: bookStatus.isOwner,
+                        isBookAvailable: isAvailable,
+                        bookStatusObject: bookStatus // Para ver el status y color exacto
+                    });
+
                     return (
                         <div key={book.id} className={`${cardStyle} group relative overflow-hidden transform transition-all duration-300 hover:-translate-y-2`}>
-                            {/* Efecto de brillo */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700] to-[#FFA500] opacity-0 
-                                          group-hover:opacity-10 transition-opacity duration-300" />
-                            
                             {/* Imagen del libro */}
                             <div className="relative h-64 overflow-hidden rounded-t-2xl">
-                                <img
-                                    src={book.image || '/placeholder-book.jpg'}
+                                <img 
+                                    src={book.image} 
                                     alt={book.title}
-                                    className="w-full h-full object-cover transform transition-transform duration-300 
-                                             group-hover:scale-110"
+                                    className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                                {isOwner && (
-                                    <div className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                        Tu Libro
-                                    </div>
-                                )}
+                                <div className="absolute top-4 right-4 bg-[#FFD700] text-black px-3 py-1 rounded-full text-sm font-medium">
+                                    {priceLabel}
+                                </div>
                             </div>
 
                             {/* Contenido */}
@@ -698,37 +868,75 @@ export const BookMarketplace = () => {
 
                                 <p className="text-[#999999] text-sm line-clamp-2">{book.description}</p>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                        <div className="flex items-center">
-                                            {[...Array(5)].map((_, i) => (
-                                                <svg
-                                                    key={i}
-                                                    className={`w-4 h-4 ${
-                                                        i < book.rating ? 'text-[#FFD700]' : 'text-[#333333]'
-                                                    }`}
-                                                    fill="currentColor"
-                                                    viewBox="0 0 20 20"
-                                                >
-                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                </svg>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <span className="text-[#FFD700] font-bold">{book.price} ETH</span>
-                                </div>
-
                                 {/* Botones de acción */}
-                                {!isOwner && (
-                                    <button
-                                        onClick={() => handlePurchase(book.id)}
-                                        className="w-full px-4 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg 
-                                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium"
+                                <div className="flex flex-col space-y-2">
+                                    {!address ? (
+                                        <p className="text-center text-[#B8B8B8]">Conecta tu wallet para comprar</p>
+                                    ) : bookStatus.isOwner ? (
+                                        <div className="flex items-center justify-center">
+                                            <span className={`w-full px-4 py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-sm font-medium text-center`}>
+                                                {bookStatus.status}
+                                            </span>
+                                </div>
+                                    ) : isAvailable ? (
+                                        <>
+                                            {/* Bloque de OnchainKit comentado para la prueba */}
+                                            {/*
+                                    <Transaction
+                                                calls={[
+                                                    {
+                                                    contractAddress: MARKETPLACE_ADDRESS,
+                                            functionName: "buy",
+                                                    abi: MARKETPLACE_ABI,
+                                                    args: [BigInt(book.id)],
+                                                    value: parseUnits(priceInEth?.toString() || '0', 18),
+                                                    },
+                                                ]}
                                     >
-                                        Comprar por {book.price} ETH
-                                    </button>
+                                        <TransactionButton 
+                                                    label={
+                                                    (typeof priceInEth === 'number' && !isNaN(priceInEth))
+                                                        ? `Comprar por ${priceInEth.toFixed(4)} ETH`
+                                                        : 'No disponible'
+                                                    }
+                                                    onSuccess={() => toast.success('¡Compra realizada!')}
+                                                    onError={() => toast.error('Error al comprar el libro')}
+                                                    className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black"
+                                        />
+                                    </Transaction>
+                                            */}
+
+                                            {/* Botón de prueba usando handlePurchase */}
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    console.log("[onClick Botón Compra Directa] Evento onClick disparado.");
+                                                    console.log("[onClick Botón Compra Directa] Valores: ", { book, priceInEth });
+
+                                                    if (book && typeof priceInEth === 'number' && !isNaN(priceInEth)) {
+                                                        console.log("[onClick Botón Compra Directa] Condiciones cumplidas, llamando a handlePurchase...", book.id, priceInEth.toString());
+                                                        await handlePurchase(book.id, priceInEth.toString());
+                                                    } else {
+                                                        console.error("[onClick Botón Compra Directa] Condiciones NO cumplidas.", { book, priceInEth });
+                                                        toast.error('Datos inválidos para la compra (desde onClick).');
+                                                    }
+                                                }}
+                                                className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#00FF00] to-[#00CC00] hover:from-[#00CC00] hover:to-[#00AA00] text-black" // Un color diferente para distinguirlo
+                                            >
+                                                {(typeof priceInEth === 'number' && !isNaN(priceInEth))
+                                                    ? `Test Comprar por ${priceInEth.toFixed(4)} ETH (Directo)`
+                                                    : 'Test No disponible'}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center justify-center">
+                                            <span className="w-full px-4 py-3 bg-gradient-to-r from-[#FF4444] to-[#CC3333] text-white rounded-lg text-sm font-medium text-center">
+                                                Vendido
+                                            </span>
+                                        </div>
                                 )}
                             </div>
+                        </div>
                         </div>
                     );
                 })}

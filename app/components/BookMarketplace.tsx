@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { writeContract } from 'wagmi/actions';
 import { sepolia } from 'viem/chains';
 import { config } from "../config/wagmi";
+import { ProofOfDelivery } from './ProofOfDelivery';
 
 interface Book {
     id: number;
@@ -857,7 +858,6 @@ export const BookMarketplace = () => {
                                     {priceLabel}
                                 </div>
                             </div>
-
                             {/* Contenido */}
                             <div className="p-6 space-y-4">
                                 <div>
@@ -865,78 +865,49 @@ export const BookMarketplace = () => {
                                     <p className="text-[#B8B8B8] text-sm">Por {book.author}</p>
                                     <p className="text-[#FFD700] text-sm mt-1">{book.category}</p>
                                 </div>
-
                                 <p className="text-[#999999] text-sm line-clamp-2">{book.description}</p>
-
                                 {/* Botones de acción */}
                                 <div className="flex flex-col space-y-2">
                                     {!address ? (
                                         <p className="text-center text-[#B8B8B8]">Conecta tu wallet para comprar</p>
                                     ) : bookStatus.isOwner ? (
-                                        <div className="flex items-center justify-center">
+                                        bookStatus.status === 'Tu Libro (Esperando Entrega)' && userAddress === buyerAddress && !delivered ? (
+                                            <div className="flex flex-col items-center">
+                                                <span className={`w-full px-4 py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-sm font-medium text-center mb-2`}>
+                                                    {bookStatus.status}
+                                                </span>
+                                                <ProofOfDelivery orderId={book.id} onProofSubmitted={() => window.location.reload()} />
+                                            </div>
+                                        ) : (
                                             <span className={`w-full px-4 py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-sm font-medium text-center`}>
                                                 {bookStatus.status}
                                             </span>
-                                </div>
+                                        )
                                     ) : isAvailable ? (
-                                        <>
-                                            {/* Bloque de OnchainKit comentado para la prueba */}
-                                            {/*
-                                    <Transaction
-                                                calls={[
-                                                    {
-                                                    contractAddress: MARKETPLACE_ADDRESS,
-                                            functionName: "buy",
-                                                    abi: MARKETPLACE_ABI,
-                                                    args: [BigInt(book.id)],
-                                                    value: parseUnits(priceInEth?.toString() || '0', 18),
-                                                    },
-                                                ]}
-                                    >
-                                        <TransactionButton 
-                                                    label={
-                                                    (typeof priceInEth === 'number' && !isNaN(priceInEth))
-                                                        ? `Comprar por ${priceInEth.toFixed(4)} ETH`
-                                                        : 'No disponible'
-                                                    }
-                                                    onSuccess={() => toast.success('¡Compra realizada!')}
-                                                    onError={() => toast.error('Error al comprar el libro')}
-                                                    className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#FFD700] to-[#FFA500] hover:from-[#FFA500] hover:to-[#FF8C00] text-black"
-                                        />
-                                    </Transaction>
-                                            */}
-
-                                            {/* Botón de prueba usando handlePurchase */}
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    console.log("[onClick Botón Compra Directa] Evento onClick disparado.");
-                                                    console.log("[onClick Botón Compra Directa] Valores: ", { book, priceInEth });
-
-                                                    if (book && typeof priceInEth === 'number' && !isNaN(priceInEth)) {
-                                                        console.log("[onClick Botón Compra Directa] Condiciones cumplidas, llamando a handlePurchase...", book.id, priceInEth.toString());
-                                                        await handlePurchase(book.id, priceInEth.toString());
-                                                    } else {
-                                                        console.error("[onClick Botón Compra Directa] Condiciones NO cumplidas.", { book, priceInEth });
-                                                        toast.error('Datos inválidos para la compra (desde onClick).');
-                                                    }
-                                                }}
-                                                className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#00FF00] to-[#00CC00] hover:from-[#00CC00] hover:to-[#00AA00] text-black" // Un color diferente para distinguirlo
-                                            >
-                                                {(typeof priceInEth === 'number' && !isNaN(priceInEth))
-                                                    ? `Test Comprar por ${priceInEth.toFixed(4)} ETH (Directo)`
-                                                    : 'Test No disponible'}
-                                            </button>
-                                        </>
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                if (book && typeof priceInEth === 'number' && !isNaN(priceInEth)) {
+                                                    await handlePurchase(book.id, priceInEth.toString());
+                                                } else {
+                                                    toast.error('Datos inválidos para la compra.');
+                                                }
+                                            }}
+                                            className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#00FF00] to-[#00CC00] hover:from-[#00CC00] hover:to-[#00AA00] text-black"
+                                        >
+                                            {(typeof priceInEth === 'number' && !isNaN(priceInEth))
+                                                ? `Comprar por ${priceInEth.toFixed(4)} ETH`
+                                                : 'No disponible'}
+                                        </button>
                                     ) : (
                                         <div className="flex items-center justify-center">
                                             <span className="w-full px-4 py-3 bg-gradient-to-r from-[#FF4444] to-[#CC3333] text-white rounded-lg text-sm font-medium text-center">
                                                 Vendido
                                             </span>
                                         </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
                         </div>
                     );
                 })}
@@ -1066,7 +1037,7 @@ export const BookMarketplace = () => {
                                             placeholder="Precio en ETH"
                                             required
                                             min="0"
-                                            step="0.01"
+                                            step="0.00001"
                                             className="w-full px-4 py-2 bg-[#222222] text-white rounded-lg border border-[#333333] focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] transition-all placeholder-gray-500"
                                         />
                                     </div>

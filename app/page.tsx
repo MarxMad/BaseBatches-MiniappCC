@@ -233,12 +233,10 @@ export default function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
-
-  // Detectar si es móvil
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -266,6 +264,13 @@ export default function App() {
 
     // Iniciar la carga inmediatamente
     initializeApp();
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(typeof window !== 'undefined' && window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleAddFrame = useCallback(async () => {
@@ -595,11 +600,8 @@ export default function App() {
         <header className="flex justify-between items-center mb-3 h-11">
           <div>{saveFrameButton}</div>
           <div className="flex items-center justify-end w-full">
-            <Wallet className="z-[100] fixed top-4 right-4">
-              {/* Ocultar el botón en móvil si el modal está abierto */}
-              {!(isMobile && isWalletModalOpen) && (
-                <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
-              )}
+            <Wallet className={`${isMobile ? '' : 'fixed top-4 right-4'} z-[100] wallet-connect-btn`}>
+              <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
               <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
                 <WalletAdvancedWalletActions />
                 <WalletAdvancedAddressDetails />

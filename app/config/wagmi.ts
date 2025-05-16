@@ -10,20 +10,26 @@ const storage = createStorage({
   key: 'campuscoin-wagmi',
 });
 
+// Detectar si estamos en Warpcast
+const isWarpcast = typeof window !== 'undefined' && window.location.hostname.includes('warpcast.com');
+
+// Crear los conectores
+const connectors = [
+  injected({
+    target: 'metaMask',
+    shimDisconnect: true,
+  }),
+  coinbaseWallet({
+    appName: 'CampusCoin',
+    appLogoUrl: '/LogoCC.svg',
+    darkMode: true,
+  }),
+  miniAppConnector()
+].filter(Boolean); // Filtrar cualquier conector que sea undefined
+
 export const config = createConfig({
   chains: [base],
-  connectors: [
-    injected({
-      target: 'metaMask',
-      shimDisconnect: true,
-    }),
-    coinbaseWallet({
-      appName: 'CampusCoin',
-      appLogoUrl: '/LogoCC.svg',
-      darkMode: true,
-    }),
-    miniAppConnector()
-  ],
+  connectors,
   transports: {
     [base.id]: http(),
   },

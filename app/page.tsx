@@ -215,6 +215,13 @@ const styles = `
   animation: line-draw 4s ease-in-out infinite;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
+
+/* --- Ajuste para el modal en móviles --- */
+@media (max-width: 767px) {
+  .ock-modal {
+    margin-top: 64px !important;
+  }
+}
 `;
 
 export default function App() {

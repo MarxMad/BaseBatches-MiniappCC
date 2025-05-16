@@ -27,8 +27,6 @@ import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
 import { sdk } from "@farcaster/frame-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
-import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
-import { useAccount, useConnect } from 'wagmi';
 
 // Tipos
 type Transaction = {
@@ -223,7 +221,6 @@ export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
   const { user, isConnected, address } = useApp();
-  const { connect, connectors } = useConnect();
   const [activeTab, setActiveTab] = useState<SectionType>('home');
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -261,16 +258,9 @@ export default function App() {
     setFrameAdded(Boolean(frameAdded));
   }, [addFrame]);
 
-  const handleConnectAndRedirect = async () => {
-    try {
-      if (connectors[0]) {
-        await connect({ connector: connectors[0] });
-        setActiveTab('dashboard');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } catch (error) {
-      console.error('Error al conectar wallet:', error);
-    }
+  const handleConnectAndRedirect = () => {
+    setActiveTab('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleTabChange = (tab: SectionType) => {
@@ -568,25 +558,17 @@ export default function App() {
         <header className="flex justify-between items-center mb-3 h-11">
           <div>{saveFrameButton}</div>
           <div className="flex items-center justify-end w-full">
-            {isConnected ? (
-              <Wallet
-                className="z-50 fixed top-4 right-4"
-              >
-                <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
-                  <WalletAdvancedWalletActions />
-                  <WalletAdvancedAddressDetails />
-                  <WalletAdvancedTransactionActions />
-                  <WalletAdvancedTokenHoldings />
-                </WalletDropdown>
-              </Wallet>
-            ) : (
-              <button
-                onClick={handleConnectAndRedirect}
-                className="z-50 fixed top-4 right-4 px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg font-medium hover:shadow-[0_0_20px_rgba(255,215,0,0.4)] transition-all"
-              >
-                Conectar Wallet
-              </button>
-            )}
+            <Wallet
+              className="z-50 fixed top-4 right-4"
+            >
+              <ConnectWallet onConnect={handleConnectAndRedirect} />
+              <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
+                <WalletAdvancedWalletActions />
+                <WalletAdvancedAddressDetails />
+                <WalletAdvancedTransactionActions />
+                <WalletAdvancedTokenHoldings />
+              </WalletDropdown>
+            </Wallet>
           </div>
         </header>
 

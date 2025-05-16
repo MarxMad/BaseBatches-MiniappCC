@@ -219,7 +219,7 @@ const styles = `
 /* --- Ajuste para el modal en móviles --- */
 @media (max-width: 767px) {
   .ock-modal {
-    margin-top: 64px !important;
+    margin-top: 100px !important;
   }
 }
 `;

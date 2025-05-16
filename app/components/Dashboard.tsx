@@ -2061,28 +2061,31 @@ export function Dashboard() {
       return newStats;
     });
 
-    // Enviar notificación basada en el resultado del juego
-    const gameNames: { [key: string]: string } = {
-      'catch-the-coin': 'Catch the Coin',
-      'memory-card': 'Memory Card',
-      'crypto-quiz': 'Crypto Quiz',
-      'trading-simulator': 'Trading Simulator',
-      'blockchain-puzzle': 'Blockchain Puzzle'
-    };
+    // Enviar notificación solo si el usuario está conectado con Farcaster
+    if (user?.fid) {
+      const gameNames: { [key: string]: string } = {
+        'catch-coin': 'Catch the Coin',
+        'memory': 'Memory Card',
+        'quiz': 'Crypto Quiz',
+        'trading': 'Trading Simulator',
+        'puzzle': 'Blockchain Puzzle'
+      };
 
-    const gameName = gameNames[gameId] || 'Juego';
-    const notificationTitle = result === 'win' ? '¡Victoria!' : result === 'lose' ? '¡Sigue intentando!' : '¡Juego completado!';
-    const notificationBody = `${gameName}: ${score} puntos en ${Math.floor(duration / 60)} minutos`;
+      const gameName = gameNames[gameId] || 'Juego';
+      const notificationTitle = result === 'win' ? '¡Victoria!' : result === 'lose' ? '¡Sigue intentando!' : '¡Juego completado!';
+      const notificationBody = `${gameName}: ${score} puntos en ${Math.floor(duration / 60)} minutos`;
 
-    // Obtener el FID del usuario (esto debería venir de tu sistema de autenticación)
-    const userFid = '123'; // Reemplazar con el FID real del usuario
-
-    await sendNotification(userFid, {
-      notificationId: `${gameId}-${Date.now()}`,
-      title: notificationTitle,
-      body: notificationBody,
-      targetUrl: `https://base-batches-miniapp-cc.vercel.app/dashboard?game=${gameId}`
-    });
+      try {
+        await sendNotification(user.fid.toString(), {
+          notificationId: `${gameId}-${Date.now()}`,
+          title: notificationTitle,
+          body: notificationBody,
+          targetUrl: `${window.location.origin}/dashboard?game=${gameId}`
+        });
+      } catch (error) {
+        console.error('Error al enviar notificación:', error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -2583,7 +2586,7 @@ export function Dashboard() {
 
         {/* New Category Modal */}
         {isNewCategoryModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90]">
             <div className="bg-[#111111] rounded-xl p-6 w-full max-w-md border border-[#2A2A2A]">
               <h3 className="text-xl font-bold text-white mb-6">Crear Nueva Categoría</h3>
               
@@ -2739,7 +2742,7 @@ export function Dashboard() {
 
       {/* Modal de Depósito */}
       {isDepositModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] backdrop-blur-sm">
           <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold text-white mb-4">Recargar USDC</h2>
             
@@ -2800,10 +2803,12 @@ export function Dashboard() {
 
       {/* Game Stats Modal */}
       {showGameStats && (
-        <GameStats
-          stats={gameStats}
-          onClose={() => setShowGameStats(false)}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90]">
+          <GameStats
+            stats={gameStats}
+            onClose={() => setShowGameStats(false)}
+          />
+        </div>
       )}
     </div>
   );

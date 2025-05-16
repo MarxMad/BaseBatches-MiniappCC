@@ -5,6 +5,7 @@ export interface User {
   address: string;
   balance: string;
   transactions: Transaction[];
+  fid?: string; // FID de Farcaster (opcional)
 }
 
 export interface Transaction {

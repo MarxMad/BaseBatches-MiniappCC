@@ -238,16 +238,17 @@ export default function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Esperar a que la aplicación esté lista
+        // Intentar inicializar el SDK de Farcaster
         await sdk.actions.ready({ disableNativeGestures: true });
-        setIsLoading(false);
       } catch (error) {
-        console.error('Error al inicializar la app:', error);
+        console.warn('No se pudo inicializar el SDK de Farcaster:', error);
+      } finally {
+        // Siempre continuar con la aplicación, incluso si hay errores
         setIsLoading(false);
       }
     };
 
-    // Solo inicializar si no está en modo de carga
+    // Solo inicializar si está en modo de carga
     if (isLoading) {
       initializeApp();
     }
@@ -559,7 +560,7 @@ export default function App() {
           <div>{saveFrameButton}</div>
           <div className="flex items-center justify-end w-full">
             <Wallet
-              className="z-50 fixed top-4 right-4"
+              className="z-[100] fixed top-4 right-4"
             >
               <ConnectWallet onConnect={handleConnectAndRedirect} />
               <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">

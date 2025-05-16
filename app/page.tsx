@@ -225,9 +225,13 @@ export default function App() {
   const [selectedPeriod, setSelectedPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
+
+  // Detectar si es móvil
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   useEffect(() => {
     if (!isFrameReady) {
@@ -271,6 +275,28 @@ export default function App() {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Función para abrir el modal
+  const handleOpenWalletModal = () => {
+    setIsWalletModalOpen(true);
+    if (isMobile) {
+      setTimeout(() => setIsWalletModalOpen(false), 1000);
+    }
+  };
+  // Función para cerrar el modal
+  const handleCloseWalletModal = () => {
+    setIsWalletModalOpen(false);
+  };
+
+  // Escuchar eventos de cierre del modal (cuando se conecta o cancela)
+  useEffect(() => {
+    if (!isWalletModalOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsWalletModalOpen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isWalletModalOpen]);
 
   const saveFrameButton = useMemo(() => {
     if (context && !context.client.added) {
@@ -562,10 +588,11 @@ export default function App() {
         <header className="flex justify-between items-center mb-3 h-11">
           <div>{saveFrameButton}</div>
           <div className="flex items-center justify-end w-full">
-            <Wallet
-              className="z-[100] fixed top-4 right-4"
-            >
-              <ConnectWallet onConnect={handleConnectAndRedirect} />
+            <Wallet className="z-[100] fixed top-4 right-4">
+              {/* Ocultar el botón en móvil si el modal está abierto */}
+              {!(isMobile && isWalletModalOpen) && (
+                <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
+              )}
               <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
                 <WalletAdvancedWalletActions />
                 <WalletAdvancedAddressDetails />

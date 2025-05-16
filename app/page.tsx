@@ -237,22 +237,25 @@ export default function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      // Establecer un timeout de seguridad
+      const timeoutId = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+
       try {
         // Intentar inicializar el SDK de Farcaster
         await sdk.actions.ready({ disableNativeGestures: true });
       } catch (error) {
         console.warn('No se pudo inicializar el SDK de Farcaster:', error);
       } finally {
-        // Siempre continuar con la aplicación, incluso si hay errores
+        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     };
 
-    // Solo inicializar si está en modo de carga
-    if (isLoading) {
-      initializeApp();
-    }
-  }, [isLoading]);
+    // Iniciar la carga inmediatamente
+    initializeApp();
+  }, []);
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();

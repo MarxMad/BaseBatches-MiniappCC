@@ -5,12 +5,12 @@
     "signature": "MHg3ZjYzMmJlZTcxMGFjNTIwM2I2NGJhMjdkOTU5ZWFiNDBjYmI2NDBkODNkN2U5NDM0YmQ3YzQyMjBhYzBmMDcwMTM5ZjBkYzcyOTNlMGMxY2QyMjc1OTkzYzE0NzJkNmNlNWQ2YzUxYzVmNzFhOGIzNzdjZmI3Y2I1MjA4MzNhNjFj"
   },
   "frame": {
-    "version": "1",
+    "version": "next",
     "name": "CampusCoin",
     "iconUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
     "homeUrl": "https://base-batches-miniapp-cc.vercel.app/",
     "imageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
-    "buttonTitle": "🚀 Iniciar",
+    "buttonTitle": "🚀 Iniciar CampusCoin",
     "splashImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
     "splashBackgroundColor": "#0A0A0A",
     "webhookUrl": "https://base-batches-miniapp-cc.vercel.app/api/webhook",
@@ -26,7 +26,14 @@
     "notifications": {
       "enabled": true,
       "defaultEnabled": true,
-      "description": "Recibe notificaciones sobre tus logros en los juegos y actualizaciones importantes"
-    }
+      "description": "Recibe notificaciones sobre tus logros en los juegos y actualizaciones importantes."
+    },
+    "buttons": [
+      {
+        "label": "Conectar Wallet",
+        "action": "post"
+      }
+    ],
+    "postUrl": "https://base-batches-miniapp-cc.vercel.app/api/frame"
   }
 }

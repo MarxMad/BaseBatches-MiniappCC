@@ -56,6 +56,6 @@ CampusCoin is a Web3 mini app built on **Base** that enables university students
 
 ```bash
 git clone https://github.com/MarxMad/BaseBatches-MiniappCC.git
-cd campuscoin
+cd CampusCoin-Miniapp
 npm install
 npm run dev

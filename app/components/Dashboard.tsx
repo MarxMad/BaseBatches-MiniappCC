@@ -16,6 +16,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { type Address } from 'viem';
 import { GameStats } from './GameStats';
 import { type GameStats as GameStatsType } from '../types';
+import { sendNotification } from '../api/webhook/route';
 
 type Challenge = {
   id: number;
@@ -1943,7 +1944,7 @@ export function Dashboard() {
   });
 
   // Función para actualizar las estadísticas de un juego
-  const updateGameStats = (
+  const updateGameStats = async (
     gameId: string,
     score: number,
     duration: number,
@@ -2058,6 +2059,29 @@ export function Dashboard() {
       // Guardar en localStorage
       localStorage.setItem('gameStats', JSON.stringify(newStats));
       return newStats;
+    });
+
+    // Enviar notificación basada en el resultado del juego
+    const gameNames: { [key: string]: string } = {
+      'catch-the-coin': 'Catch the Coin',
+      'memory-card': 'Memory Card',
+      'crypto-quiz': 'Crypto Quiz',
+      'trading-simulator': 'Trading Simulator',
+      'blockchain-puzzle': 'Blockchain Puzzle'
+    };
+
+    const gameName = gameNames[gameId] || 'Juego';
+    const notificationTitle = result === 'win' ? '¡Victoria!' : result === 'lose' ? '¡Sigue intentando!' : '¡Juego completado!';
+    const notificationBody = `${gameName}: ${score} puntos en ${Math.floor(duration / 60)} minutos`;
+
+    // Obtener el FID del usuario (esto debería venir de tu sistema de autenticación)
+    const userFid = '123'; // Reemplazar con el FID real del usuario
+
+    await sendNotification(userFid, {
+      notificationId: `${gameId}-${Date.now()}`,
+      title: notificationTitle,
+      body: notificationBody,
+      targetUrl: `https://base-batches-miniapp-cc.vercel.app/dashboard?game=${gameId}`
     });
   };
 

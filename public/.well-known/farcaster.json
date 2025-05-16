@@ -22,6 +22,11 @@
     "tagline": "Tu campus en blockchain",
     "ogTitle": "CampusCoin",
     "ogDescription": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
-    "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png"
+    "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+    "notifications": {
+      "enabled": true,
+      "defaultEnabled": true,
+      "description": "Recibe notificaciones sobre tus logros en los juegos y actualizaciones importantes"
+    }
   }
 }

@@ -97,7 +97,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             }}
           >
             <img
-              src="https://campuscoin.app/logo.png"
+              src="https://campuscoin.app/Ensigna.svg"
               alt="CampusCoin"
               width={32}
               height={32}

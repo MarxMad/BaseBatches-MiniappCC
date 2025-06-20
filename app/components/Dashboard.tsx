@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../context/AppContext';
 import { TransferScreen } from './TransferScreen';
 import { QRScanner } from './QRScanner';
@@ -11,6 +11,8 @@ import { formatUnits, parseUnits, type Log, decodeEventLog } from 'viem';
 import type { ContractEventArgs } from 'viem';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
+import { Name } from '@coinbase/onchainkit/identity';
+
 import { useWalletStats } from '../hooks/useWalletStats';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { type Address } from 'viem';
@@ -60,24 +62,125 @@ type IconOption = {
   name: string;
 };
 
-type TransferEventArgs = ContractEventArgs<
-  readonly [
-    { readonly name: 'from'; readonly type: 'address'; indexed: true },
-    { readonly name: 'to'; readonly type: 'address'; indexed: true },
-    { readonly name: 'amount'; readonly type: 'uint256'; indexed: false }
-  ],
-  {
-    from: `0x${string}`;
-    to: `0x${string}`;
-    amount: bigint;
-  }
->;
+type MenuSection = 'home' | 'games' | 'expenses' | 'marketplace';
 
 // Agregar estilos base para el dashboard
 const techGradient = "bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]";
 const glowEffect = "hover:shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-300";
 const cardStyle = `${techGradient} rounded-2xl border border-[#333333] backdrop-blur-xl ${glowEffect}`;
 const iconContainerStyle = "bg-[#111111] bg-opacity-50 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-opacity-70";
+
+// Componente del menú modal
+const MenuModal = ({ 
+  isOpen, 
+  onClose, 
+  onSelectSection 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  onSelectSection: (section: MenuSection) => void; 
+}) => {
+  if (!isOpen) return null;
+
+  const menuItems = [
+    {
+      id: 'games' as MenuSection,
+      title: 'Minijuegos',
+      description: 'Juegos educativos y entretenimiento',
+      icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      color: '#50FA7B'
+    },
+    {
+      id: 'expenses' as MenuSection,
+      title: 'Gestor de Gastos',
+      description: 'Controla tus finanzas universitarias',
+      icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+      color: '#FF79C6'
+    },
+    {
+      id: 'marketplace' as MenuSection,
+      title: 'Marketplace',
+      description: 'Compra y vende libros universitarios',
+      icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+      color: '#FFD700'
+    }
+  ];
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] backdrop-blur-sm">
+      <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-6 w-full max-w-md mx-4">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">Menú Principal</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-[#B8B8B8] hover:text-white transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                onSelectSection(item.id);
+                onClose();
+              }}
+              className="w-full p-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] hover:border-opacity-50 transition-all duration-300 group"
+              style={{ borderColor: item.color + '40' }}
+            >
+              <div className="flex items-center space-x-4">
+                <div 
+                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
+                  style={{ backgroundColor: item.color + '20' }}
+                >
+                  <svg 
+                    className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" 
+                    style={{ color: item.color }}
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                  </svg>
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="text-white font-medium group-hover:text-opacity-90 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-[#B8B8B8] group-hover:text-opacity-80 transition-colors">
+                    {item.description}
+                  </p>
+                </div>
+                <svg className="w-5 h-5 text-[#B8B8B8] group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-[#2A2A2A]">
+          <button
+            onClick={() => {
+              onSelectSection('home');
+              onClose();
+            }}
+            className="w-full p-3 bg-[#2A2A2A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors flex items-center justify-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Volver al Inicio</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Agregar el botón de regreso en cada juego
 const BackButton = ({ onBack }: { onBack: () => void }) => (
@@ -1750,7 +1853,10 @@ const BlockchainPuzzle = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
 export function Dashboard() {
   const { user } = useApp();
   const { address, isConnected } = useAccount();
+  const { data: walletBalance } = useBalance({ address });
   const { balanceChange24h, transactionCount, gasSaved } = useWalletStats();
+  
+
   
   const [balance, setBalance] = useState("0.00");
   const [activeSlide, setActiveSlide] = useState(0);
@@ -1779,6 +1885,10 @@ export function Dashboard() {
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [showGameStats, setShowGameStats] = useState(false);
+  
+  // Estados para el menú modal
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  const [currentSection, setCurrentSection] = useState<MenuSection>('home');
   const [gameStats, setGameStats] = useState<GameStatsType[]>(() => {
     const savedStats = localStorage.getItem('gameStats');
     if (savedStats) {
@@ -2278,20 +2388,389 @@ export function Dashboard() {
     updateGameStats(gameId, score, duration, result);
   };
 
+  const handleSectionSelect = (section: MenuSection) => {
+    setCurrentSection(section);
+  };
+
   // Combinar categorías predefinidas con personalizadas
   const allCategories = [...defaultCategories, ...customCategories];
 
+  // Función para renderizar el contenido según la sección
+  const renderSectionContent = () => {
+    switch (currentSection) {
+      case 'games':
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Minijuegos</h2>
+                <p className="text-[#B8B8B8] text-sm">¡Gana recompensas mientras te diviertes!</p>
+              </div>
+              <button 
+                onClick={() => setShowGameStats(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700] group"
+              >
+                <svg 
+                  className="w-5 h-5 text-[#FFD700] group-hover:scale-110 transition-transform" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
+                  />
+                </svg>
+                <div className="flex flex-col items-start">
+                  <span className="font-medium">Estadísticas</span>
+                  <span className="text-xs text-[#B8B8B8]">Ver progreso</span>
+                </div>
+              </button>
+            </div>
+            {activeGame === 'catch-coin' && (
+              <CatchTheCoin 
+                onBack={() => setActiveGame(null)} 
+                onGameEnd={(score, duration) => handleGameEnd('catch-coin', score, duration, 'completed')}
+              />
+            )}
+            {activeGame === 'memory' && (
+              <MemoryCard 
+                onBack={() => setActiveGame(null)}
+                onGameEnd={(score, duration, result) => handleGameEnd('memory', score, duration, result)}
+              />
+            )}
+            {activeGame === 'quiz' && (
+              <CryptoQuiz 
+                onBack={() => setActiveGame(null)}
+                onGameEnd={(score, duration, result) => handleGameEnd('quiz', score, duration, result)}
+              />
+            )}
+            {activeGame === 'trading' && (
+              <TradingSimulator 
+                onBack={() => setActiveGame(null)}
+                onGameEnd={(score, duration, result) => handleGameEnd('trading', score, duration, result)}
+              />
+            )}
+            {activeGame === 'puzzle' && (
+              <BlockchainPuzzle 
+                onBack={() => setActiveGame(null)}
+                onGameEnd={(score, duration, result) => handleGameEnd('puzzle', score, duration, result)}
+              />
+            )}
+            {!activeGame && <GameSelector onSelectGame={setActiveGame} />}
+          </div>
+        );
+      case 'marketplace':
+        return <BookMarketplace />;
+      case 'expenses':
+        return (
+          <div className={`${cardStyle} p-8`}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Gestor de Gastos</h2>
+                <p className="text-[#B8B8B8] text-sm">Controla tus gastos y categorías</p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 w-full sm:w-auto mt-4 sm:mt-0">
+                <button
+                  onClick={() => setIsTransferScreenOpen(true)}
+                  className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Nuevo Gasto</span>
+                </button>
+                <button
+                  onClick={handleNewCategory}
+                  className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Nueva Categoría</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Expense Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {[
+                {
+                  title: "Gastos del Mes",
+                  amount: totalExpenses.toFixed(2),
+                  color: "#FFD700",
+                  progress: (totalExpenses / budget) * 100,
+                  icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                },
+                {
+                  title: "Presupuesto",
+                  amount: budget.toFixed(2),
+                  color: "#00FF00",
+                  progress: 100,
+                  isEditable: true,
+                  icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                },
+                {
+                  title: "Ahorro",
+                  amount: (budget - totalExpenses).toFixed(2),
+                  color: (budget - totalExpenses) >= 0 ? "#00FFFF" : "#FF5555",
+                  progress: Math.abs(((budget - totalExpenses) / budget) * 100),
+                  icon: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                }
+              ].map((item, index) => (
+                <div key={index} className="bg-[#1A1A1A] rounded-xl p-6 border border-[#333333] relative overflow-hidden group hover:border-[#444444] transition-all duration-300">
+                  <div className="absolute top-0 right-0 w-32 h-32 rounded-full" 
+                       style={{ background: `${item.color}20`, filter: 'blur(40px)' }} />
+                  <div className="relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">{item.title}</h3>
+                      {item.isEditable && (
+                        <button
+                          onClick={() => setIsEditingBudget(true)}
+                          className="text-[#B8B8B8] hover:text-white transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    {item.isEditable && isEditingBudget ? (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          value={newBudget}
+                          onChange={(e) => setNewBudget(e.target.value)}
+                          className="w-full bg-[#222222] border border-[#333333] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#FFD700]"
+                          placeholder="Nuevo presupuesto"
+                        />
+                        <button
+                          onClick={handleBudgetChange}
+                          className="px-3 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors"
+                        >
+                          ✓
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline">
+                        <span className="text-2xl font-bold" style={{ color: item.color }}>${item.amount}</span>
+                        <span className="ml-2 text-[#B8B8B8] text-sm">USDC</span>
+                      </div>
+                    )}
+                    <div className="mt-4 h-1.5 bg-[#333333] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(item.progress, 100)}%`,
+                          backgroundColor: item.color
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Expenses List by Category */}
+            <div className="mt-8">
+              <h3 className="text-lg font-bold text-white mb-4">Gastos por Categoría</h3>
+              <div className="space-y-4">
+                {Object.entries(expensesByCategory).map(([categoryId, amount]) => {
+                  const isCustomCategory = customCategories.some(cat => cat.id === categoryId);
+                  const category = allCategories.find(cat => cat.id === categoryId);
+                  if (!category) return null;
+                  
+                  return (
+                    <div key={categoryId} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] hover:border-[#333333] transition-all duration-300">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-10 h-10 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: category.color + '20' }}
+                          >
+                            <svg 
+                              className="w-6 h-6" 
+                              style={{ color: category.color }}
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-white">{category.name}</h4>
+                            <p className="text-sm text-[#B8B8B8]">
+                              {expenses.filter(e => e.category === categoryId).length} transacciones
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <p className="text-[#FFD700] font-bold">${amount.toFixed(2)}</p>
+                            <p className="text-sm text-[#B8B8B8]">
+                              {totalExpenses > 0 ? ((amount / totalExpenses) * 100).toFixed(1) : 0}% del total
+                            </p>
+                          </div>
+                          {isCustomCategory && (
+                            <button
+                              onClick={() => handleDeleteCategory(categoryId)}
+                              className="p-2 text-red-500 hover:text-red-400 transition-colors"
+                              title="Eliminar categoría"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-3 h-2 bg-[#2A2A2A] rounded-full">
+                        <div 
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ 
+                            width: `${totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0}%`,
+                            backgroundColor: category.color
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Recent Expenses */}
+            <div className="mt-8">
+              <h3 className="text-lg font-bold text-white mb-4">Gastos Recientes</h3>
+              <div className="space-y-2">
+                {expenses.slice(-5).reverse().map((expense) => (
+                  <div key={expense.id} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] flex items-center justify-between hover:border-[#333333] transition-all duration-300">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: expense.categoryDetails.color + '20' }}
+                      >
+                        <svg 
+                          className="w-6 h-6" 
+                          style={{ color: expense.categoryDetails.color }}
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={expense.categoryDetails.icon} />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-white">{expense.description || expense.categoryDetails.name}</h4>
+                        <p className="text-sm text-[#B8B8B8]">
+                          {new Date(expense.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[#FFD700] font-bold">${expense.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="text-center py-16">
+            <div className="mb-8">
+              <div className="relative w-32 h-32 mx-auto mb-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full blur-xl opacity-50" />
+                <div className="relative w-full h-full bg-[#1A1A1A] rounded-full flex items-center justify-center border border-[#333333] p-6">
+                  <Image
+                    src="/Ensigna.svg"
+                    alt="CampusCoin Logo"
+                    width={80}
+                    height={80}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-4">¡Bienvenido a CampusCoin!</h2>
+              <p className="text-xl text-[#B8B8B8] mb-8 max-w-2xl mx-auto">
+                Tu ecosistema universitario inteligente. Explora nuestras funciones para gestionar tus finanzas, 
+                jugar y comprar libros.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {[
+                {
+                  title: 'Minijuegos',
+                  description: 'Aprende mientras te diviertes',
+                  icon: 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                  color: '#50FA7B',
+                  action: () => setCurrentSection('games')
+                },
+                {
+                  title: 'Gestor de Gastos',
+                  description: 'Controla tus finanzas',
+                  icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z',
+                  color: '#FF79C6',
+                  action: () => setCurrentSection('expenses')
+                },
+                {
+                  title: 'Marketplace',
+                  description: 'Compra y vende libros',
+                  icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+                  color: '#FFD700',
+                  action: () => setCurrentSection('marketplace')
+                }
+              ].map((item, index) => (
+                <button
+                  key={index}
+                  onClick={item.action}
+                  className="p-6 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] hover:border-opacity-50 transition-all duration-300 group"
+                  style={{ borderColor: item.color + '40' }}
+                >
+                  <div 
+                    className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center transition-all duration-300"
+                    style={{ backgroundColor: item.color + '20' }}
+                  >
+                    <svg 
+                      className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" 
+                      style={{ color: item.color }}
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-[#B8B8B8]">{item.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${techGradient} min-h-screen`}>
-      {/* Header con Logo */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-8">
+      {/* Header con Logo y Menú */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
         <div className="flex items-center space-x-4">
           <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FFA500] p-0.5">
             <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] opacity-50 blur-xl" />
-            <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center">
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500]">
-                CC
-              </span>
+            <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center p-2">
+              <Image
+                src="/Ensigna.svg"
+                alt="CampusCoin Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+                priority
+              />
             </div>
           </div>
           <div>
@@ -2299,374 +2778,148 @@ export function Dashboard() {
             <p className="text-sm text-[#B8B8B8]">Tu Wallet Universitaria</p>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-4 py-2 border border-[#333333]">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm text-[#B8B8B8]">Base Network</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Actividad del Campus */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Juegos del Campus</h2>
-              <p className="text-[#B8B8B8] text-sm">¡Gana recompensas mientras te diviertes!</p>
-            </div>
-              <button 
-              onClick={() => setShowGameStats(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700] group"
-            >
-              <svg 
-                className="w-5 h-5 text-[#FFD700] group-hover:scale-110 transition-transform" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
-                />
-                  </svg>
-              <div className="flex flex-col items-start">
-                <span className="font-medium">Estadísticas</span>
-                <span className="text-xs text-[#B8B8B8]">Ver progreso</span>
-                </div>
-              </button>
-          </div>
-          {activeGame === 'catch-coin' && (
-            <CatchTheCoin 
-              onBack={() => setActiveGame(null)} 
-              onGameEnd={(score, duration) => handleGameEnd('catch-coin', score, duration, 'completed')}
-            />
-          )}
-          {activeGame === 'memory' && (
-            <MemoryCard 
-              onBack={() => setActiveGame(null)}
-              onGameEnd={(score, duration, result) => handleGameEnd('memory', score, duration, result)}
-            />
-          )}
-          {activeGame === 'quiz' && (
-            <CryptoQuiz 
-              onBack={() => setActiveGame(null)}
-              onGameEnd={(score, duration, result) => handleGameEnd('quiz', score, duration, result)}
-            />
-          )}
-          {activeGame === 'trading' && (
-            <TradingSimulator 
-              onBack={() => setActiveGame(null)}
-              onGameEnd={(score, duration, result) => handleGameEnd('trading', score, duration, result)}
-            />
-          )}
-          {activeGame === 'puzzle' && (
-            <BlockchainPuzzle 
-              onBack={() => setActiveGame(null)}
-              onGameEnd={(score, duration, result) => handleGameEnd('puzzle', score, duration, result)}
-            />
-          )}
-          {!activeGame && <GameSelector onSelectGame={setActiveGame} />}
-        </div>
-      </div>
-
-      {/* Expense Manager Section */}
-      <div className={`${cardStyle} p-8 mb-8`}>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Gestor de Gastos</h2>
-            <p className="text-[#B8B8B8] text-sm">Controla tus gastos y categorías</p>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 w-full sm:w-auto mt-4 sm:mt-0">
-            <button
-              onClick={() => setIsTransferScreenOpen(true)}
-              className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Nuevo Gasto</span>
-            </button>
-          <button
-            onClick={handleNewCategory}
-              className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Nueva Categoría</span>
-          </button>
-          </div>
-        </div>
-
-        {/* Expense Summary Cards con diseño mejorado */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[
-            {
-              title: "Gastos del Mes",
-              amount: totalExpenses.toFixed(2),
-              color: "#FFD700",
-              progress: (totalExpenses / budget) * 100,
-              icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-            },
-            {
-              title: "Presupuesto",
-              amount: budget.toFixed(2),
-              color: "#00FF00",
-              progress: 100,
-              isEditable: true,
-              icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            },
-            {
-              title: "Ahorro",
-              amount: savings.toFixed(2),
-              color: savings >= 0 ? "#00FFFF" : "#FF5555",
-              progress: Math.abs(savingsPercentage),
-              icon: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-            }
-          ].map((item, index) => (
-            <div key={index} className="bg-[#1A1A1A] rounded-xl p-6 border border-[#333333] relative overflow-hidden group hover:border-[#444444] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-32 h-32 rounded-full" 
-                   style={{ background: `${item.color}20`, filter: 'blur(40px)' }} />
-              <div className="relative">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-white font-medium">{item.title}</h3>
-                  {item.isEditable && (
-                    <button
-                      onClick={() => setIsEditingBudget(true)}
-                      className="text-[#B8B8B8] hover:text-white transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                {item.isEditable && isEditingBudget ? (
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {/* Wallet conectada */}
+          <div className="flex items-center space-x-3">
+            {isConnected && address ? (
+              <div className="flex items-center space-x-3">
+                {/* Información de la wallet con ENS */}
+                <div className="px-4 py-2 bg-[#1A1A1A] rounded-xl border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer"
+                     onClick={() => {
+                       navigator.clipboard.writeText(address);
+                       toast.success('¡Dirección copiada!');
+                     }}>
                   <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      value={newBudget}
-                      onChange={(e) => setNewBudget(e.target.value)}
-                      className="w-full bg-[#222222] border border-[#333333] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#FFD700]"
-                      placeholder="Nuevo presupuesto"
-                    />
-                    <button
-                      onClick={handleBudgetChange}
-                      className="px-3 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors"
-                    >
-                      ✓
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold" style={{ color: item.color }}>${item.amount}</span>
-                    <span className="ml-2 text-[#B8B8B8] text-sm">USDC</span>
-                  </div>
-                )}
-                <div className="mt-4 h-1.5 bg-[#333333] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${Math.min(item.progress, 100)}%`,
-                      backgroundColor: item.color
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Expenses List by Category */}
-        <div className="mt-8">
-          <h3 className="text-lg font-bold text-white mb-4">Gastos por Categoría</h3>
-          <div className="space-y-4">
-            {Object.entries(expensesByCategory).map(([categoryId, amount]) => {
-              const isCustomCategory = customCategories.some(cat => cat.id === categoryId);
-              const category = allCategories.find(cat => cat.id === categoryId);
-              if (!category) return null;
-              
-              return (
-                <div key={categoryId} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] hover:border-[#333333] transition-all duration-300">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: category.color + '20' }}
-                      >
-                        <svg 
-                          className="w-6 h-6" 
-                          style={{ color: category.color }}
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={category.icon} />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-white">{category.name}</h4>
-                        <p className="text-sm text-[#B8B8B8]">
-                          {expenses.filter(e => e.category === categoryId).length} transacciones
-                        </p>
-                      </div>
+                    <div className="w-6 h-6 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-black">
+                        {address.slice(2, 4).toUpperCase()}
+                      </span>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="text-[#FFD700] font-bold">${amount.toFixed(2)}</p>
-                        <p className="text-sm text-[#B8B8B8]">
-                          {((amount / totalExpenses) * 100).toFixed(1)}% del total
-                        </p>
+                    <div className="flex flex-col">
+                      {/* Componente Name de OnchainKit para resolver ENS */}
+                      <div className="text-white text-sm font-medium">
+                        <Name 
+                          address={address as `0x${string}`}
+                          className="text-white text-sm font-medium"
+                        />
                       </div>
-                      {isCustomCategory && (
-                        <button
-                          onClick={() => handleDeleteCategory(categoryId)}
-                          className="p-2 text-red-500 hover:text-red-400 transition-colors"
-                          title="Eliminar categoría"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                      {walletBalance && (
+                        <span className="text-[#B8B8B8] text-xs">
+                          {parseFloat(walletBalance.formatted).toFixed(4)} {walletBalance.symbol}
+                        </span>
                       )}
                     </div>
                   </div>
-                  {/* Progress bar */}
-                  <div className="mt-3 h-2 bg-[#2A2A2A] rounded-full">
-                    <div 
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${(amount / totalExpenses) * 100}%`,
-                        backgroundColor: category.color
-                      }}
-                    ></div>
-                  </div>
                 </div>
-              );
-            })}
+                
+                {/* Botón de desconectar */}
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-3 py-2 bg-[#2A2A2A] text-red-400 rounded-xl hover:bg-[#3A3A3A] transition-colors text-sm"
+                  title="Desconectar wallet"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div className="px-4 py-2 bg-[#1A1A1A] rounded-xl border border-[#333333] text-[#B8B8B8] text-sm">
+                Wallet no conectada
+              </div>
+            )}
+          </div>
+
+          {/* Controles de navegación */}
+          <div className="flex items-center space-x-3">
+            {currentSection !== 'home' && (
+              <button
+                onClick={() => setCurrentSection('home')}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#2A2A2A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Inicio</span>
+              </button>
+            )}
+            <button
+              onClick={() => setIsMenuModalOpen(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700]"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span>Menú</span>
+            </button>
+            <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-4 py-2 border border-[#333333]">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-sm text-[#B8B8B8]">Base Network</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Recent Expenses */}
-        <div className="mt-8">
-          <h3 className="text-lg font-bold text-white mb-4">Gastos Recientes</h3>
-          <div className="space-y-2">
-            {expenses.slice(-5).reverse().map((expense) => (
-              <div key={expense.id} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] flex items-center justify-between hover:border-[#333333] transition-all duration-300">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: expense.categoryDetails.color + '20' }}
+      {/* Contenido principal según la sección */}
+      <div className="mb-8">
+        {renderSectionContent()}
+      </div>
+
+      {/* New Category Modal */}
+      {isNewCategoryModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90]">
+          <div className="bg-[#111111] rounded-xl p-6 w-full max-w-md border border-[#2A2A2A]">
+            <h3 className="text-xl font-bold text-white mb-6">Crear Nueva Categoría</h3>
+            
+            {/* Category Name Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                Nombre de la Categoría
+              </label>
+              <input
+                type="text"
+                value={newCategory.name}
+                onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#FFD700]"
+                placeholder="Ej: Gimnasio"
+              />
+            </div>
+
+            {/* Color Picker */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                Color de la Categoría
+              </label>
+              <input
+                type="color"
+                value={newCategory.color}
+                onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
+                className="w-full h-10 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-1 cursor-pointer"
+              />
+            </div>
+
+            {/* Icon Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                Ícono
+              </label>
+              <div className="grid grid-cols-4 gap-3">
+                {availableIcons.map((icon) => (
+                  <button
+                    key={icon.id}
+                    onClick={() => setNewCategory({ ...newCategory, icon: icon.path })}
+                    className={`p-3 rounded-lg transition-all duration-200 ${
+                      newCategory.icon === icon.path
+                        ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
+                        : 'bg-[#1A1A1A] hover:bg-[#2A2A2A]'
+                    }`}
                   >
-                    <svg 
-                      className="w-6 h-6" 
-                      style={{ color: expense.categoryDetails.color }}
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={expense.categoryDetails.icon} />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-white">{expense.description || expense.categoryDetails.name}</h4>
-                    <p className="text-sm text-[#B8B8B8]">
-                      {new Date(expense.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-[#FFD700] font-bold">${expense.amount.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* New Category Modal */}
-        {isNewCategoryModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90]">
-            <div className="bg-[#111111] rounded-xl p-6 w-full max-w-md border border-[#2A2A2A]">
-              <h3 className="text-xl font-bold text-white mb-6">Crear Nueva Categoría</h3>
-              
-              {/* Category Name Input */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Nombre de la Categoría
-                </label>
-                <input
-                  type="text"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#FFD700]"
-                  placeholder="Ej: Gimnasio"
-                />
-              </div>
-
-              {/* Color Picker */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Color de la Categoría
-                </label>
-                <input
-                  type="color"
-                  value={newCategory.color}
-                  onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
-                  className="w-full h-10 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-1 cursor-pointer"
-                />
-              </div>
-
-              {/* Icon Selection */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Ícono
-                </label>
-                <div className="grid grid-cols-4 gap-3">
-                  {availableIcons.map((icon) => (
-                    <button
-                      key={icon.id}
-                      onClick={() => setNewCategory({ ...newCategory, icon: icon.path })}
-                      className={`p-3 rounded-lg transition-all duration-200 ${
-                        newCategory.icon === icon.path
-                          ? 'bg-[#2A2A2A] border-2 border-[#FFD700]'
-                          : 'bg-[#1A1A1A] hover:bg-[#2A2A2A]'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center">
-                        <div 
-                          className="w-10 h-10 rounded-full flex items-center justify-center mb-1"
-                          style={{ backgroundColor: newCategory.color + '20' }}
-                        >
-                          <svg 
-                            className="w-6 h-6" 
-                            style={{ color: newCategory.color }}
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon.path} />
-                          </svg>
-                        </div>
-                        <span className="text-xs text-white">{icon.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Preview */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
-                  Vista Previa
-                </label>
-                <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#2A2A2A]">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: newCategory.color + '20' }}
-                    >
-                      {newCategory.icon && (
+                    <div className="flex flex-col items-center">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center mb-1"
+                        style={{ backgroundColor: newCategory.color + '20' }}
+                      >
                         <svg 
                           className="w-6 h-6" 
                           style={{ color: newCategory.color }}
@@ -2674,42 +2927,72 @@ export function Dashboard() {
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={newCategory.icon} />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon.path} />
                         </svg>
-                      )}
+                      </div>
+                      <span className="text-xs text-white">{icon.name}</span>
                     </div>
-                    <span className="text-white font-medium">
-                      {newCategory.name || 'Nombre de la Categoría'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setIsNewCategoryModalOpen(false)}
-                  className="flex-1 px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSaveCategory}
-                  className="flex-1 px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium"
-                  disabled={!newCategory.name || !newCategory.icon}
-                >
-                  Guardar Categoría
-                </button>
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* Book Marketplace */}
-      <div className="mt-8">
-        <BookMarketplace />
-      </div>
+            {/* Preview */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                Vista Previa
+              </label>
+              <div className="bg-[#1A1A1A] p-4 rounded-lg border border-[#2A2A2A]">
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: newCategory.color + '20' }}
+                  >
+                    {newCategory.icon && (
+                      <svg 
+                        className="w-6 h-6" 
+                        style={{ color: newCategory.color }}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={newCategory.icon} />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-white font-medium">
+                    {newCategory.name || 'Nombre de la Categoría'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setIsNewCategoryModalOpen(false)}
+                className="flex-1 px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveCategory}
+                className="flex-1 px-4 py-2 bg-[#FFD700] text-black rounded-lg hover:bg-[#FFC000] transition-colors font-medium"
+                disabled={!newCategory.name || !newCategory.icon}
+              >
+                Guardar Categoría
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Menú Modal */}
+      <MenuModal
+        isOpen={isMenuModalOpen}
+        onClose={() => setIsMenuModalOpen(false)}
+        onSelectSection={handleSectionSelect}
+      />
 
       {/* Transfer Screen */}
       {isTransferScreenOpen && (

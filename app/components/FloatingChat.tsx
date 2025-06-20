@@ -77,7 +77,7 @@ export function FloatingChat() {
           <div className="bg-[var(--app-accent)] p-4 rounded-t-lg flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 flex items-center justify-center">
-                <img src="/Ensigna.png" alt="Bot" className="w-8 h-8 object-contain" />
+                <img src="/Ensigna.svg" alt="Bot" className="w-8 h-8 object-contain" />
               </div>
               <span className="text-white font-medium">CampusBot</span>
             </div>

@@ -27,6 +27,7 @@ import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
 import { sdk } from "@farcaster/frame-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
+import Image from 'next/image';
 
 // Tipos
 type Transaction = {
@@ -40,6 +41,12 @@ type SectionType = 'home' | 'transactions' | 'budget' | 'settings' | 'dashboard'
 
 // Actualizar los estilos de animación
 const styles = `
+html, body, #__next {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 @keyframes float-circle {
   0% {
     transform: translate(0, 0) rotate(0deg);
@@ -222,6 +229,318 @@ const styles = `
     margin-top: 100px !important;
   }
 }
+
+@keyframes openBook {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-30px) scale(1.05);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 215, 0, 0.6);
+  }
+}
+
+@keyframes pulse-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes textGlow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 165, 0, 0.8);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.book-container {
+  perspective: 1200px;
+  width: 280px;
+  height: 360px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: openBook 6s ease-in-out infinite;
+}
+
+.book-cover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  animation: glow 3s ease-in-out infinite;
+  box-shadow: 
+    0 0 40px rgba(255, 215, 0, 0.5),
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.book-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  background-size: 200% 200%;
+  animation: shimmer 3s infinite;
+  border-radius: 15px;
+}
+
+.book-pages {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 15px;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(255, 215, 0, 0.1);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.book-pages::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 165, 0, 0.2) 50%,
+    rgba(255, 215, 0, 0.1) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease-in-out infinite;
+  border-radius: 15px;
+}
+
+.book-pages-content {
+  position: relative;
+  z-index: 2;
+}
+
+.book-pages h2 {
+  color: #FFD700;
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  animation: textGlow 2s ease-in-out infinite;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.book-pages p {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cta-button {
+  position: relative;
+  padding: 1.2rem 2.5rem;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #000;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+  border: none;
+  border-radius: 60px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: float 4s ease-in-out infinite;
+  margin-top: 2rem;
+  box-shadow: 
+    0 15px 35px rgba(255, 215, 0, 0.4),
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+  transform: translateY(-8px) scale(1.08);
+  box-shadow: 
+    0 25px 50px rgba(255, 215, 0, 0.6),
+    0 10px 25px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  animation-play-state: paused;
+}
+
+.cta-button:active {
+  transform: translateY(-4px) scale(1.05);
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+.cta-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+  z-index: -1;
+  border-radius: 60px;
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.cta-button:hover::after {
+  opacity: 0.7;
+}
+
+/* Responsividad mejorada */
+@media (max-width: 768px) {
+  .book-container {
+    width: 220px;
+    height: 280px;
+  }
+  .cta-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+  }
+  .book-pages h2 {
+    font-size: 1.4rem;
+  }
+  .book-pages p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-container {
+    width: 180px;
+    height: 230px;
+  }
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+  .book-pages h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .book-pages p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .book-container {
+    width: 200px;
+    height: 250px;
+  }
+  .cta-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+}
 `;
 
 export default function App() {
@@ -234,6 +553,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -310,6 +630,10 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isWalletModalOpen]);
 
+  const handleStartClick = () => {
+    setShowDashboard(true);
+  };
+
   const saveFrameButton = useMemo(() => {
     if (context && !context.client.added) {
       return (
@@ -372,10 +696,13 @@ export default function App() {
                   <div className="relative w-48 h-48 mx-auto mb-8 group">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse-glow" />
                     <div className="relative w-full h-full bg-[#1A1A1A] rounded-full flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
-                      <img 
-                        src="/Ensigna.png" 
-                        alt="CampusCoin Logo" 
-                        className="w-full h-full object-contain p-6"
+                      <Image
+                        src="/Ensigna.svg"
+                        alt="CampusCoin Logo"
+                        width={150}
+                        height={150}
+                        className="object-contain p-6"
+                        priority
                       />
                     </div>
                   </div>
@@ -571,10 +898,7 @@ export default function App() {
                   </p>
                   <button
                     className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group mb-4"
-                    onClick={() => {
-                      setActiveTab('dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
+                    onClick={handleStartClick}
                   >
                     Comenzar
                   </button>
@@ -593,41 +917,88 @@ export default function App() {
     return <LoadingScreen />;
   }
 
+  if (showDashboard) {
+    return <Dashboard />;
+  }
+
   return (
-    <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
+    <div className="w-screen min-h-screen min-w-full flex flex-col bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] relative overflow-hidden">
       <style>{styles}</style>
-      <div className="w-full max-w-7xl mx-auto px-4 py-3">
-        <header className="flex justify-between items-center mb-3 h-11">
-          <div>{saveFrameButton}</div>
-          <div className="flex items-center justify-end w-full">
-            <Wallet className={`${isMobile ? '' : 'fixed top-4 right-4'} z-[100] wallet-connect-btn`}>
-              <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
-              <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
-                <WalletAdvancedWalletActions />
-                <WalletAdvancedAddressDetails />
-                <WalletAdvancedTransactionActions />
-                <WalletAdvancedTokenHoldings />
-              </WalletDropdown>
-            </Wallet>
-          </div>
-        </header>
-
-        <main className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {renderContent()}
-          </div>
-        </main>
-
-        <footer className="mt-2 pt-4 flex justify-center">
-          <button
-            className="text-[var(--ock-text-foreground-muted)] text-xs hover:text-[var(--app-accent)] transition-colors"
-            onClick={() => openUrl("https://base.org/builders/minikit")}
-          >
-            CampusCoin - Pagos Rápidos para Estudiantes
-          </button>
-        </footer>
+      
+      {/* Efectos de fondo mejorados */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full filter blur-[100px] opacity-20 animate-pulse" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-[#FFA500] to-[#FF8C00] rounded-full filter blur-[120px] opacity-15 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FFD700]/10 to-[#FFA500]/10 rounded-full filter blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
-      <FloatingChat />
+      
+      <header className="relative w-full flex justify-end p-4 z-10 shrink-0">
+        <div>{saveFrameButton}</div>
+        <Wallet className="z-[100] ml-4">
+          <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
+          <WalletDropdown className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg">
+            <WalletAdvancedWalletActions />
+            <WalletAdvancedAddressDetails />
+            <WalletAdvancedTransactionActions />
+            <WalletAdvancedTokenHoldings />
+          </WalletDropdown>
+        </Wallet>
+      </header>
+      
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 min-h-0">
+        <div className="book-container mb-4 md:mb-8">
+          <div className="book">
+            <div className="book-cover">
+              <Image
+                src="/Ensigna.svg"
+                alt="CampusCoin Logo"
+                width={120}
+                height={120}
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="book-pages">
+              <div className="book-pages-content">
+                <h2>CampusCoin</h2>
+                <p>Revolución Financiera</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="space-y-4 md:space-y-6 max-w-4xl w-full">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] animate-pulse-scale">
+            CampusCoin
+          </h1>
+          <p className="text-xl md:text-2xl lg:text-3xl text-white font-bold tracking-wide">
+            Tu Ecosistema Universitario
+          </p>
+          <p className="text-lg md:text-xl lg:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] font-semibold">
+            Inteligente
+          </p>
+          <p className="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
+            Únete a la <span className="text-[#FFD700] font-bold">revolución financiera universitaria</span>. 
+            Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
+          </p>
+          <button
+            className="cta-button"
+            onClick={handleStartClick}
+          >
+            Comenzar
+          </button>
+        </div>
+      </main>
+      
+      <footer className="relative w-full text-center py-4 md:py-6 z-10 shrink-0">
+        <div className="flex items-center justify-center space-x-2">
+          <div className="w-2 h-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full animate-pulse"></div>
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-xs md:text-sm font-semibold tracking-wider">
+            CampusCoin - Pagos Rápidos para Estudiantes
+          </p>
+          <div className="w-2 h-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full animate-pulse"></div>
+        </div>
+      </footer>
     </div>
   );
 }

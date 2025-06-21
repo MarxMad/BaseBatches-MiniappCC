@@ -47,56 +47,49 @@ html, body, #__next {
   padding: 0;
 }
 
-@keyframes float-circle {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
+/* Optimizar animaciones para mejor rendimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  25% {
-    transform: translate(100px, 50px) rotate(90deg);
+}
+
+@keyframes float-circle {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate(50px, 100px) rotate(180deg);
-  }
-  75% {
-    transform: translate(-50px, 50px) rotate(270deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(360deg);
+    transform: translate3d(50px, -30px, 0);
   }
 }
 
 @keyframes float-zigzag {
-  0% {
-    transform: translate(0, 0);
-  }
-  25% {
-    transform: translate(50px, -50px);
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate(100px, 0);
-  }
-  75% {
-    transform: translate(50px, 50px);
-  }
-  100% {
-    transform: translate(0, 0);
+    transform: translate3d(30px, -20px, 0);
   }
 }
 
 @keyframes float-wave {
-  0% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(75px, -25px) scale(1.2); }
-  50% { transform: translate(150px, 0) scale(1); }
-  75% { transform: translate(75px, 25px) scale(0.8); }
-  100% { transform: translate(0, 0) scale(1); }
+  0%, 100% { 
+    transform: translate3d(0, 0, 0) scale(1); 
+  }
+  50% { 
+    transform: translate3d(40px, -15px, 0) scale(1.05); 
+  }
 }
 
 @keyframes float-spiral {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  25% { transform: translate(50px, -50px) rotate(90deg) scale(1.2); }
-  50% { transform: translate(0, -100px) rotate(180deg) scale(1); }
-  75% { transform: translate(-50px, -50px) rotate(270deg) scale(0.8); }
-  100% { transform: translate(0, 0) rotate(360deg) scale(1); }
+  0%, 100% { 
+    transform: translate3d(0, 0, 0) rotate(0deg); 
+  }
+  50% { 
+    transform: translate3d(25px, -25px, 0) rotate(180deg); 
+  }
 }
 
 @keyframes shine {
@@ -110,54 +103,64 @@ html, body, #__next {
 }
 
 @keyframes pulse-glow {
-  0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
-  100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+  0%, 100% { 
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
 }
 
 @keyframes float-up {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .animate-float-circle {
-  animation: float-circle linear infinite;
+  animation: float-circle 8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-zigzag {
-  animation: float-zigzag ease-in-out infinite;
+  animation: float-zigzag 6s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-wave {
-  animation: float-wave ease-in-out infinite;
+  animation: float-wave 7s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-spiral {
-  animation: float-spiral ease-in-out infinite;
+  animation: float-spiral 9s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-shine {
-  animation: shine 2s linear infinite;
+  animation: shine 3s linear infinite;
 }
 
 .animate-gradient-x {
-  animation: gradient-x 3s ease infinite;
+  animation: gradient-x 4s ease infinite;
   background-size: 200% 200%;
 }
 
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: pulse-glow 3s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .animate-float-up {
-  animation: float-up 3s ease-in-out infinite;
+  animation: float-up 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 .hero-gradient {
   background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
   background-size: 200% 200%;
-  animation: gradient-x 3s ease infinite;
+  animation: gradient-x 4s ease infinite;
 }
 
 .hero-text-shadow {
@@ -182,31 +185,15 @@ html, body, #__next {
     rgba(255, 215, 0, 0.4),
     transparent
   );
-  animation: shine 3s infinite;
+  animation: shine 4s infinite;
 }
 
 @keyframes line-draw {
-  0% {
-    width: 0;
-    opacity: 0;
+  0%, 100% {
+    width: 60%;
+    opacity: 0.8;
   }
-  20% {
-    width: 100%;
-    opacity: 1;
-  }
-  40% {
-    width: 100%;
-    opacity: 1;
-  }
-  60% {
-    width: 0;
-    opacity: 0;
-  }
-  80% {
-    width: 100%;
-    opacity: 1;
-  }
-  100% {
+  50% {
     width: 100%;
     opacity: 1;
   }
@@ -218,9 +205,9 @@ html, body, #__next {
   background: linear-gradient(90deg, #FFD700, #FFA500);
   border-radius: 2px;
   margin: 1rem auto;
-  width: 0;
-  animation: line-draw 4s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  width: 60%;
+  animation: line-draw 3s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 /* --- Ajuste para el modal en móviles --- */
@@ -231,14 +218,11 @@ html, body, #__next {
 }
 
 @keyframes openBook {
-  0% {
+  0%, 100% {
     transform: rotateY(0deg);
   }
   50% {
     transform: rotateY(180deg);
-  }
-  100% {
-    transform: rotateY(360deg);
   }
 }
 
@@ -247,16 +231,16 @@ html, body, #__next {
     transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-30px) scale(1.05);
+    transform: translateY(-10px) scale(1.02);
   }
 }
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
   }
   50% {
-    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 100px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
   }
 }
 
@@ -265,7 +249,7 @@ html, body, #__next {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.1);
+    transform: scale(1.02);
   }
 }
 
@@ -280,22 +264,19 @@ html, body, #__next {
 
 @keyframes textGlow {
   0%, 100% {
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
   }
   50% {
-    text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 165, 0, 0.8);
+    text-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
   }
 }
 
 @keyframes gradientShift {
-  0% {
+  0%, 100% {
     background-position: 0% 50%;
   }
   50% {
     background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
   }
 }
 
@@ -315,7 +296,8 @@ html, body, #__next {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  animation: openBook 6s ease-in-out infinite;
+  animation: openBook 8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .book-cover {
@@ -328,12 +310,13 @@ html, body, #__next {
   align-items: center;
   justify-content: center;
   backface-visibility: hidden;
-  animation: glow 3s ease-in-out infinite;
+  animation: glow 4s ease-in-out infinite;
   box-shadow: 
-    0 0 40px rgba(255, 215, 0, 0.5),
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 0 20px rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+    0 0 30px rgba(255, 215, 0, 0.4),
+    0 15px 30px rgba(0, 0, 0, 0.2),
+    inset 0 0 15px rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  will-change: box-shadow;
 }
 
 .book-cover::before {
@@ -346,11 +329,11 @@ html, body, #__next {
   background: linear-gradient(
     45deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
     transparent 70%
   );
   background-size: 200% 200%;
-  animation: shimmer 3s infinite;
+  animation: shimmer 4s infinite;
   border-radius: 15px;
 }
 
@@ -369,9 +352,9 @@ html, body, #__next {
   padding: 20px;
   text-align: center;
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 0 20px rgba(255, 215, 0, 0.1);
-  border: 2px solid rgba(255, 215, 0, 0.3);
+    0 15px 30px rgba(0, 0, 0, 0.2),
+    inset 0 0 15px rgba(255, 215, 0, 0.05);
+  border: 2px solid rgba(255, 215, 0, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -385,12 +368,12 @@ html, body, #__next {
   bottom: 0;
   background: linear-gradient(
     45deg,
-    rgba(255, 215, 0, 0.1) 0%,
-    rgba(255, 165, 0, 0.2) 50%,
-    rgba(255, 215, 0, 0.1) 100%
+    rgba(255, 215, 0, 0.05) 0%,
+    rgba(255, 165, 0, 0.1) 50%,
+    rgba(255, 215, 0, 0.05) 100%
   );
   background-size: 200% 200%;
-  animation: gradientShift 4s ease-in-out infinite;
+  animation: gradientShift 5s ease-in-out infinite;
   border-radius: 15px;
 }
 
@@ -404,7 +387,7 @@ html, body, #__next {
   font-size: 1.8rem;
   font-weight: 900;
   margin-bottom: 0.5rem;
-  animation: textGlow 2s ease-in-out infinite;
+  animation: textGlow 3s ease-in-out infinite;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -430,27 +413,28 @@ html, body, #__next {
   border-radius: 60px;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  animation: float 4s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: float 5s ease-in-out infinite;
   margin-top: 2rem;
   box-shadow: 
-    0 15px 35px rgba(255, 215, 0, 0.4),
-    0 5px 15px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    0 10px 25px rgba(255, 215, 0, 0.3),
+    0 5px 10px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  will-change: transform, box-shadow;
 }
 
 .cta-button:hover {
-  transform: translateY(-8px) scale(1.08);
+  transform: translateY(-4px) scale(1.05);
   box-shadow: 
-    0 25px 50px rgba(255, 215, 0, 0.6),
-    0 10px 25px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 15px 35px rgba(255, 215, 0, 0.4),
+    0 8px 15px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
   animation-play-state: paused;
 }
 
 .cta-button:active {
-  transform: translateY(-4px) scale(1.05);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .cta-button::before {
@@ -463,10 +447,10 @@ html, body, #__next {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0.4),
     transparent
   );
-  transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .cta-button:hover::before {
@@ -483,13 +467,13 @@ html, body, #__next {
   background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
   z-index: -1;
   border-radius: 60px;
-  filter: blur(8px);
+  filter: blur(6px);
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 
 .cta-button:hover::after {
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 /* Responsividad mejorada */
@@ -593,6 +577,17 @@ export default function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Efecto para redirigir automáticamente al dashboard cuando se conecte la wallet
+  useEffect(() => {
+    if (isConnected && activeTab === 'home') {
+      // Pequeño delay para que el usuario vea que se conectó
+      setTimeout(() => {
+        setActiveTab('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 1500);
+    }
+  }, [isConnected, activeTab]);
+
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();
     setFrameAdded(Boolean(frameAdded));
@@ -663,255 +658,7 @@ export default function App() {
     return null;
   }, [context, frameAdded, handleAddFrame]);
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      default:
-        return (
-          <>
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] p-4 relative overflow-hidden">
-              {/* Hero Section */}
-              <div className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]">
-                {/* Efectos de fondo animados */}
-                <div className="absolute inset-0">
-                  <div className="absolute top-0 left-0 w-96 h-96 bg-[#FFD700] rounded-full filter blur-[128px] opacity-20 animate-pulse" />
-                  <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#FFA500] rounded-full filter blur-[128px] opacity-20 animate-pulse delay-1000" />
-                  <div className="absolute inset-0" style={{ 
-                    backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,215,0,0.15) 2px, transparent 0)',
-                    backgroundSize: '24px 24px' 
-                  }}></div>
-                </div>
-
-                {/* Elementos flotantes decorativos */}
-                <div className="absolute inset-0 overflow-hidden">
-                  <div className="absolute top-1/4 left-1/4 w-20 h-20 bg-[#FFD700]/20 rounded-full animate-float-circle" />
-                  <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-[#FFA500]/20 rounded-full animate-float-zigzag" />
-                  <div className="absolute bottom-1/4 left-1/3 w-24 h-24 bg-[#FFD700]/20 rounded-full animate-float-wave" />
-                  <div className="absolute bottom-1/3 right-1/3 w-20 h-20 bg-[#FFA500]/20 rounded-full animate-float-spiral" />
-                </div>
-
-                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-                  {/* Logo con efecto de brillo */}
-                  <div className="relative w-48 h-48 mx-auto mb-8 group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-all duration-500 animate-pulse-glow" />
-                    <div className="relative w-full h-full bg-[#1A1A1A] rounded-full flex items-center justify-center transform group-hover:scale-[1.02] transition-all duration-500 overflow-hidden">
-                      <Image
-                        src="/Ensigna.svg"
-                        alt="CampusCoin Logo"
-                        width={150}
-                        height={150}
-                        className="object-contain p-6"
-                        priority
-                      />
-                    </div>
-                  </div>
-
-                  {/* Título principal con efectos */}
-                  <h1 className="text-6xl md:text-7xl font-bold mb-6 text-white hero-text-shadow animate-float-up">
-                    CampusCoin
-                  </h1>
-
-                  {/* Línea animada */}
-                  <div className="animated-line w-48 mx-auto"></div>
-
-                  {/* Subtítulo con animación */}
-                  <p className="text-2xl md:text-3xl text-[#FFD700] mb-12 animate-float-up" style={{ animationDelay: '0.2s' }}>
-                    Tu Ecosistema Universitario Inteligente
-                  </p>
-
-                  {/* Botón de llamada a la acción */}
-                  <button
-                    className="hero-button-glow px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] transform hover:scale-105"
-                    onClick={() => {
-                      setActiveTab('dashboard');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                  >
-                    Comenzar Ahora
-                  </button>
-
-                  {/* Texto descriptivo */}
-                  <p className="mt-8 text-lg text-[#B8B8B8] max-w-2xl mx-auto animate-float-up" style={{ animationDelay: '0.4s' }}>
-                    Únete a la revolución financiera universitaria. Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
-                  </p>
-                </div>
-              </div>
-
-              <div className="max-w-4xl w-full space-y-8 relative z-10">
-                {/* Características Principales */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                  {/* Marketplace de Libros */}
-                  <div className="group relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-8 border border-[#333333]/50 hover:border-[#50FA7B]/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(80,250,123,0.15)] overflow-hidden">
-                    {/* Efecto de brillo en el borde */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#50FA7B]/0 via-[#50FA7B]/10 to-[#50FA7B]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                    {/* Contenido principal */}
-                    <div className="relative z-10">
-                      <div className="flex items-center space-x-6 mb-6">
-                        <div className="w-16 h-16 bg-[#50FA7B]/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 group-hover:bg-[#50FA7B]/20">
-                          <svg className="w-8 h-8 text-[#50FA7B] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-bold text-white group-hover:text-[#50FA7B] transition-colors duration-500">Marketplace de Libros</h2>
-                          <p className="text-base text-[#B8B8B8] group-hover:text-white/80 transition-colors duration-500">Comparte conocimiento, genera ingresos</p>
-                        </div>
-                      </div>
-
-                      <p className="text-lg text-[#B8B8B8] mb-8 group-hover:text-white/90 transition-colors duration-500">
-                        Compra y vende libros de texto, guías de estudio y materiales académicos. 
-                        Gana ingresos ayudando a otros estudiantes mientras contribuyes a la comunidad.
-                      </p>
-
-                      <ul className="space-y-4">
-                        {[
-                          { text: "Vende tus libros usados", icon: "M5 13l4 4L19 7" },
-                          { text: "Compra a precios accesibles", icon: "M5 13l4 4L19 7" },
-                          { text: "Comparte guías de estudio", icon: "M5 13l4 4L19 7" }
-                        ].map((item, index) => (
-                          <li key={index} className="flex items-center group-hover:text-white transition-colors duration-500">
-                            <div className="w-10 h-10 bg-[#50FA7B]/10 rounded-xl flex items-center justify-center mr-4 group-hover:bg-[#50FA7B]/20 transition-colors duration-500">
-                              <svg className="w-5 h-5 text-[#50FA7B] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                              </svg>
-                            </div>
-                            <span className="text-lg">{item.text}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Gestión de Gastos */}
-                  <div className="group relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-8 border border-[#333333]/50 hover:border-[#FF79C6]/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,121,198,0.15)] overflow-hidden">
-                    {/* Efecto de brillo en el borde */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#FF79C6]/0 via-[#FF79C6]/10 to-[#FF79C6]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
-                    {/* Contenido principal */}
-                    <div className="relative z-10">
-                      <div className="flex items-center space-x-6 mb-6">
-                        <div className="w-16 h-16 bg-[#FF79C6]/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 group-hover:bg-[#FF79C6]/20">
-                          <svg className="w-8 h-8 text-[#FF79C6] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-bold text-white group-hover:text-[#FF79C6] transition-colors duration-500">Gestión de Gastos</h2>
-                          <p className="text-base text-[#B8B8B8] group-hover:text-white/80 transition-colors duration-500">Controla tus finanzas universitarias</p>
-                        </div>
-                      </div>
-
-                      <p className="text-lg text-[#B8B8B8] mb-8 group-hover:text-white/90 transition-colors duration-500">
-                        Aprende a gestionar tus finanzas universitarias. Controla tus gastos, 
-                        establece presupuestos y toma decisiones financieras inteligentes.
-                      </p>
-
-                      <ul className="space-y-4">
-                        {[
-                          { text: "Seguimiento de gastos", icon: "M5 13l4 4L19 7" },
-                          { text: "Presupuestos personalizados", icon: "M5 13l4 4L19 7" },
-                          { text: "Análisis por categoría", icon: "M5 13l4 4L19 7" }
-                        ].map((item, index) => (
-                          <li key={index} className="flex items-center group-hover:text-white transition-colors duration-500">
-                            <div className="w-10 h-10 bg-[#FF79C6]/10 rounded-xl flex items-center justify-center mr-4 group-hover:bg-[#FF79C6]/20 transition-colors duration-500">
-                              <svg className="w-5 h-5 text-[#FF79C6] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                              </svg>
-                            </div>
-                            <span className="text-lg">{item.text}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sección de Juegos */}
-                <div className="group relative bg-[#1A1A1A]/80 backdrop-blur-xl rounded-3xl p-8 border border-[#333333]/50 hover:border-[#FFD700]/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.15)] overflow-hidden">
-                  {/* Efecto de brillo en el borde */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/0 via-[#FFD700]/10 to-[#FFD700]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  {/* Contenido principal */}
-                  <div className="relative z-10">
-                    <div className="flex items-center space-x-6 mb-6">
-                      <div className="w-16 h-16 bg-[#FFD700]/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-500 group-hover:bg-[#FFD700]/20">
-                        <svg className="w-8 h-8 text-[#FFD700] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold text-white group-hover:text-[#FFD700] transition-colors duration-500">Juegos Educativos</h2>
-                        <p className="text-base text-[#B8B8B8] group-hover:text-white/80 transition-colors duration-500">Aprende sobre criptomonedas mientras te diviertes</p>
-                      </div>
-                    </div>
-
-                    <p className="text-lg text-[#B8B8B8] mb-8 group-hover:text-white/90 transition-colors duration-500">
-                      Explora nuestra colección de juegos diseñados para aprender sobre blockchain y criptomonedas 
-                      de una manera divertida e interactiva. Gana puntos y mejora tus conocimientos.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {[
-                        {
-                          title: "Catch the Coin",
-                          description: "Atrapa las monedas que caen y gana puntos mientras aprendes sobre criptomonedas",
-                          icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        },
-                        {
-                          title: "Memory Card",
-                          description: "Encuentra pares de cartas relacionadas con conceptos blockchain",
-                          icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        },
-                        {
-                          title: "Crypto Quiz",
-                          description: "Pon a prueba tus conocimientos sobre criptomonedas y blockchain",
-                          icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                        }
-                      ].map((game, index) => (
-                        <div
-                          key={index}
-                          className="bg-[#2A2A2A] rounded-xl p-4 group-hover:bg-[#333333] transition-colors duration-500"
-                        >
-                          <div className="w-10 h-10 bg-[#FFD700]/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#FFD700]/20 transition-colors duration-500">
-                            <svg className="w-5 h-5 text-[#FFD700] group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={game.icon} />
-                            </svg>
-                          </div>
-                          <h3 className="text-lg font-bold text-white mb-2">{game.title}</h3>
-                          <p className="text-sm text-[#B8B8B8]">{game.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comenzar en Grande */}
-                <div className="mt-20 text-center">
-                  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] mb-6 animate-gradient">
-                    ¡Comienza en Grande!
-                  </h2>
-                  <p className="text-xl text-[#B8B8B8] mb-8 max-w-2xl mx-auto">
-                    Únete a la revolución financiera universitaria. Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
-                  </p>
-                  <button
-                    className="relative px-12 py-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-2xl font-bold text-xl overflow-hidden transition-all duration-500 hover:shadow-[0_0_40px_rgba(255,215,0,0.4)] group mb-4"
-                    onClick={handleStartClick}
-                  >
-                    Comenzar
-                  </button>
-                  <p className="mt-6 text-[#B8B8B8]">
-                    {user ? '¡Bienvenido! Haz clic en Dashboard para comenzar.' : 'Conecta tu wallet para comenzar tu aventura'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </>
-        );
-    }
-  };
+  
 
   if (isLoading) {
     return <LoadingScreen />;

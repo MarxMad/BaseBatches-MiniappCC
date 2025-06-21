@@ -11,7 +11,8 @@ import { formatUnits, parseUnits, type Log, decodeEventLog } from 'viem';
 import type { ContractEventArgs } from 'viem';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
-import { Name } from '@coinbase/onchainkit/identity';
+import { Name, Avatar } from '@coinbase/onchainkit/identity';
+import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 
 import { useWalletStats } from '../hooks/useWalletStats';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -1850,7 +1851,7 @@ const BlockchainPuzzle = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
     }
   ];
 
-export function Dashboard() {
+export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
   const { user } = useApp();
   const { address, isConnected } = useAccount();
   const { data: walletBalance } = useBalance({ address });
@@ -2758,102 +2759,115 @@ export function Dashboard() {
   return (
     <div className={`w-full max-w-7xl mx-auto px-4 py-8 ${techGradient} min-h-screen`}>
       {/* Header con Logo y Menú */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
-        <div className="flex items-center space-x-4">
-          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FFA500] p-0.5">
+      <div className="flex items-center justify-between gap-2 mb-8 overflow-x-auto">
+        <button 
+          className="flex items-center space-x-2 min-w-0 flex-shrink-0 hover:opacity-80 transition-opacity cursor-pointer group"
+          onClick={onBackToHome}
+          title="Volver a la pantalla de bienvenida"
+        >
+          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-gradient-to-br from-[#FFD700] to-[#FFA500] p-0.5 group-hover:scale-105 transition-transform">
             <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] opacity-50 blur-xl" />
-            <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center p-2">
+            <div className="relative w-full h-full bg-black rounded-lg flex items-center justify-center p-1 sm:p-2">
               <Image
                 src="/Ensigna.svg"
                 alt="CampusCoin Logo"
-                width={32}
-                height={32}
-                className="object-contain"
+                width={24}
+                height={24}
+                className="object-contain sm:w-8 sm:h-8"
                 priority
               />
             </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">CampusCoin</h1>
-            <p className="text-sm text-[#B8B8B8]">Tu Wallet Universitaria</p>
+          <div className="hidden sm:block text-left">
+            <h1 className="text-xl sm:text-2xl font-bold text-white group-hover:text-[#FFD700] transition-colors">CampusCoin</h1>
+            <p className="text-xs sm:text-sm text-[#B8B8B8] group-hover:text-white transition-colors">Tu Wallet Universitaria</p>
           </div>
-        </div>
+        </button>
         
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="flex items-center gap-2 min-w-0">
           {/* Wallet conectada */}
-          <div className="flex items-center space-x-3">
-            {isConnected && address ? (
-              <div className="flex items-center space-x-3">
-                {/* Información de la wallet con ENS */}
-                <div className="px-4 py-2 bg-[#1A1A1A] rounded-xl border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer"
-                     onClick={() => {
-                       navigator.clipboard.writeText(address);
-                       toast.success('¡Dirección copiada!');
-                     }}>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center">
-                      <span className="text-xs font-bold text-black">
-                        {address.slice(2, 4).toUpperCase()}
+          {isConnected && address ? (
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Información de la wallet con ENS */}
+              <div className="px-2 sm:px-3 py-2 bg-[#1A1A1A] rounded-xl border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer min-w-0"
+                   onClick={() => {
+                     navigator.clipboard.writeText(address);
+                     toast.success('¡Dirección copiada!');
+                   }}>
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden flex-shrink-0 border border-[#FFD700]">
+                    <Avatar
+                      address={address as `0x${string}`}
+                      className="w-full h-full"
+                      defaultComponent={
+                        <div className="w-full h-full bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-black">
+                            {address.slice(2, 4).toUpperCase()}
+                          </span>
+                        </div>
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    {/* Componente Name de OnchainKit para resolver ENS */}
+                    <div className="text-white text-xs sm:text-sm font-medium truncate">
+                      <Name 
+                        address={address as `0x${string}`}
+                        className="text-white text-xs sm:text-sm font-medium"
+                      />
+                    </div>
+                    {walletBalance && (
+                      <span className="text-[#B8B8B8] text-xs truncate">
+                        {parseFloat(walletBalance.formatted).toFixed(3)} {walletBalance.symbol}
                       </span>
-                    </div>
-                    <div className="flex flex-col">
-                      {/* Componente Name de OnchainKit para resolver ENS */}
-                      <div className="text-white text-sm font-medium">
-                        <Name 
-                          address={address as `0x${string}`}
-                          className="text-white text-sm font-medium"
-                        />
-                      </div>
-                      {walletBalance && (
-                        <span className="text-[#B8B8B8] text-xs">
-                          {parseFloat(walletBalance.formatted).toFixed(4)} {walletBalance.symbol}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-                
-                {/* Botón de desconectar */}
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-3 py-2 bg-[#2A2A2A] text-red-400 rounded-xl hover:bg-[#3A3A3A] transition-colors text-sm"
-                  title="Desconectar wallet"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
               </div>
-            ) : (
-              <div className="px-4 py-2 bg-[#1A1A1A] rounded-xl border border-[#333333] text-[#B8B8B8] text-sm">
-                Wallet no conectada
-              </div>
-            )}
-          </div>
+              
+              {/* Botón de desconectar - solo icono en móvil */}
+              <button
+                onClick={() => window.location.reload()}
+                className="p-2 bg-[#2A2A2A] text-red-400 rounded-xl hover:bg-[#3A3A3A] transition-colors flex-shrink-0"
+                title="Desconectar wallet"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <ConnectWallet
+              text="Conectar"
+              className="px-2 sm:px-3 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all text-xs sm:text-sm font-medium"
+            />
+          )}
 
           {/* Controles de navegación */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-1 sm:gap-2">
             {currentSection !== 'home' && (
               <button
                 onClick={() => setCurrentSection('home')}
-                className="flex items-center space-x-2 px-4 py-2 bg-[#2A2A2A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors"
+                className="p-2 sm:px-3 sm:py-2 bg-[#2A2A2A] text-white rounded-xl hover:bg-[#3A3A3A] transition-colors flex-shrink-0"
+                title="Inicio"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
-                <span>Inicio</span>
+                <span className="hidden sm:inline ml-2">Inicio</span>
               </button>
             )}
             <button
               onClick={() => setIsMenuModalOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700]"
+              className="p-2 sm:px-3 sm:py-2 bg-[#1A1A1A] text-white rounded-xl hover:bg-[#2A2A2A] transition-all border border-[#333333] hover:border-[#FFD700] flex-shrink-0"
+              title="Menú"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-              <span>Menú</span>
+              <span className="hidden sm:inline ml-2">Menú</span>
             </button>
-            <div className="flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-4 py-2 border border-[#333333]">
+            <div className="hidden sm:flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-3 py-2 border border-[#333333]">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-sm text-[#B8B8B8]">Base Network</span>
             </div>

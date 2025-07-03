@@ -38,6 +38,24 @@ type Challenge = {
   status: 'active' | 'completed' | 'expired';
 };
 
+type Currency = {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
+  color: string;
+};
+
+type Income = {
+  id: number;
+  source: string;
+  amount: number;
+  date: string;
+  description: string;
+  recurring: boolean;
+  category: 'salary' | 'freelance' | 'scholarship' | 'family' | 'other';
+};
+
 type Expense = {
   id: number;
   category: string;
@@ -1851,6 +1869,38 @@ const BlockchainPuzzle = ({ onBack, onGameEnd }: { onBack: () => void; onGameEnd
     }
   ];
 
+  // Definir las monedas disponibles
+  const availableCurrencies: Currency[] = [
+    {
+      id: 'usdc',
+      name: 'USD Coin',
+      symbol: 'USDC',
+      icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      color: '#2775CA'
+    },
+    {
+      id: 'mxn',
+      name: 'Peso Mexicano',
+      symbol: 'MXN',
+      icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      color: '#00D26A'
+    },
+    {
+      id: 'eth',
+      name: 'Ethereum',
+      symbol: 'ETH',
+      icon: 'M12 2L3 12l9 5 9-5-9-10zM3 12l9 5v-5L3 12z',
+      color: '#627EEA'
+    },
+    {
+      id: 'btc',
+      name: 'Bitcoin',
+      symbol: 'BTC',
+      icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+      color: '#F7931A'
+    }
+  ];
+
 export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
   const { user } = useApp();
   const { address, isConnected } = useAccount();
@@ -1861,17 +1911,22 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
   
   const [balance, setBalance] = useState("0.00");
   const [activeSlide, setActiveSlide] = useState(0);
+  
+  // Estados principales - inicializados vacíos y luego cargados desde localStorage
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([]);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [expensesByCategory, setExpensesByCategory] = useState<{[key: string]: number}>({});
   const [isNewCategoryModalOpen, setIsNewCategoryModalOpen] = useState(false);
   const [customCategories, setCustomCategories] = useState<Category[]>([]);
-  const [budget, setBudget] = useState<number>(() => {
-    const savedBudget = localStorage.getItem('monthlyBudget');
-    return savedBudget ? parseFloat(savedBudget) : 600;
-  });
+  const [budget, setBudget] = useState<number>(600);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(availableCurrencies[0]);
+  const [incomes, setIncomes] = useState<Income[]>([]);
+  
+  const [totalIncomes, setTotalIncomes] = useState(0);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [newBudget, setNewBudget] = useState(budget.toString());
+  const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [newCategory, setNewCategory] = useState({
     name: '',
     color: '#FFD700',
@@ -2046,13 +2101,16 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
             name: 'Maestro del Puzzle',
             description: 'Completa 10 puzzles',
             unlocked: false,
-            icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
+            icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.30 9-11.622 0-1.042-.133-2.052-.382-3.016z'
           }
         ],
         history: []
       }
     ];
   });
+
+  // Combinar categorías predefinidas con personalizadas
+  const allCategories = [...defaultCategories, ...customCategories];
 
   // Función para actualizar las estadísticas de un juego
   const updateGameStats = async (
@@ -2199,25 +2257,142 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
     }
   };
 
+  // Cargar TODOS los datos del usuario cuando la wallet se conecte
   useEffect(() => {
-    const savedCategories = localStorage.getItem('customCategories');
+    if (address && typeof window !== 'undefined') {
+      console.log('🔄 Cargando datos para usuario:', address.slice(0, 8) + '...');
+      
+      // 1. Cargar categorías personalizadas
+      const savedCategories = localStorage.getItem(`customCategories_${address}`);
     if (savedCategories) {
       try {
-        const parsed = JSON.parse(savedCategories);
-        console.log('Categorías cargadas del localStorage:', parsed);
-        setCustomCategories(parsed);
+          const parsedCategories = JSON.parse(savedCategories);
+          setCustomCategories(parsedCategories);
+          console.log('✅ Categorías cargadas:', parsedCategories.length);
       } catch (error) {
         console.error('Error al cargar categorías:', error);
       }
     }
-  }, []);
+
+      // 2. Cargar presupuesto
+      const savedBudget = localStorage.getItem(`monthlyBudget_${address}`);
+      if (savedBudget) {
+        const budgetValue = parseFloat(savedBudget);
+        setBudget(budgetValue);
+        setNewBudget(budgetValue.toString());
+        console.log('✅ Presupuesto cargado:', budgetValue);
+      }
+
+      // 3. Cargar moneda seleccionada
+      const savedCurrency = localStorage.getItem(`selectedCurrency_${address}`);
+      if (savedCurrency) {
+        try {
+          const currencyId = JSON.parse(savedCurrency);
+          const foundCurrency = availableCurrencies.find(curr => curr.id === currencyId);
+          if (foundCurrency) {
+            setSelectedCurrency(foundCurrency);
+            console.log('✅ Moneda cargada:', foundCurrency.symbol);
+          }
+        } catch (error) {
+          console.error('Error al cargar moneda:', error);
+        }
+      }
+
+      // 4. Cargar ingresos
+      const savedIncomes = localStorage.getItem(`incomes_${address}`);
+      if (savedIncomes) {
+        try {
+          const parsedIncomes = JSON.parse(savedIncomes);
+          setIncomes(parsedIncomes);
+          console.log('✅ Ingresos cargados:', parsedIncomes.length);
+        } catch (error) {
+          console.error('Error al cargar ingresos:', error);
+        }
+      }
+
+      console.log('🔄 Carga inicial completada para usuario:', address.slice(0, 8) + '...');
+    } else if (!address) {
+      // Limpiar todos los datos cuando no hay address (wallet desconectada)
+      console.log('🧹 Limpiando datos (wallet desconectada)');
+      setExpenses([]);
+      setCustomCategories([]);
+      setBudget(600);
+      setSelectedCurrency(availableCurrencies[0]);
+      setIncomes([]);
+      setNewBudget('600');
+    }
+  }, [address]); // Solo dependemos de address para la carga inicial
+
+  // Cargar gastos cuando las categorías personalizadas estén disponibles
+  useEffect(() => {
+    if (address && (customCategories.length >= 0)) { // >= 0 para incluir arrays vacíos
+      const savedExpenses = localStorage.getItem(`expenses_${address}`);
+      if (savedExpenses) {
+        try {
+          const parsedExpenses = JSON.parse(savedExpenses);
+          // Reconstruir categoryDetails para cada gasto usando todas las categorías disponibles
+          const allAvailableCategories = [...defaultCategories, ...customCategories];
+          const expensesWithDetails = parsedExpenses.map((expense: any) => {
+            const categoryDetails = allAvailableCategories.find(cat => cat.id === expense.category) || 
+                                   defaultCategories.find(cat => cat.id === 'other') || 
+                                   defaultCategories[defaultCategories.length - 1];
+            return {
+              ...expense,
+              categoryDetails
+            };
+          });
+          console.log('📋 Gastos cargados:', expensesWithDetails.length, 'gastos');
+          setExpenses(expensesWithDetails);
+        } catch (error) {
+          console.error('❌ Error al cargar gastos:', error);
+        }
+      }
+    }
+  }, [address, customCategories]); // Depende de address y customCategories
 
   useEffect(() => {
-    if (customCategories.length > 0) {
-      console.log('Guardando categorías en localStorage:', customCategories);
-      localStorage.setItem('customCategories', JSON.stringify(customCategories));
+    // Guardar categorías personalizadas por usuario en localStorage cuando cambien
+    if (address && customCategories.length >= 0) {
+      console.log('✅ Categorías guardadas para usuario:', address.slice(0, 8) + '...', customCategories.length, 'categorías');
+      localStorage.setItem(`customCategories_${address}`, JSON.stringify(customCategories));
+    }
+  }, [customCategories, address]);
+
+  // Actualizar categoryDetails de gastos existentes cuando cambien las categorías
+  useEffect(() => {
+    if (expenses.length > 0) {
+      const updatedExpenses = expenses.map(expense => {
+        const categoryDetails = [...defaultCategories, ...customCategories].find(cat => cat.id === expense.category) || 
+                               defaultCategories.find(cat => cat.id === 'other') || 
+                               defaultCategories[defaultCategories.length - 1];
+        return {
+          ...expense,
+          categoryDetails
+        };
+      });
+      
+      // Solo actualizar si hay cambios en categoryDetails
+      const hasChanges = expenses.some((expense, index) => 
+        expense.categoryDetails.id !== updatedExpenses[index].categoryDetails.id ||
+        expense.categoryDetails.name !== updatedExpenses[index].categoryDetails.name
+      );
+      
+      if (hasChanges) {
+        console.log('🔄 Actualizando categoryDetails de gastos existentes');
+        setExpenses(updatedExpenses);
+      }
     }
   }, [customCategories]);
+
+  useEffect(() => {
+    // Guardar gastos por usuario en localStorage cuando cambien
+    if (address && expenses.length >= 0) {
+      // Remover categoryDetails antes de guardar para evitar redundancia
+      const expensesToSave = expenses.map(({ categoryDetails, ...expense }) => expense);
+      localStorage.setItem(`expenses_${address}`, JSON.stringify(expensesToSave));
+      console.log('✅ Gastos guardados para usuario:', address.slice(0, 8) + '...');
+    }
+  }, [expenses, address]);
 
   useEffect(() => {
     // Calcular totales cuando cambien los gastos
@@ -2234,13 +2409,53 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
   }, [expenses]);
 
   useEffect(() => {
-    // Guardar presupuesto en localStorage cuando cambie
-    localStorage.setItem('monthlyBudget', budget.toString());
-  }, [budget]);
+    // Guardar presupuesto por usuario en localStorage cuando cambie
+    if (address) {
+      localStorage.setItem(`monthlyBudget_${address}`, budget.toString());
+      console.log('✅ Presupuesto guardado para usuario:', address.slice(0, 8) + '...', selectedCurrency.symbol + budget);
+    }
+  }, [budget, address, selectedCurrency]);
 
-  // Calcular ahorro
-  const savings = budget - totalExpenses;
-  const savingsPercentage = (savings / budget) * 100;
+  useEffect(() => {
+    // Guardar moneda seleccionada por usuario en localStorage cuando cambie
+    if (address) {
+      localStorage.setItem(`selectedCurrency_${address}`, JSON.stringify(selectedCurrency.id));
+      console.log('💱 Moneda guardada para usuario:', address.slice(0, 8) + '...', selectedCurrency.symbol);
+    }
+  }, [selectedCurrency, address]);
+
+  useEffect(() => {
+    // Guardar ingresos por usuario en localStorage cuando cambien
+    if (address && incomes.length >= 0) {
+      localStorage.setItem(`incomes_${address}`, JSON.stringify(incomes));
+      console.log('💰 Ingresos guardados para usuario:', address.slice(0, 8) + '...', incomes.length, 'ingresos');
+    }
+  }, [incomes, address]);
+
+  useEffect(() => {
+    // Calcular total de ingresos cuando cambien
+    const total = incomes.reduce((sum, income) => sum + income.amount, 0);
+    setTotalIncomes(total);
+  }, [incomes]);
+
+  // Debugging: Mostrar estado completo cuando cambie address o los datos principales
+  useEffect(() => {
+    if (address) {
+      console.log('📊 Estado actual del usuario:', address.slice(0, 8) + '...', {
+        gastos: expenses.length,
+        ingresos: incomes.length,
+        categoríasPersonalizadas: customCategories.length,
+        presupuesto: budget,
+        moneda: selectedCurrency.symbol,
+        balanceTotal: budget + incomes.reduce((sum, inc) => sum + inc.amount, 0) - expenses.reduce((sum, exp) => sum + exp.amount, 0)
+      });
+    }
+  }, [address, expenses, incomes, customCategories, budget, selectedCurrency]);
+
+  // Calcular balance total (presupuesto + ingresos - gastos)
+  const totalBudget = budget + totalIncomes;
+  const currentBalance = totalBudget - totalExpenses;
+  const balancePercentage = totalBudget > 0 ? (currentBalance / totalBudget) * 100 : 0;
 
   // Función para manejar el cambio de presupuesto
   const handleBudgetChange = () => {
@@ -2270,6 +2485,28 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
       setIsNewCategoryModalOpen(false);
       setNewCategory({ name: '', color: '#FFD700', icon: '' });
     }
+  };
+
+  const handleSaveIncome = (incomeData: { source: string; amount: number; description: string; category: Income['category']; recurring: boolean }) => {
+    const newIncome: Income = {
+      id: Date.now(),
+      source: incomeData.source,
+      amount: incomeData.amount,
+      date: new Date().toISOString(),
+      description: incomeData.description,
+      category: incomeData.category,
+      recurring: incomeData.recurring
+    };
+
+    console.log('Guardando nuevo ingreso:', newIncome);
+    setIncomes(prevIncomes => [...prevIncomes, newIncome]);
+    setIsAddIncomeModalOpen(false);
+  };
+
+  const handleCurrencyChange = (currency: Currency) => {
+    setSelectedCurrency(currency);
+    setIsCurrencyModalOpen(false);
+    console.log('Moneda cambiada a:', currency.symbol);
   };
 
   const getCategoryIcon = (categoryId: string) => {
@@ -2320,9 +2557,8 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
       const updatedCategories = customCategories.filter(cat => cat.id !== categoryId);
       console.log('Categorías actualizadas:', updatedCategories);
       
-      // Actualizar el estado y localStorage de manera síncrona
+      // Actualizar el estado (localStorage se actualiza automáticamente por el useEffect)
       setCustomCategories(updatedCategories);
-      localStorage.setItem('customCategories', JSON.stringify(updatedCategories));
 
       // 2. Actualizar gastos asociados
       const updatedExpenses = expenses.map(expense => {
@@ -2337,7 +2573,7 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
         return expense;
       });
       
-      // Actualizar el estado de gastos
+      // Actualizar el estado de gastos (localStorage se actualiza automáticamente por el useEffect)
       setExpenses(updatedExpenses);
 
       console.log('Eliminación completada');
@@ -2368,7 +2604,10 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
 
   const handleSaveExpense = (expense: { amount: number, category: string, note: string }) => {
     const categoryDetails = allCategories.find(cat => cat.id === expense.category);
-    if (!categoryDetails) return;
+    if (!categoryDetails) {
+      console.error('Categoría no encontrada:', expense.category);
+      return;
+    }
 
     const newExpense: ExpenseWithCategory = {
       id: Date.now(),
@@ -2379,6 +2618,7 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
       categoryDetails
     };
 
+    console.log('Guardando nuevo gasto:', newExpense);
     setExpenses(prevExpenses => [...prevExpenses, newExpense]);
   };
 
@@ -2392,9 +2632,6 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
   const handleSectionSelect = (section: MenuSection) => {
     setCurrentSection(section);
   };
-
-  // Combinar categorías predefinidas con personalizadas
-  const allCategories = [...defaultCategories, ...customCategories];
 
   // Función para renderizar el contenido según la sección
   const renderSectionContent = () => {
@@ -2471,65 +2708,119 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-white mb-2">Gestor de Gastos</h2>
-                <p className="text-[#B8B8B8] text-sm">Controla tus gastos y categorías</p>
+                <p className="text-[#B8B8B8] text-sm">Controla tus finanzas en {selectedCurrency.symbol}</p>
+                <button
+                  onClick={() => setIsCurrencyModalOpen(true)}
+                  className="mt-2 flex items-center space-x-2 px-3 py-1 bg-[#1A1A1A] rounded-lg hover:bg-[#2A2A2A] transition-colors border border-[#333333]"
+                >
+                  <svg className="w-4 h-4" style={{ color: selectedCurrency.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={selectedCurrency.icon} />
+                  </svg>
+                  <span className="text-white text-sm">{selectedCurrency.name}</span>
+                  <svg className="w-4 h-4 text-[#B8B8B8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
-              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 w-full sm:w-auto mt-4 sm:mt-0">
+              <div className="grid grid-cols-2 sm:flex sm:flex-row sm:space-x-3 gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setIsTransferScreenOpen(true)}
-                  className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
+                  className="px-4 py-3 bg-[#FF79C6] text-white rounded-xl hover:bg-[#E066B1] transition-all font-medium flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12l-1.411-1.411A1 1 0 0017.176 10H4a1 1 0 00-.894 1.447l4 8A1 1 0 008 20h8.176a1 1 0 00.894-.553L18.411 17.6" />
+                  </svg>
+                  <span>Gasto</span>
+                </button>
+                <button
+                  onClick={() => setIsAddIncomeModalOpen(true)}
+                  className="px-4 py-3 bg-[#50FA7B] text-black rounded-xl hover:bg-[#45E070] transition-all font-medium flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <span>Nuevo Gasto</span>
+                  <span>Ingreso</span>
                 </button>
                 <button
                   onClick={handleNewCategory}
-                  className="flex-1 px-6 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
+                  className="px-4 py-3 bg-[#222222] text-white rounded-xl hover:bg-[#333333] transition-all font-medium flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
-                  <span>Nueva Categoría</span>
+                  <span>Categoría</span>
                 </button>
               </div>
             </div>
 
-            {/* Expense Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Financial Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {[
                 {
                   title: "Gastos del Mes",
                   amount: totalExpenses.toFixed(2),
-                  color: "#FFD700",
-                  progress: (totalExpenses / budget) * 100,
-                  icon: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                  color: "#FF5555",
+                  progress: totalBudget > 0 ? (totalExpenses / totalBudget) * 100 : 0,
+                  icon: "M20 12l-1.411-1.411A1 1 0 0017.176 10H4a1 1 0 00-.894 1.447l4 8A1 1 0 008 20h8.176a1 1 0 00.894-.553L18.411 17.6",
+                  subtitle: `${expenses.length} transacciones`
                 },
                 {
-                  title: "Presupuesto",
+                  title: "Presupuesto Base",
                   amount: budget.toFixed(2),
-                  color: "#00FF00",
+                  color: "#8B5CF6",
                   progress: 100,
                   isEditable: true,
-                  icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+                  subtitle: "Mensual"
                 },
                 {
-                  title: "Ahorro",
-                  amount: (budget - totalExpenses).toFixed(2),
-                  color: (budget - totalExpenses) >= 0 ? "#00FFFF" : "#FF5555",
-                  progress: Math.abs(((budget - totalExpenses) / budget) * 100),
-                  icon: "M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                  title: "Ingresos Extra",
+                  amount: totalIncomes.toFixed(2),
+                  color: "#50FA7B",
+                  progress: budget > 0 ? (totalIncomes / budget) * 100 : 0,
+                  icon: "M12 6v6m0 0v6m0-6h6m-6 0H6",
+                  subtitle: `${incomes.length} fuentes`,
+                  isClickable: true,
+                  action: () => setIsAddIncomeModalOpen(true)
+                },
+                {
+                  title: "Balance Total",
+                  amount: currentBalance.toFixed(2),
+                  color: currentBalance >= 0 ? "#00FFFF" : "#FF5555",
+                  progress: Math.abs(balancePercentage),
+                  icon: currentBalance >= 0 ? "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" : "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
+                  subtitle: currentBalance >= 0 ? "Disponible" : "Déficit"
                 }
               ].map((item, index) => (
-                <div key={index} className="bg-[#1A1A1A] rounded-xl p-6 border border-[#333333] relative overflow-hidden group hover:border-[#444444] transition-all duration-300">
+                <div 
+                  key={index} 
+                  className={`bg-[#1A1A1A] rounded-xl p-6 border border-[#333333] relative overflow-hidden group transition-all duration-300 ${
+                    item.isClickable ? 'hover:border-[#444444] cursor-pointer hover:bg-[#1E1E1E]' : 'hover:border-[#444444]'
+                  }`}
+                  onClick={item.action}
+                >
                   <div className="absolute top-0 right-0 w-32 h-32 rounded-full" 
                        style={{ background: `${item.color}20`, filter: 'blur(40px)' }} />
                   <div className="relative">
                     <div className="flex justify-between items-center mb-2">
+                      <div>
                       <h3 className="text-white font-medium">{item.title}</h3>
+                        {item.subtitle && (
+                          <p className="text-[#B8B8B8] text-xs mt-1">{item.subtitle}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {item.isClickable && (
+                          <svg className="w-5 h-5 text-[#B8B8B8] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        )}
                       {item.isEditable && (
                         <button
-                          onClick={() => setIsEditingBudget(true)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsEditingBudget(true);
+                            }}
                           className="text-[#B8B8B8] hover:text-white transition-colors"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2537,6 +2828,7 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
                           </svg>
                         </button>
                       )}
+                      </div>
                     </div>
                     {item.isEditable && isEditingBudget ? (
                       <div className="flex items-center space-x-2">
@@ -2556,8 +2848,10 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
                       </div>
                     ) : (
                       <div className="flex items-baseline">
-                        <span className="text-2xl font-bold" style={{ color: item.color }}>${item.amount}</span>
-                        <span className="ml-2 text-[#B8B8B8] text-sm">USDC</span>
+                        <span className="text-2xl font-bold" style={{ color: item.color }}>
+                          {selectedCurrency.symbol === 'BTC' || selectedCurrency.symbol === 'ETH' ? item.amount : item.amount}
+                        </span>
+                        <span className="ml-2 text-[#B8B8B8] text-sm">{selectedCurrency.symbol}</span>
                       </div>
                     )}
                     <div className="mt-4 h-1.5 bg-[#333333] rounded-full overflow-hidden">
@@ -2643,11 +2937,18 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
               </div>
             </div>
 
+            {/* Recent Transactions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
             {/* Recent Expenses */}
-            <div className="mt-8">
-              <h3 className="text-lg font-bold text-white mb-4">Gastos Recientes</h3>
+              <div>
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-[#FF5555]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12l-1.411-1.411A1 1 0 0017.176 10H4a1 1 0 00-.894 1.447l4 8A1 1 0 008 20h8.176a1 1 0 00.894-.553L18.411 17.6" />
+                  </svg>
+                  <span>Gastos Recientes</span>
+                </h3>
               <div className="space-y-2">
-                {expenses.slice(-5).reverse().map((expense) => (
+                  {expenses.length > 0 ? expenses.slice(-5).reverse().map((expense) => (
                   <div key={expense.id} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] flex items-center justify-between hover:border-[#333333] transition-all duration-300">
                     <div className="flex items-center space-x-3">
                       <div 
@@ -2671,9 +2972,73 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
                         </p>
                       </div>
                     </div>
-                    <span className="text-[#FFD700] font-bold">${expense.amount.toFixed(2)}</span>
+                      <span className="text-[#FF5555] font-bold">-{selectedCurrency.symbol}{expense.amount.toFixed(2)}</span>
                   </div>
-                ))}
+                  )) : (
+                    <div className="bg-[#111111] p-8 rounded-lg border border-[#2A2A2A] text-center">
+                      <svg className="w-12 h-12 text-[#B8B8B8] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12l-1.411-1.411A1 1 0 0017.176 10H4a1 1 0 00-.894 1.447l4 8A1 1 0 008 20h8.176a1 1 0 00.894-.553L18.411 17.6" />
+                      </svg>
+                      <p className="text-[#B8B8B8]">No hay gastos registrados</p>
+                      <p className="text-sm text-[#666666] mt-1">Agrega tu primer gasto para comenzar</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Recent Incomes */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-[#50FA7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Ingresos Recientes</span>
+                </h3>
+                <div className="space-y-2">
+                  {incomes.length > 0 ? incomes.slice(-5).reverse().map((income) => (
+                    <div key={income.id} className="bg-[#111111] p-4 rounded-lg border border-[#2A2A2A] flex items-center justify-between hover:border-[#333333] transition-all duration-300">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#50FA7B20]">
+                          <svg className="w-6 h-6 text-[#50FA7B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
+                              income.category === 'salary' ? 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' :
+                              income.category === 'freelance' ? 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' :
+                              income.category === 'scholarship' ? 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' :
+                              income.category === 'family' ? 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' :
+                              'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                            } />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-white">{income.source}</h4>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm text-[#B8B8B8]">
+                              {new Date(income.date).toLocaleDateString()}
+                            </p>
+                            {income.recurring && (
+                              <span className="text-xs bg-[#50FA7B20] text-[#50FA7B] px-2 py-1 rounded-full">Recurrente</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[#50FA7B] font-bold">+{selectedCurrency.symbol}{income.amount.toFixed(2)}</span>
+                    </div>
+                  )) : (
+                    <div className="bg-[#111111] p-8 rounded-lg border border-[#2A2A2A] text-center">
+                      <svg className="w-12 h-12 text-[#B8B8B8] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <p className="text-[#B8B8B8]">No hay ingresos registrados</p>
+                      <p className="text-sm text-[#666666] mt-1">Agrega tu primer ingreso para empezar</p>
+                      <button
+                        onClick={() => setIsAddIncomeModalOpen(true)}
+                        className="mt-3 px-4 py-2 bg-[#50FA7B] text-black rounded-lg hover:bg-[#45E070] transition-colors text-sm font-medium"
+                      >
+                        Agregar Ingreso
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -2871,6 +3236,15 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-sm text-[#B8B8B8]">Base Network</span>
             </div>
+            {/* Indicador de Persistencia - Solo visible cuando hay datos guardados */}
+            {address && (expenses.length > 0 || incomes.length > 0 || customCategories.length > 0 || budget > 600) && (
+              <div className="hidden lg:flex items-center space-x-2 bg-[#1A1A1A] rounded-xl px-3 py-2 border border-[#333333]" title={`Datos guardados para ${address.slice(0, 6)}...`}>
+                <div className="w-2 h-2 rounded-full bg-[#50FA7B] animate-pulse" />
+                <span className="text-xs text-[#B8B8B8]">
+                  {expenses.length + incomes.length} registros
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -3094,6 +3468,191 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
             >
               Cerrar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Currency Selection Modal */}
+      {isCurrencyModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] backdrop-blur-sm">
+          <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Seleccionar Moneda</h2>
+              <button
+                onClick={() => setIsCurrencyModalOpen(false)}
+                className="text-[#B8B8B8] hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {availableCurrencies.map((currency) => (
+                <button
+                  key={currency.id}
+                  onClick={() => handleCurrencyChange(currency)}
+                  className={`w-full p-4 rounded-xl border transition-all duration-300 ${
+                    selectedCurrency.id === currency.id
+                      ? 'bg-[#2A2A2A] border-[#FFD700] border-2'
+                      : 'bg-[#1A1A1A] border-[#333333] hover:border-[#666666] hover:bg-[#222222]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: currency.color + '20' }}
+                    >
+                      <svg 
+                        className="w-6 h-6" 
+                        style={{ color: currency.color }}
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={currency.icon} />
+                      </svg>
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-white font-medium">{currency.name}</h3>
+                      <p className="text-[#B8B8B8] text-sm">{currency.symbol}</p>
+                    </div>
+                    {selectedCurrency.id === currency.id && (
+                      <svg className="w-6 h-6 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Income Modal */}
+      {isAddIncomeModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[90] backdrop-blur-sm">
+          <div className="bg-[#111111] rounded-2xl border border-[#2A2A2A] p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Agregar Ingreso</h2>
+              <button
+                onClick={() => setIsAddIncomeModalOpen(false)}
+                className="text-[#B8B8B8] hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Income Form */}
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const incomeData = {
+                source: formData.get('source') as string,
+                amount: parseFloat(formData.get('amount') as string),
+                description: formData.get('description') as string,
+                category: formData.get('category') as Income['category'],
+                recurring: formData.get('recurring') === 'on'
+              };
+              if (incomeData.source && incomeData.amount && incomeData.category) {
+                handleSaveIncome(incomeData);
+              }
+            }}>
+              {/* Source/Name */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                  Fuente de Ingreso
+                </label>
+                <input
+                  type="text"
+                  name="source"
+                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#50FA7B]"
+                  placeholder="Ej: Trabajo de medio tiempo, Beca, etc."
+                  required
+                />
+              </div>
+
+              {/* Amount */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                  Cantidad ({selectedCurrency.symbol})
+                </label>
+                <input
+                  type="number"
+                  name="amount"
+                  step="0.01"
+                  min="0"
+                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#50FA7B]"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              {/* Category */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                  Categoría
+                </label>
+                <select
+                  name="category"
+                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#50FA7B]"
+                  required
+                >
+                  <option value="">Seleccionar categoría</option>
+                  <option value="salary">💼 Trabajo/Salario</option>
+                  <option value="freelance">🎯 Freelance</option>
+                  <option value="scholarship">🎓 Beca</option>
+                  <option value="family">❤️ Familia</option>
+                  <option value="other">💰 Otros</option>
+                </select>
+              </div>
+
+              {/* Description */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-[#B8B8B8] mb-2">
+                  Descripción (opcional)
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#50FA7B]"
+                  placeholder="Detalles adicionales..."
+                />
+              </div>
+
+              {/* Recurring */}
+              <div className="mb-6">
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    name="recurring"
+                    className="w-4 h-4 text-[#50FA7B] bg-[#1A1A1A] border-[#2A2A2A] rounded focus:ring-[#50FA7B] focus:ring-2"
+                  />
+                  <span className="text-[#B8B8B8] text-sm">Ingreso recurrente (mensual)</span>
+                </label>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddIncomeModalOpen(false)}
+                  className="flex-1 px-4 py-2 bg-[#2A2A2A] text-white rounded-lg hover:bg-[#3A3A3A] transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-[#50FA7B] text-black rounded-lg hover:bg-[#45E070] transition-colors font-medium"
+                >
+                  Agregar Ingreso
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

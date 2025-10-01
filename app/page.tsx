@@ -25,7 +25,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
 import { Dashboard } from "./components/Dashboard";
-import { sdk } from "@farcaster/frame-sdk";
+import { sdk } from "@farcaster/miniapp-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
 import Image from 'next/image';
 
@@ -550,19 +550,17 @@ export default function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
-      // Establecer un timeout de seguridad
-      const timeoutId = setTimeout(() => {
-        setIsLoading(false);
-      }, 2000);
-
       try {
-        // Intentar inicializar el SDK de Farcaster
-        await sdk.actions.ready({ disableNativeGestures: true });
+        // Inicializar el SDK de Farcaster según la documentación oficial
+        await sdk.actions.ready();
+        console.log('SDK de Farcaster inicializado correctamente');
       } catch (error) {
         console.warn('No se pudo inicializar el SDK de Farcaster:', error);
       } finally {
-        clearTimeout(timeoutId);
-        setIsLoading(false);
+        // Siempre ocultar la pantalla de carga después de un tiempo mínimo
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
       }
     };
 

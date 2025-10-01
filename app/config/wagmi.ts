@@ -3,7 +3,7 @@ import { base } from 'wagmi/chains';
 import { createConfig } from 'wagmi';
 import { createStorage } from 'wagmi';
 import { injected, coinbaseWallet } from 'wagmi/connectors';
-import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
+import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
 
 const storage = createStorage({
   storage: typeof window !== 'undefined' ? window.localStorage : undefined,

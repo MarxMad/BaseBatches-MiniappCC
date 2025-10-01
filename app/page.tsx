@@ -553,7 +553,7 @@ export default function App() {
       try {
         // Inicializar el SDK de Farcaster según la documentación oficial
         await sdk.actions.ready();
-        console.log('SDK de Farcaster inicializado correctamente');
+        console.log('SDK de Farcaster inicializado correctamente - v2');
       } catch (error) {
         console.warn('No se pudo inicializar el SDK de Farcaster:', error);
       } finally {

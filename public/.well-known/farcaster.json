@@ -5,7 +5,7 @@
     "signature": "MHg3ZjYzMmJlZTcxMGFjNTIwM2I2NGJhMjdkOTU5ZWFiNDBjYmI2NDBkODNkN2U5NDM0YmQ3YzQyMjBhYzBmMDcwMTM5ZjBkYzcyOTNlMGMxY2QyMjc1OTkzYzE0NzJkNmNlNWQ2YzUxYzVmNzFhOGIzNzdjZmI3Y2I1MjA4MzNhNjFj"
   },
   "frame": {
-    "version": "next",
+    "version": "1",
     "name": "CampusCoin",
     "iconUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
     "homeUrl": "https://base-batches-miniapp-cc.vercel.app/",

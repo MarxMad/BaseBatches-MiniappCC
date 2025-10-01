@@ -551,20 +551,28 @@ export default function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Inicializar el SDK de Farcaster según la documentación oficial
-        await sdk.actions.ready();
-        console.log('SDK de Farcaster inicializado correctamente - v2');
+        console.log('Iniciando aplicación...');
+        
+        // Llamar a ready() siempre, sin condiciones
+        if (typeof sdk !== 'undefined' && sdk.actions) {
+          console.log('SDK disponible, llamando a ready()...');
+          await sdk.actions.ready();
+          console.log('✅ sdk.actions.ready() ejecutado correctamente');
+        } else {
+          console.warn('SDK no disponible, pero continuando...');
+        }
       } catch (error) {
-        console.warn('No se pudo inicializar el SDK de Farcaster:', error);
+        console.error('Error en inicialización:', error);
       } finally {
-        // Siempre ocultar la pantalla de carga después de un tiempo mínimo
+        // Ocultar loading después de un delay
         setTimeout(() => {
+          console.log('Ocultando pantalla de carga...');
           setIsLoading(false);
-        }, 1000);
+        }, 1500);
       }
     };
 
-    // Iniciar la carga inmediatamente
+    // Ejecutar inmediatamente
     initializeApp();
   }, []);
 

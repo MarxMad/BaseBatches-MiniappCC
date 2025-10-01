@@ -550,30 +550,43 @@ export default function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      console.log('🚀 Iniciando CampusCoin...');
+      
+      // Intentar llamar a ready() inmediatamente
       try {
-        console.log('Iniciando aplicación...');
-        
-        // Llamar a ready() siempre, sin condiciones
-        if (typeof sdk !== 'undefined' && sdk.actions) {
-          console.log('SDK disponible, llamando a ready()...');
+        if (sdk && sdk.actions && sdk.actions.ready) {
+          console.log('📱 SDK detectado, llamando a ready()...');
           await sdk.actions.ready();
-          console.log('✅ sdk.actions.ready() ejecutado correctamente');
+          console.log('✅ sdk.actions.ready() ejecutado exitosamente');
         } else {
-          console.warn('SDK no disponible, pero continuando...');
+          console.log('⚠️ SDK no disponible, continuando sin ready()');
         }
       } catch (error) {
-        console.error('Error en inicialización:', error);
-      } finally {
-        // Ocultar loading después de un delay
-        setTimeout(() => {
-          console.log('Ocultando pantalla de carga...');
-          setIsLoading(false);
-        }, 1500);
+        console.error('❌ Error al llamar ready():', error);
       }
+      
+      // Ocultar loading
+      setTimeout(() => {
+        console.log('🎯 Mostrando aplicación...');
+        setIsLoading(false);
+      }, 2000);
     };
 
-    // Ejecutar inmediatamente
-    initializeApp();
+    // Ejecutar con un pequeño delay para asegurar que el SDK esté cargado
+    setTimeout(initializeApp, 100);
+    
+    // Fallback: intentar ready() después de 3 segundos
+    setTimeout(async () => {
+      try {
+        if (sdk && sdk.actions && sdk.actions.ready) {
+          console.log('🔄 Fallback: intentando ready() nuevamente...');
+          await sdk.actions.ready();
+          console.log('✅ Fallback ready() exitoso');
+        }
+      } catch (error) {
+        console.error('❌ Fallback ready() falló:', error);
+      }
+    }, 3000);
   }, []);
 
   useEffect(() => {

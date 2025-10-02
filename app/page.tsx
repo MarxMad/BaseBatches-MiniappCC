@@ -24,7 +24,8 @@ import {
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
-import { Dashboard } from "./components/Dashboard";
+import SimpleDashboard from "./components/SimpleDashboard";
+import WelcomeSpinner from "./components/WelcomeSpinner";
 import { sdk } from "@farcaster/miniapp-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
 import Image from 'next/image';
@@ -538,6 +539,8 @@ export default function App() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [userDiscount, setUserDiscount] = useState<number | null>(null);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -648,6 +651,12 @@ export default function App() {
     setShowDashboard(true);
   };
 
+  const handleWelcomeComplete = (discount: number) => {
+    setUserDiscount(discount);
+    setShowWelcome(false);
+    setShowDashboard(true);
+  };
+
   const saveFrameButton = useMemo(() => {
     if (context && !context.client.added) {
       return (
@@ -683,8 +692,12 @@ export default function App() {
     return <LoadingScreen />;
   }
 
+  if (showWelcome) {
+    return <WelcomeSpinner onComplete={handleWelcomeComplete} />;
+  }
+
   if (showDashboard) {
-    return <Dashboard />;
+    return <SimpleDashboard userDiscount={userDiscount} />;
   }
 
   return (

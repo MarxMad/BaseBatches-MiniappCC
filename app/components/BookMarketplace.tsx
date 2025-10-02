@@ -243,7 +243,11 @@ function MintNFTCard({
   );
 }
 
-export const BookMarketplace = () => {
+interface BookMarketplaceProps {
+    userDiscount?: number | null;
+}
+
+export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
     const { address } = useAccount();
     const [books, setBooks] = useState<Book[]>([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -253,6 +257,14 @@ export const BookMarketplace = () => {
     const [isApproving, setIsApproving] = useState(false);
     const [isBuying, setIsBuying] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Función para calcular precio con descuento
+    const calculateDiscountedPrice = (originalPrice: number | bigint) => {
+        if (!userDiscount) return originalPrice;
+        const price = typeof originalPrice === 'bigint' ? Number(originalPrice) : originalPrice;
+        const discountAmount = (price * userDiscount) / 100;
+        return price - discountAmount;
+    };
     
     // Estado para el formulario
     const [newBook, setNewBook] = useState({

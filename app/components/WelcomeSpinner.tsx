@@ -37,20 +37,24 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
     
     // Calcular rotación aleatoria (múltiplo de 60 grados + extra)
     const randomIndex = Math.floor(Math.random() * discounts.length);
-    const extraRotations = 5 + Math.random() * 3; // 5-8 vueltas extra
+    const extraRotations = 8 + Math.random() * 4; // 8-12 vueltas extra para más drama
     const finalRotation = 360 * extraRotations + (randomIndex * 60);
     
     setRotation(prev => prev + finalRotation);
+    
+    // Mostrar indicador de giro
+    console.log(`🎰 Girando la ruleta... Descuento seleccionado: ${discounts[randomIndex]}%`);
     
     // Después de la animación, mostrar resultado
     setTimeout(() => {
       setSelectedDiscount(discounts[randomIndex]);
       setShowCongratulations(true);
+      console.log(`🎉 ¡JACKPOT! Descuento ganado: ${discounts[randomIndex]}%`);
       
-      // Después de 3 segundos, proceder al marketplace
+      // Después de 4 segundos, proceder al marketplace
       setTimeout(() => {
         onComplete(discounts[randomIndex]);
-      }, 3000);
+      }, 4000);
     }, 3000);
   };
 
@@ -100,52 +104,62 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                 transition: isSpinning ? 'transform 3s cubic-bezier(0.23, 1, 0.32, 1)' : 'none'
               }}
             >
-              {/* Segmentos de la ruleta estilo casino */}
-              {discounts.map((discount, index) => {
-                const angle = 60; // 360 / 6 = 60 grados por segmento
-                const startAngle = index * angle;
-                const endAngle = startAngle + angle;
-                
-                return (
-                  <div
-                    key={discount}
-                    className="absolute inset-0"
-                    style={{
-                      background: `conic-gradient(from ${startAngle}deg, ${casinoColors[index]} ${startAngle}deg, ${casinoColors[index]} ${endAngle}deg, transparent ${endAngle}deg)`
-                    }}
-                  >
-                    {/* Efecto de brillo en cada segmento */}
-                    <div 
-                      className="absolute inset-0 opacity-30"
-                      style={{
-                        background: `conic-gradient(from ${startAngle}deg, rgba(255,255,255,0.3) ${startAngle}deg, rgba(255,255,255,0.1) ${startAngle + 10}deg, transparent ${startAngle + 20}deg, transparent ${endAngle}deg)`
-                      }}
-                    ></div>
-                    
-                    {/* Texto del porcentaje con efecto casino */}
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{
-                        transform: `rotate(${startAngle + angle/2}deg)`
-                      }}
-                    >
-                      <div 
-                        className="text-white font-black text-2xl sm:text-3xl md:text-4xl drop-shadow-2xl"
+              {/* Crear los segmentos usando SVG para mejor control */}
+              <svg className="w-full h-full" viewBox="0 0 200 200">
+                {discounts.map((discount, index) => {
+                  const angle = 60; // 360 / 6 = 60 grados por segmento
+                  const startAngle = index * angle;
+                  const endAngle = startAngle + angle;
+                  
+                  // Convertir ángulos a radianes
+                  const startRad = (startAngle - 90) * Math.PI / 180;
+                  const endRad = (endAngle - 90) * Math.PI / 180;
+                  
+                  // Calcular puntos del arco
+                  const centerX = 100;
+                  const centerY = 100;
+                  const radius = 95;
+                  
+                  const x1 = centerX + radius * Math.cos(startRad);
+                  const y1 = centerY + radius * Math.sin(startRad);
+                  const x2 = centerX + radius * Math.cos(endRad);
+                  const y2 = centerY + radius * Math.sin(endRad);
+                  
+                  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+                  
+                  const pathData = [
+                    `M ${centerX} ${centerY}`,
+                    `L ${x1} ${y1}`,
+                    `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                    'Z'
+                  ].join(' ');
+                  
+                  return (
+                    <g key={discount}>
+                      <path
+                        d={pathData}
+                        fill={colors[index]}
+                        stroke="#000"
+                        strokeWidth="2"
+                      />
+                      {/* Texto del porcentaje */}
+                      <text
+                        x={centerX + (radius * 0.7) * Math.cos((startAngle + angle/2 - 90) * Math.PI / 180)}
+                        y={centerY + (radius * 0.7) * Math.sin((startAngle + angle/2 - 90) * Math.PI / 180)}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        className="text-white font-black text-2xl sm:text-3xl md:text-4xl"
                         style={{
-                          transform: `rotate(${-(startAngle + angle/2)}deg)`,
                           textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 10px rgba(255,255,255,0.3)',
-                          background: 'linear-gradient(45deg, #FFFFFF, #FFD700, #FFFFFF)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text'
+                          fill: '#FFFFFF'
                         }}
                       >
                         {discount}%
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </motion.div>
 
             {/* Centro de la ruleta - Estilo casino */}
@@ -165,6 +179,15 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
             <div className="absolute top-4 right-4 w-3 h-3 bg-green-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             <div className="absolute bottom-4 left-4 w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
             <div className="absolute bottom-4 right-4 w-3 h-3 bg-yellow-500 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+
+            {/* Indicador de descuento en tiempo real */}
+            {isSpinning && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="bg-black/80 text-white px-4 py-2 rounded-full border-2 border-[#FFD700] animate-pulse">
+                  <span className="text-sm font-bold">Girando...</span>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -176,6 +199,8 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
           onClick={spinWheel}
           disabled={isSpinning}
           className="relative px-8 py-4 sm:px-12 sm:py-6 bg-gradient-to-r from-[#FF0000] via-[#FFD700] to-[#FF0000] text-white font-black text-xl sm:text-2xl rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-4 border-white overflow-hidden"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {/* Efecto de brillo animado */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full hover:translate-x-full transition-transform duration-1000"></div>
@@ -185,12 +210,13 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
               <>
                 <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>🎰 Girando...</span>
+                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
               </>
             ) : (
               <>
-                <span className="text-2xl">🎰</span>
-                <span>¡JACKPOT!</span>
-                <span className="text-2xl">🎰</span>
+                <span className="text-2xl animate-bounce">🎰</span>
+                <span className="animate-pulse">¡JACKPOT!</span>
+                <span className="text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎰</span>
               </>
             )}
           </div>
@@ -204,9 +230,9 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-2xl backdrop-blur-sm"
+              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-2xl backdrop-blur-sm z-50"
             >
-              <div className="bg-gradient-to-br from-[#FFD700] via-[#FFA500] to-[#FF8C00] p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4 border-4 border-white relative overflow-hidden">
+              <div className="bg-gradient-to-br from-[#FFD700] via-[#FFA500] to-[#FF8C00] p-6 sm:p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4 border-4 border-white relative overflow-hidden">
                 {/* Efecto de confeti */}
                 <div className="absolute inset-0 opacity-20">
                   <div className="absolute top-4 left-4 text-2xl animate-bounce">🎊</div>
@@ -216,21 +242,21 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                 </div>
                 
                 <div className="relative z-10">
-                  <div className="text-6xl mb-4 animate-pulse">🎰</div>
-                  <h2 className="text-4xl font-black text-white mb-2 drop-shadow-lg">
+                  <div className="text-4xl sm:text-6xl mb-4 animate-pulse">🎰</div>
+                  <h2 className="text-2xl sm:text-4xl font-black text-white mb-2 drop-shadow-lg">
                     ¡JACKPOT!
                   </h2>
-                  <p className="text-xl text-white mb-4 font-bold">
+                  <p className="text-lg sm:text-xl text-white mb-4 font-bold">
                     Has ganado un descuento del
                   </p>
-                  <div className="text-6xl font-black text-white mb-4 drop-shadow-2xl animate-pulse">
+                  <div className="text-4xl sm:text-6xl font-black text-white mb-4 drop-shadow-2xl animate-pulse bg-white/20 rounded-full w-24 h-24 sm:w-32 sm:h-32 mx-auto flex items-center justify-center border-4 border-white">
                     {selectedDiscount}%
                   </div>
-                  <p className="text-lg text-white mb-6 font-bold">
+                  <p className="text-base sm:text-lg text-white mb-6 font-bold">
                     en tu primer libro
                   </p>
-                  <div className="text-4xl mb-4 animate-bounce">📚</div>
-                  <p className="text-sm text-white/80 font-medium">
+                  <div className="text-3xl sm:text-4xl mb-4 animate-bounce">📚</div>
+                  <p className="text-xs sm:text-sm text-white/80 font-medium">
                     Redirigiendo al marketplace...
                   </p>
                 </div>

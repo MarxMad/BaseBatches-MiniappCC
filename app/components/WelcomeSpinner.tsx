@@ -9,7 +9,17 @@ interface WelcomeSpinnerProps {
 
 const discounts = [10, 20, 30, 40, 50, 60];
 const colors = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'
+  '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'
+];
+
+// Colores estilo casino con efectos de brillo
+const casinoColors = [
+  'linear-gradient(45deg, #FF0000, #FF6666, #FF0000)',
+  'linear-gradient(45deg, #00FF00, #66FF66, #00FF00)', 
+  'linear-gradient(45deg, #0000FF, #6666FF, #0000FF)',
+  'linear-gradient(45deg, #FFFF00, #FFFF66, #FFFF00)',
+  'linear-gradient(45deg, #FF00FF, #FF66FF, #FF00FF)',
+  'linear-gradient(45deg, #00FFFF, #66FFFF, #00FFFF)'
 ];
 
 export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
@@ -68,23 +78,29 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
           </p>
         </motion.div>
 
-        {/* Ruleta */}
+        {/* Máquina de Casino - Ruleta */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="relative mb-6 md:mb-8"
         >
-          <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 mx-auto">
-            {/* Ruleta */}
+          {/* Marco de la máquina de casino */}
+          <div className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[28rem] md:h-[28rem] mx-auto">
+            {/* Marco exterior estilo casino */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1A1A1A] rounded-full border-8 border-[#FFD700] shadow-2xl">
+              <div className="absolute inset-2 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] rounded-full border-4 border-[#FFD700]/50"></div>
+            </div>
+
+            {/* Ruleta principal */}
             <motion.div
-              className="w-full h-full rounded-full border-8 border-[#FFD700] relative overflow-hidden shadow-2xl"
+              className="absolute inset-4 rounded-full relative overflow-hidden"
               style={{
                 transform: `rotate(${rotation}deg)`,
                 transition: isSpinning ? 'transform 3s cubic-bezier(0.23, 1, 0.32, 1)' : 'none'
               }}
             >
-              {/* Segmentos de la ruleta con geometría mejorada */}
+              {/* Segmentos de la ruleta estilo casino */}
               {discounts.map((discount, index) => {
                 const angle = 60; // 360 / 6 = 60 grados por segmento
                 const startAngle = index * angle;
@@ -95,54 +111,92 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                     key={discount}
                     className="absolute inset-0"
                     style={{
-                      background: `conic-gradient(from ${startAngle}deg, ${colors[index]} ${startAngle}deg, ${colors[index]} ${endAngle}deg, transparent ${endAngle}deg)`
+                      background: `conic-gradient(from ${startAngle}deg, ${casinoColors[index]} ${startAngle}deg, ${casinoColors[index]} ${endAngle}deg, transparent ${endAngle}deg)`
                     }}
                   >
-                    {/* Texto del porcentaje posicionado correctamente */}
+                    {/* Efecto de brillo en cada segmento */}
+                    <div 
+                      className="absolute inset-0 opacity-30"
+                      style={{
+                        background: `conic-gradient(from ${startAngle}deg, rgba(255,255,255,0.3) ${startAngle}deg, rgba(255,255,255,0.1) ${startAngle + 10}deg, transparent ${startAngle + 20}deg, transparent ${endAngle}deg)`
+                      }}
+                    ></div>
+                    
+                    {/* Texto del porcentaje con efecto casino */}
                     <div
                       className="absolute inset-0 flex items-center justify-center"
                       style={{
                         transform: `rotate(${startAngle + angle/2}deg)`
                       }}
                     >
-                      <span 
-                        className="text-white font-black text-xl sm:text-2xl md:text-3xl drop-shadow-lg"
+                      <div 
+                        className="text-white font-black text-2xl sm:text-3xl md:text-4xl drop-shadow-2xl"
                         style={{
                           transform: `rotate(${-(startAngle + angle/2)}deg)`,
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                          textShadow: '3px 3px 6px rgba(0,0,0,0.9), 0 0 10px rgba(255,255,255,0.3)',
+                          background: 'linear-gradient(45deg, #FFFFFF, #FFD700, #FFFFFF)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text'
                         }}
                       >
                         {discount}%
-                      </span>
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </motion.div>
 
-            {/* Centro de la ruleta */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-              <div className="text-xl sm:text-2xl">📚</div>
+            {/* Centro de la ruleta - Estilo casino */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-gradient-to-br from-[#FFD700] via-[#FFA500] to-[#FF8C00] rounded-full border-4 border-white shadow-2xl flex items-center justify-center">
+              <div className="text-2xl sm:text-3xl md:text-4xl animate-pulse">🎰</div>
+              {/* Efecto de brillo en el centro */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"></div>
             </div>
 
-            {/* Puntero */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-0 h-0 border-l-6 border-r-6 border-b-10 sm:border-l-8 sm:border-r-8 sm:border-b-12 border-l-transparent border-r-transparent border-b-[#FFD700] z-10" />
+            {/* Puntero estilo casino */}
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 sm:border-l-10 sm:border-r-10 sm:border-b-20 border-l-transparent border-r-transparent border-b-[#FFD700] z-10 shadow-lg">
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-white"></div>
+            </div>
+
+            {/* Luces decorativas estilo casino */}
+            <div className="absolute top-4 left-4 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <div className="absolute top-4 right-4 w-3 h-3 bg-green-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute bottom-4 left-4 w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute bottom-4 right-4 w-3 h-3 bg-yellow-500 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
           </div>
         </motion.div>
 
-        {/* Botón para girar */}
+        {/* Botón estilo casino */}
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
           onClick={spinWheel}
           disabled={isSpinning}
-          className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-bold text-lg sm:text-xl rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="relative px-8 py-4 sm:px-12 sm:py-6 bg-gradient-to-r from-[#FF0000] via-[#FFD700] to-[#FF0000] text-white font-black text-xl sm:text-2xl rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-4 border-white overflow-hidden"
         >
-          {isSpinning ? 'Girando...' : '🎯 ¡Gira la Ruleta!'}
+          {/* Efecto de brillo animado */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full hover:translate-x-full transition-transform duration-1000"></div>
+          
+          <div className="relative flex items-center space-x-3">
+            {isSpinning ? (
+              <>
+                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>🎰 Girando...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-2xl">🎰</span>
+                <span>¡JACKPOT!</span>
+                <span className="text-2xl">🎰</span>
+              </>
+            )}
+          </div>
         </motion.button>
 
-        {/* Mensaje de felicitación */}
+        {/* Mensaje de felicitación estilo casino */}
         <AnimatePresence>
           {showCongratulations && selectedDiscount && (
             <motion.div
@@ -150,26 +204,36 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-2xl"
+              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-2xl backdrop-blur-sm"
             >
-              <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4">
-                <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                  ¡Felicidades!
-                </h2>
-                <p className="text-xl text-gray-600 mb-4">
-                  Has ganado un descuento del
-                </p>
-                <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] mb-4">
-                  {selectedDiscount}%
+              <div className="bg-gradient-to-br from-[#FFD700] via-[#FFA500] to-[#FF8C00] p-8 rounded-2xl shadow-2xl text-center max-w-md mx-4 border-4 border-white relative overflow-hidden">
+                {/* Efecto de confeti */}
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-4 left-4 text-2xl animate-bounce">🎊</div>
+                  <div className="absolute top-8 right-8 text-2xl animate-bounce" style={{ animationDelay: '0.2s' }}>🎉</div>
+                  <div className="absolute bottom-8 left-8 text-2xl animate-bounce" style={{ animationDelay: '0.4s' }}>✨</div>
+                  <div className="absolute bottom-4 right-4 text-2xl animate-bounce" style={{ animationDelay: '0.6s' }}>🎊</div>
                 </div>
-                <p className="text-lg text-gray-600 mb-6">
-                  en tu primer libro
-                </p>
-                <div className="text-4xl mb-4">📚</div>
-                <p className="text-sm text-gray-500">
-                  Redirigiendo al marketplace...
-                </p>
+                
+                <div className="relative z-10">
+                  <div className="text-6xl mb-4 animate-pulse">🎰</div>
+                  <h2 className="text-4xl font-black text-white mb-2 drop-shadow-lg">
+                    ¡JACKPOT!
+                  </h2>
+                  <p className="text-xl text-white mb-4 font-bold">
+                    Has ganado un descuento del
+                  </p>
+                  <div className="text-6xl font-black text-white mb-4 drop-shadow-2xl animate-pulse">
+                    {selectedDiscount}%
+                  </div>
+                  <p className="text-lg text-white mb-6 font-bold">
+                    en tu primer libro
+                  </p>
+                  <div className="text-4xl mb-4 animate-bounce">📚</div>
+                  <p className="text-sm text-white/80 font-medium">
+                    Redirigiendo al marketplace...
+                  </p>
+                </div>
               </div>
             </motion.div>
           )}

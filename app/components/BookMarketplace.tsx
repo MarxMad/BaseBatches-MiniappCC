@@ -260,6 +260,8 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
     const [isBuying, setIsBuying] = useState(false);
     const [showContactScreen, setShowContactScreen] = useState(false);
     const [purchasedBook, setPurchasedBook] = useState<Book | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const booksPerPage = 4;
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Función para calcular precio con descuento
@@ -770,40 +772,40 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
         <div className="space-y-8">
             {/* Header del Marketplace */}
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
+                <div className="min-w-0 flex-1">
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
                         Marketplace
                     </h2>
-                    <p className="text-[#B8B8B8] mt-2">Descubre y comparte libros académicos</p>
+                    <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Descubre y comparte libros académicos</p>
                 </div>
-                    <button
+                <button
                     onClick={() => setIsPublishModalOpen(true)}
-                        className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
-                                 hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
+                             hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                             hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2 text-sm sm:text-base whitespace-nowrap"
+                >
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
                     <span>Publicar Libro</span>
-                    </button>
+                </button>
             </div>
 
             {/* Barra de búsqueda y filtros mejorada */}
             <div className="space-y-4">
                 {/* Barra de búsqueda principal */}
                 <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative min-w-0">
                         <input
                             type="text"
                             placeholder="Buscar libros, autores, materias..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full px-5 py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                            className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
                                      focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
-                                     transition-all pl-12 text-lg"
+                                     transition-all pl-10 sm:pl-12 text-sm sm:text-lg"
                         />
-                        <svg className="w-6 h-6 text-[#666666] absolute left-4 top-1/2 transform -translate-y-1/2" 
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#666666] absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2" 
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -812,9 +814,9 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="px-5 py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                        className="px-4 sm:px-5 py-3 sm:py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
                                  focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
-                                 transition-all appearance-none cursor-pointer w-full md:w-64 text-lg"
+                                 transition-all appearance-none cursor-pointer w-full md:w-64 text-sm sm:text-lg"
                     >
                         <option value="all">🔍 Todas las categorías</option>
                         {categories.map(cat => (
@@ -824,14 +826,14 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                 </div>
 
                 {/* Categorías rápidas - Estilo Amazon */}
-                <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
-                    <h3 className="text-lg font-semibold text-white mb-3">Categorías populares</h3>
-                    <div className="flex flex-wrap gap-2">
+                <div className="bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-[#333333]">
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-3">Categorías populares</h3>
+                    <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
                         {categories.slice(0, 8).map(cat => (
                             <button
                                 key={cat.id}
                                 onClick={() => setSelectedCategory(cat.id.toString())}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                                     selectedCategory === cat.id.toString()
                                         ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black'
                                         : 'bg-[#2A2A2A] text-gray-300 hover:bg-[#3A3A3A] hover:text-white'
@@ -844,29 +846,31 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                 </div>
             </div>
 
-            {/* Grid de Libros - Diseño Responsivo */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {books
-                    .filter(book => {
-                        // Filtro por categoría
-                        if (selectedCategory !== 'all') {
-                            const categoryName = categories.find(cat => cat.id.toString() === selectedCategory)?.name;
-                            return book.category === categoryName;
-                        }
-                        return true;
-                    })
-                    .filter(book => {
-                        // Filtro por búsqueda
-                        if (!searchQuery) return true;
-                        const query = searchQuery.toLowerCase();
-                        return (
-                            book.title.toLowerCase().includes(query) ||
-                            book.author.toLowerCase().includes(query) ||
-                            book.category.toLowerCase().includes(query) ||
-                            book.description.toLowerCase().includes(query)
-                        );
-                    })
-                    .map((book) => {
+            {/* Grid de Libros - 2 columnas, 4 libros por pantalla */}
+            <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+                    {books
+                        .filter(book => {
+                            // Filtro por categoría
+                            if (selectedCategory !== 'all') {
+                                const categoryName = categories.find(cat => cat.id.toString() === selectedCategory)?.name;
+                                return book.category === categoryName;
+                            }
+                            return true;
+                        })
+                        .filter(book => {
+                            // Filtro por búsqueda
+                            if (!searchQuery) return true;
+                            const query = searchQuery.toLowerCase();
+                            return (
+                                book.title.toLowerCase().includes(query) ||
+                                book.author.toLowerCase().includes(query) ||
+                                book.category.toLowerCase().includes(query) ||
+                                book.description.toLowerCase().includes(query)
+                            );
+                        })
+                        .slice((currentPage - 1) * booksPerPage, currentPage * booksPerPage)
+                        .map((book) => {
                     const userAddress = address?.toLowerCase();
                     const sellerAddress = book.seller?.toLowerCase();
                     const buyerAddress = book.buyer?.toLowerCase();
@@ -940,47 +944,47 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                     return (
                         <div key={book.id} className={`${cardStyle} group relative overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl`}>
                             {/* Imagen del libro */}
-                            <div className="relative h-64 overflow-hidden rounded-t-2xl">
+                            <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden rounded-t-2xl">
                                 <img 
                                     src={book.image} 
                                     alt={book.title}
                                     className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                                <div className="absolute top-4 right-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-bold shadow-lg">
                                     {priceLabel}
                                 </div>
                                 {/* Badge de categoría */}
-                                <div className="absolute top-4 left-4 bg-black/70 text-white px-2 py-1 rounded-lg text-xs font-medium">
+                                <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black/70 text-white px-2 py-1 rounded-lg text-xs font-medium">
                                     {book.category}
                                 </div>
                             </div>
                             {/* Contenido */}
-                            <div className="p-6 space-y-4">
+                            <div className="p-3 sm:p-4 md:p-6 space-y-2 sm:space-y-4">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 group-hover:text-[#FFD700] transition-colors">{book.title}</h3>
-                                    <p className="text-[#B8B8B8] text-sm mb-2">Por <span className="text-white font-medium">{book.author}</span></p>
+                                    <h3 className="text-sm sm:text-base md:text-xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 group-hover:text-[#FFD700] transition-colors">{book.title}</h3>
+                                    <p className="text-[#B8B8B8] text-xs sm:text-sm mb-1 sm:mb-2">Por <span className="text-white font-medium">{book.author}</span></p>
                                     <div className="flex items-center space-x-2">
-                                        <span className="text-[#FFD700] text-sm font-medium bg-[#FFD700]/10 px-2 py-1 rounded-full">
+                                        <span className="text-[#FFD700] text-xs sm:text-sm font-medium bg-[#FFD700]/10 px-2 py-1 rounded-full">
                                             {book.category}
                                         </span>
                                     </div>
                                 </div>
-                                <p className="text-[#999999] text-sm line-clamp-3 leading-relaxed">{book.description}</p>
+                                <p className="text-[#999999] text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 leading-relaxed">{book.description}</p>
                                 {/* Botones de acción */}
                                 <div className="flex flex-col space-y-2">
                                     {!address ? (
-                                        <p className="text-center text-[#B8B8B8]">Conecta tu wallet para comprar</p>
+                                        <p className="text-center text-[#B8B8B8] text-xs sm:text-sm">Conecta tu wallet para comprar</p>
                                     ) : bookStatus.isOwner ? (
                                         bookStatus.status === 'Tu Libro (Esperando Entrega)' && userAddress === buyerAddress && !delivered ? (
                                             <div className="flex flex-col items-center">
-                                                <span className={`w-full px-4 py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-sm font-medium text-center mb-2`}>
+                                                <span className={`w-full px-2 sm:px-4 py-2 sm:py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-xs sm:text-sm font-medium text-center mb-2`}>
                                                     {bookStatus.status}
                                                 </span>
                                                 <ProofOfDelivery orderId={book.id} onProofSubmitted={() => window.location.reload()} />
                                             </div>
                                         ) : (
-                                            <span className={`w-full px-4 py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-sm font-medium text-center`}>
+                                            <span className={`w-full px-2 sm:px-4 py-2 sm:py-3 bg-gradient-to-r ${bookStatus.color} text-white rounded-lg text-xs sm:text-sm font-medium text-center`}>
                                                 {bookStatus.status}
                                             </span>
                                         )
@@ -994,7 +998,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                                     toast.error('Datos inválidos para la compra.');
                                                 }
                                             }}
-                                            className="w-full px-4 py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#00FF00] to-[#00CC00] hover:from-[#00CC00] hover:to-[#00AA00] text-black"
+                                            className="w-full px-2 sm:px-4 py-2 sm:py-3 rounded-lg font-medium transition-all bg-gradient-to-r from-[#00FF00] to-[#00CC00] hover:from-[#00CC00] hover:to-[#00AA00] text-black text-xs sm:text-sm"
                                         >
                                             {(typeof priceInEth === 'number' && !isNaN(priceInEth))
                                                 ? `Comprar por ${priceInEth.toFixed(4)} ETH`
@@ -1002,7 +1006,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                         </button>
                                     ) : (
                                         <div className="flex items-center justify-center">
-                                            <span className="w-full px-4 py-3 bg-gradient-to-r from-[#FF4444] to-[#CC3333] text-white rounded-lg text-sm font-medium text-center">
+                                            <span className="w-full px-2 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-[#FF4444] to-[#CC3333] text-white rounded-lg text-xs sm:text-sm font-medium text-center">
                                                 Vendido
                                             </span>
                                         </div>
@@ -1012,6 +1016,68 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                         </div>
                     );
                 })}
+                </div>
+
+                {/* Paginación */}
+                {(() => {
+                    const filteredBooks = books.filter(book => {
+                        if (selectedCategory !== 'all') {
+                            const categoryName = categories.find(cat => cat.id.toString() === selectedCategory)?.name;
+                            return book.category === categoryName;
+                        }
+                        return true;
+                    }).filter(book => {
+                        if (!searchQuery) return true;
+                        const query = searchQuery.toLowerCase();
+                        return (
+                            book.title.toLowerCase().includes(query) ||
+                            book.author.toLowerCase().includes(query) ||
+                            book.category.toLowerCase().includes(query) ||
+                            book.description.toLowerCase().includes(query)
+                        );
+                    });
+                    
+                    const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+                    
+                    if (totalPages > 1) {
+                        return (
+                            <div className="flex justify-center items-center space-x-2 mt-8">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 bg-[#1A1A1A] text-white rounded-lg border border-[#333333] hover:bg-[#2A2A2A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    ← Anterior
+                                </button>
+                                
+                                <div className="flex space-x-1">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                                currentPage === page
+                                                    ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black'
+                                                    : 'bg-[#1A1A1A] text-white border border-[#333333] hover:bg-[#2A2A2A]'
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 bg-[#1A1A1A] text-white rounded-lg border border-[#333333] hover:bg-[#2A2A2A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Siguiente →
+                                </button>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
             </div>
 
             {/* Estado vacío */}

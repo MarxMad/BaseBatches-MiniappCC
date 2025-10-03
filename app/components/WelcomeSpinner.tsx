@@ -111,7 +111,7 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                   const startAngle = index * angle;
                   const endAngle = startAngle + angle;
                   
-                  // Convertir ángulos a radianes
+                  // Convertir ángulos a radianes (ajustar para que el primer segmento esté en la parte superior)
                   const startRad = (startAngle - 90) * Math.PI / 180;
                   const endRad = (endAngle - 90) * Math.PI / 180;
                   
@@ -169,8 +169,8 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"></div>
             </div>
 
-            {/* Puntero estilo casino */}
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 sm:border-l-10 sm:border-r-10 sm:border-b-20 border-l-transparent border-r-transparent border-b-[#FFD700] z-10 shadow-lg">
+            {/* Puntero estilo casino - Flecha apuntando hacia abajo */}
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 sm:border-l-10 sm:border-r-10 sm:border-b-20 border-l-transparent border-r-transparent border-b-[#FFD700] z-10 shadow-lg">
               <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-white"></div>
             </div>
 

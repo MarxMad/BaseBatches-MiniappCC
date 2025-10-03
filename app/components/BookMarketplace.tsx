@@ -774,43 +774,64 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
                     <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
-                        Marketplace
+                        📚 Marketplace Universitario
                     </h2>
-                    <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Descubre y comparte libros académicos</p>
+                    <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Descubre y comparte libros académicos entre estudiantes</p>
                 </div>
-                <button
+                    <button
                     onClick={() => setIsPublishModalOpen(true)}
                     className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                             hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
                              hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2 text-sm sm:text-base whitespace-nowrap"
-                >
+                    >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Publicar Libro</span>
-                </button>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                    <span>📖 Vender Libro</span>
+                    </button>
+            </div>
+
+            {/* Banner de beneficios para estudiantes */}
+            <div className="bg-gradient-to-r from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-4 sm:p-6 border border-[#FFD700]/20">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div className="text-center">
+                        <div className="text-3xl mb-2">💰</div>
+                        <h3 className="text-lg font-bold text-[#FFD700] mb-1">Ahorra Dinero</h3>
+                        <p className="text-sm text-gray-300">Libros hasta 70% más baratos que en librerías</p>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-3xl mb-2">⚡</div>
+                        <h3 className="text-lg font-bold text-[#FFD700] mb-1">Entrega Rápida</h3>
+                        <p className="text-sm text-gray-300">Encuentros en campus o envío express</p>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-3xl mb-2">🎓</div>
+                        <h3 className="text-lg font-bold text-[#FFD700] mb-1">Solo Estudiantes</h3>
+                        <p className="text-sm text-gray-300">Comunidad universitaria verificada</p>
+                    </div>
+                </div>
             </div>
 
             {/* Barra de búsqueda y filtros mejorada */}
             <div className="space-y-4">
                 {/* Barra de búsqueda principal */}
-                <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative min-w-0">
-                        <input
-                            type="text"
+                    <input
+                        type="text"
                             placeholder="Buscar libros, autores, materias..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
                                      focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
                                      transition-all pl-10 sm:pl-12 text-sm sm:text-lg"
                         />
                         <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#666666] absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2" 
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
@@ -823,11 +844,11 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                             <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                         ))}
                     </select>
-                </div>
+            </div>
 
                 {/* Categorías rápidas - Estilo Amazon */}
                 <div className="bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-[#333333]">
-                    <h3 className="text-base sm:text-lg font-semibold text-white mb-3">Categorías populares</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-white mb-3">📚 Categorías populares</h3>
                     <div className="flex flex-wrap gap-2 overflow-x-auto pb-2">
                         {categories.slice(0, 8).map(cat => (
                             <button
@@ -842,6 +863,105 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                 {cat.icon} {cat.name}
                             </button>
                         ))}
+                    </div>
+                </div>
+
+                {/* Características especiales de CampusCoin */}
+                <div className="bg-gradient-to-r from-[#FFD700]/5 to-[#FFA500]/5 rounded-2xl p-4 sm:p-6 border border-[#FFD700]/30">
+                    <h3 className="text-lg font-semibold text-white mb-4 text-center">🌟 ¿Por qué elegir CampusCoin?</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">🔒</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">Seguridad Blockchain</h4>
+                                <p className="text-sm text-gray-300">Transacciones seguras y transparentes con tecnología Web3</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">🎯</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">Precios Justos</h4>
+                                <p className="text-sm text-gray-300">Sin intermediarios, precios directos entre estudiantes</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">📱</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">App Móvil</h4>
+                                <p className="text-sm text-gray-300">Compra y vende desde cualquier lugar del campus</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">⭐</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">Sistema de Calificaciones</h4>
+                                <p className="text-sm text-gray-300">Califica vendedores y compradores para mayor confianza</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">💬</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">Chat Integrado</h4>
+                                <p className="text-sm text-gray-300">Comunícate directamente con vendedores</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                            <div className="text-2xl">🎁</div>
+                            <div>
+                                <h4 className="font-semibold text-[#FFD700] mb-1">Descuentos Especiales</h4>
+                                <p className="text-sm text-gray-300">Gana descuentos únicos con la ruleta de la suerte</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Estadísticas del marketplace */}
+            <div className="bg-[#1A1A1A] rounded-2xl p-4 sm:p-6 border border-[#2A2A2A]">
+                <h3 className="text-lg font-semibold text-white mb-4 text-center">📊 CampusCoin en Números</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold text-[#FFD700]">500+</div>
+                        <div className="text-xs sm:text-sm text-gray-400">Libros Disponibles</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold text-[#4CAF50]">1,200+</div>
+                        <div className="text-xs sm:text-sm text-gray-400">Estudiantes Activos</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold text-[#FF8C00]">$50K+</div>
+                        <div className="text-xs sm:text-sm text-gray-400">Ahorrado por Estudiantes</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl sm:text-3xl font-bold text-[#FF6B6B]">4.9⭐</div>
+                        <div className="text-xs sm:text-sm text-gray-400">Calificación Promedio</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Testimonios de estudiantes */}
+            <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFA500]/10 rounded-2xl p-4 sm:p-6 border border-[#FFD700]/20">
+                <h3 className="text-lg font-semibold text-white mb-4 text-center">💬 Lo que dicen nuestros estudiantes</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-[#1A1A1A]/50 rounded-xl p-4">
+                        <div className="flex items-center mb-2">
+                            <div className="w-8 h-8 bg-[#FFD700] rounded-full flex items-center justify-center text-black font-bold text-sm">M</div>
+                            <div className="ml-3">
+                                <div className="text-white font-medium">María González</div>
+                                <div className="text-gray-400 text-sm">Ingeniería</div>
+                            </div>
+                        </div>
+                        <p className="text-gray-300 text-sm">"Ahorré $200 en libros este semestre. ¡CampusCoin es increíble!"</p>
+                    </div>
+                    <div className="bg-[#1A1A1A]/50 rounded-xl p-4">
+                        <div className="flex items-center mb-2">
+                            <div className="w-8 h-8 bg-[#4CAF50] rounded-full flex items-center justify-center text-white font-bold text-sm">C</div>
+                            <div className="ml-3">
+                                <div className="text-white font-medium">Carlos Ruiz</div>
+                                <div className="text-gray-400 text-sm">Medicina</div>
+                            </div>
+                        </div>
+                        <p className="text-gray-300 text-sm">"La entrega fue súper rápida, me encontré con el vendedor en la biblioteca."</p>
                     </div>
                 </div>
             </div>
@@ -968,7 +1088,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                         <span className="text-[#FFD700] text-xs sm:text-sm font-medium bg-[#FFD700]/10 px-2 py-1 rounded-full">
                                             {book.category}
                                         </span>
-                                    </div>
+                                </div>
                                 </div>
                                 <p className="text-[#999999] text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 leading-relaxed">{book.description}</p>
                                 {/* Botones de acción */}

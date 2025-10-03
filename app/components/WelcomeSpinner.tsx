@@ -90,7 +90,7 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
           className="relative mb-6 md:mb-8"
         >
           {/* Marco de la máquina de casino */}
-          <div className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[28rem] md:h-[28rem] mx-auto">
+          <div className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[28rem] md:h-[28rem] mx-auto flex items-center justify-center">
             {/* Marco exterior estilo casino */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#2A2A2A] to-[#1A1A1A] rounded-full border-8 border-[#FFD700] shadow-2xl">
               <div className="absolute inset-2 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] rounded-full border-4 border-[#FFD700]/50"></div>
@@ -111,7 +111,7 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                   const startAngle = index * angle;
                   const endAngle = startAngle + angle;
                   
-                  // Convertir ángulos a radianes (ajustar para que el primer segmento esté en la parte superior)
+                  // Convertir ángulos a radianes
                   const startRad = (startAngle - 90) * Math.PI / 180;
                   const endRad = (endAngle - 90) * Math.PI / 180;
                   
@@ -169,9 +169,17 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent"></div>
             </div>
 
-            {/* Puntero estilo casino - Flecha apuntando hacia abajo */}
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-16 sm:border-l-10 sm:border-r-10 sm:border-b-20 border-l-transparent border-r-transparent border-b-[#FFD700] z-10 shadow-lg">
-              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-white"></div>
+            {/* Puntero estilo casino - Flecha apuntadora */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 z-20">
+              <div className="relative">
+                {/* Flecha principal */}
+                <div className="w-0 h-0 border-l-8 border-r-8 border-b-16 sm:border-l-10 sm:border-r-10 sm:border-b-20 border-l-transparent border-r-transparent border-b-[#FFD700] shadow-2xl">
+                  {/* Flecha interna blanca */}
+                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-6 border-r-6 border-b-12 sm:border-l-8 sm:border-r-8 sm:border-b-16 border-l-transparent border-r-transparent border-b-white"></div>
+                </div>
+                {/* Base de la flecha */}
+                <div className="absolute top-12 sm:top-16 left-1/2 transform -translate-x-1/2 w-4 h-2 bg-[#FFD700] rounded-full"></div>
+              </div>
             </div>
 
             {/* Luces decorativas estilo casino */}

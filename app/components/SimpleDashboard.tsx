@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { BookMarketplace } from './BookMarketplace';
+import { ExamStories } from './ExamStories';
+import { Leaderboard } from './Leaderboard';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
@@ -13,7 +15,9 @@ interface SimpleDashboardProps {
 
 export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) {
   const { isConnected, address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile'>('marketplace');
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'stories' | 'leaderboard'>('marketplace');
+  const [showExamStories, setShowExamStories] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   if (!isConnected) {
     return (
@@ -63,7 +67,7 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
       {/* Navigation */}
       <nav className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-4 sm:space-x-8 overflow-x-auto">
+          <div className="flex space-x-2 sm:space-x-4 overflow-x-auto">
             <button
               onClick={() => setActiveTab('marketplace')}
               className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
@@ -73,6 +77,18 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
               }`}
             >
               📚 Marketplace
+            </button>
+            <button
+              onClick={() => setShowExamStories(true)}
+              className="py-4 px-2 border-b-2 border-transparent font-medium text-sm transition-colors whitespace-nowrap text-gray-400 hover:text-white"
+            >
+              📖 Stories
+            </button>
+            <button
+              onClick={() => setShowLeaderboard(true)}
+              className="py-4 px-2 border-b-2 border-transparent font-medium text-sm transition-colors whitespace-nowrap text-gray-400 hover:text-white"
+            >
+              🏆 Ranking
             </button>
             <button
               onClick={() => setActiveTab('profile')}
@@ -212,6 +228,16 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
           </div>
         )}
       </main>
+
+      {/* Modals */}
+      <ExamStories 
+        isOpen={showExamStories} 
+        onClose={() => setShowExamStories(false)} 
+      />
+      <Leaderboard 
+        isOpen={showLeaderboard} 
+        onClose={() => setShowLeaderboard(false)} 
+      />
     </div>
   );
 }

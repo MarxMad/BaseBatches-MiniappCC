@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useApp } from '../context/AppContext';
 import { BookMarketplace } from './BookMarketplace';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
@@ -92,6 +91,8 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
                   ? 'border-[#FFD700] text-[#FFD700]'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
+            >
+              🏆 Ranking
             </button>
             <button
               onClick={() => setActiveTab('game')}

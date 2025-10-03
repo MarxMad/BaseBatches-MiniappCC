@@ -73,9 +73,9 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative mb-8"
+          className="relative mb-6 md:mb-8"
         >
-          <div className="relative w-80 h-80 mx-auto">
+          <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 mx-auto">
             {/* Ruleta */}
             <motion.div
               className="w-full h-full rounded-full border-8 border-[#FFD700] relative overflow-hidden shadow-2xl"
@@ -84,36 +84,49 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
                 transition: isSpinning ? 'transform 3s cubic-bezier(0.23, 1, 0.32, 1)' : 'none'
               }}
             >
-              {discounts.map((discount, index) => (
-                <div
-                  key={discount}
-                  className="absolute w-1/2 h-1/2 origin-bottom-right"
-                  style={{
-                    transform: `rotate(${index * 60}deg)`,
-                    transformOrigin: 'bottom right'
-                  }}
-                >
+              {/* Segmentos de la ruleta con geometría mejorada */}
+              {discounts.map((discount, index) => {
+                const angle = 60; // 360 / 6 = 60 grados por segmento
+                const startAngle = index * angle;
+                const endAngle = startAngle + angle;
+                
+                return (
                   <div
-                    className="w-full h-full flex items-center justify-center text-white font-bold text-lg"
+                    key={discount}
+                    className="absolute inset-0"
                     style={{
-                      background: `conic-gradient(from ${index * 60}deg, ${colors[index]} 0deg, ${colors[index]} 60deg, transparent 60deg)`
+                      background: `conic-gradient(from ${startAngle}deg, ${colors[index]} ${startAngle}deg, ${colors[index]} ${endAngle}deg, transparent ${endAngle}deg)`
                     }}
                   >
-                    <span className="transform -rotate-45 text-2xl font-black">
-                      {discount}%
-                    </span>
+                    {/* Texto del porcentaje posicionado correctamente */}
+                    <div
+                      className="absolute inset-0 flex items-center justify-center"
+                      style={{
+                        transform: `rotate(${startAngle + angle/2}deg)`
+                      }}
+                    >
+                      <span 
+                        className="text-white font-black text-xl sm:text-2xl md:text-3xl drop-shadow-lg"
+                        style={{
+                          transform: `rotate(${-(startAngle + angle/2)}deg)`,
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                        }}
+                      >
+                        {discount}%
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </motion.div>
 
             {/* Centro de la ruleta */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-              <div className="text-2xl">📚</div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+              <div className="text-xl sm:text-2xl">📚</div>
             </div>
 
             {/* Puntero */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-0 h-0 border-l-8 border-r-8 border-b-12 border-l-transparent border-r-transparent border-b-[#FFD700] z-10" />
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 w-0 h-0 border-l-6 border-r-6 border-b-10 sm:border-l-8 sm:border-r-8 sm:border-b-12 border-l-transparent border-r-transparent border-b-[#FFD700] z-10" />
           </div>
         </motion.div>
 
@@ -124,7 +137,7 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
           transition={{ duration: 0.8, delay: 0.6 }}
           onClick={spinWheel}
           disabled={isSpinning}
-          className="px-8 py-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-bold text-xl rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black font-bold text-lg sm:text-xl rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSpinning ? 'Girando...' : '🎯 ¡Gira la Ruleta!'}
         </motion.button>

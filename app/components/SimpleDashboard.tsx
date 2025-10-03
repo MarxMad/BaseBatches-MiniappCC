@@ -89,16 +89,16 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-4">
+      <main className="max-w-7xl mx-auto p-2 sm:p-4">
         {activeTab === 'marketplace' && (
-          <div>
+          <div className="space-y-4">
             {userDiscount && (
-              <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black p-6 rounded-2xl mb-6 text-center">
-                <h2 className="text-2xl font-bold mb-2">🎉 ¡Felicidades!</h2>
-                <p className="text-lg">
-                  Tienes un descuento del <span className="font-black text-3xl">{userDiscount}%</span> en tu primer libro
+              <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black p-4 sm:p-6 rounded-2xl text-center">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2">🎉 ¡Felicidades!</h2>
+                <p className="text-base sm:text-lg">
+                  Tienes un descuento del <span className="font-black text-2xl sm:text-3xl">{userDiscount}%</span> en tu primer libro
                 </p>
-                <p className="text-sm mt-2 opacity-80">
+                <p className="text-xs sm:text-sm mt-2 opacity-80">
                   El descuento se aplicará automáticamente al checkout
                 </p>
               </div>
@@ -108,33 +108,104 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
         )}
 
         {activeTab === 'profile' && (
-          <div className="bg-[#1A1A1A] rounded-2xl p-6 border border-[#2A2A2A]">
-            <h2 className="text-2xl font-bold text-white mb-6">Mi Perfil</h2>
+          <div className="space-y-6">
+            {/* Header del perfil */}
+            <div className="bg-gradient-to-r from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-6 border border-[#2A2A2A]">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center">
+                  <span className="text-2xl">👤</span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Mi Perfil</h2>
+                  <p className="text-gray-400">Estudiante Universitario</p>
+                </div>
+              </div>
+              {userDiscount && (
+                <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black p-3 rounded-xl text-center">
+                  <span className="font-bold">🎉 Descuento activo: {userDiscount}% OFF</span>
+                </div>
+              )}
+            </div>
+
+            {/* Estadísticas principales */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
+                <div className="text-3xl font-bold text-[#FFD700] mb-2">0</div>
+                <div className="text-gray-400">Libros Comprados</div>
+              </div>
+              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
+                <div className="text-3xl font-bold text-[#4CAF50] mb-2">0</div>
+                <div className="text-gray-400">Libros Vendidos</div>
+              </div>
+              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
+                <div className="text-3xl font-bold text-[#FF8C00] mb-2">0</div>
+                <div className="text-gray-400">En Venta</div>
+              </div>
+            </div>
+
+            {/* Información detallada */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-[#0A0A0A] p-6 rounded-xl border border-[#2A2A2A]">
-                <h3 className="text-lg font-semibold text-white mb-4">Información de Wallet</h3>
-                <div className="space-y-2">
-                  <p className="text-gray-400">
-                    <span className="text-white">Dirección:</span> {address?.slice(0, 6)}...{address?.slice(-4)}
-                  </p>
-                  <p className="text-gray-400">
-                    <span className="text-white">Descuento activo:</span> {userDiscount ? `${userDiscount}%` : 'Ninguno'}
-                  </p>
+              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A]">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <span className="mr-2">🔗</span> Información de Wallet
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Dirección:</span>
+                    <span className="text-white font-mono text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Estado:</span>
+                    <span className="text-green-400 font-medium">Conectado</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Descuento:</span>
+                    <span className="text-[#FFD700] font-medium">{userDiscount ? `${userDiscount}%` : 'Ninguno'}</span>
+                  </div>
                 </div>
               </div>
               
-              <div className="bg-[#0A0A0A] p-6 rounded-xl border border-[#2A2A2A]">
-                <h3 className="text-lg font-semibold text-white mb-4">Estadísticas</h3>
-                <div className="space-y-2">
-                  <p className="text-gray-400">
-                    <span className="text-white">Libros comprados:</span> 0
-                  </p>
-                  <p className="text-gray-400">
-                    <span className="text-white">Libros vendidos:</span> 0
-                  </p>
-                  <p className="text-gray-400">
-                    <span className="text-white">Miembro desde:</span> Hoy
-                  </p>
+              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A]">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <span className="mr-2">📊</span> Estadísticas de Actividad
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Miembro desde:</span>
+                    <span className="text-white">Hoy</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Puntos ganados:</span>
+                    <span className="text-[#FFD700] font-bold">0</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">Nivel:</span>
+                    <span className="text-[#4CAF50] font-medium">Principiante</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Libros del usuario */}
+            <div className="bg-[#1A1A1A] rounded-2xl p-6 border border-[#2A2A2A]">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <span className="mr-2">📚</span> Mis Libros
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
+                  <div className="text-2xl mb-2">🛒</div>
+                  <div className="text-sm text-gray-400">Comprados</div>
+                  <div className="text-xl font-bold text-white">0</div>
+                </div>
+                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
+                  <div className="text-2xl mb-2">💰</div>
+                  <div className="text-sm text-gray-400">Vendidos</div>
+                  <div className="text-xl font-bold text-white">0</div>
+                </div>
+                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
+                  <div className="text-2xl mb-2">⏳</div>
+                  <div className="text-sm text-gray-400">En Venta</div>
+                  <div className="text-xl font-bold text-white">0</div>
                 </div>
               </div>
             </div>

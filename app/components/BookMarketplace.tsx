@@ -17,6 +17,8 @@ import { writeContract } from 'wagmi/actions';
 import { sepolia } from 'viem/chains';
 import { config } from "../config/wagmi";
 import { ProofOfDelivery } from './ProofOfDelivery';
+import BookCard from './BookCard';
+import { ContactScreen } from './ContactScreen';
 
 interface Book {
     id: number;
@@ -256,6 +258,8 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
     const [previewImage, setPreviewImage] = useState<string>('');
     const [isApproving, setIsApproving] = useState(false);
     const [isBuying, setIsBuying] = useState(false);
+    const [showContactScreen, setShowContactScreen] = useState(false);
+    const [purchasedBook, setPurchasedBook] = useState<Book | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Función para calcular precio con descuento
@@ -264,6 +268,21 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
         const price = typeof originalPrice === 'bigint' ? Number(originalPrice) : originalPrice;
         const discountAmount = (price * userDiscount) / 100;
         return price - discountAmount;
+    };
+
+    // Función para manejar la compra de un libro
+    const handleBuyBook = async (bookId: number) => {
+        setIsBuying(true);
+        try {
+            // Aquí iría la lógica de compra
+            console.log('Comprando libro:', bookId);
+            toast.success('Libro comprado exitosamente');
+        } catch (error) {
+            console.error('Error al comprar libro:', error);
+            toast.error('Error al comprar libro');
+        } finally {
+            setIsBuying(false);
+        }
     };
     
     // Estado para el formulario
@@ -277,12 +296,20 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
         tokenURI: ''
     });
 
-    // Categorías disponibles
+    // Categorías disponibles - Organizadas por carreras y tipos
     const categories: Category[] = [
-        { id: 1, name: 'Libros de Texto', icon: 'BOOK' },
-        { id: 2, name: 'Novelas', icon: 'NOVEL' },
-        { id: 3, name: 'Referencia', icon: 'REF' },
-        { id: 4, name: 'Revistas', icon: 'MAG' }
+        { id: 1, name: 'Ingeniería', icon: '🔧' },
+        { id: 2, name: 'Medicina', icon: '⚕️' },
+        { id: 3, name: 'Derecho', icon: '⚖️' },
+        { id: 4, name: 'Economía', icon: '💰' },
+        { id: 5, name: 'Psicología', icon: '🧠' },
+        { id: 6, name: 'Arquitectura', icon: '🏗️' },
+        { id: 7, name: 'Ciencias', icon: '🔬' },
+        { id: 8, name: 'Humanidades', icon: '📚' },
+        { id: 9, name: 'Guías de Estudio', icon: '📖' },
+        { id: 10, name: 'Exámenes', icon: '📝' },
+        { id: 11, name: 'Idiomas', icon: '🌍' },
+        { id: 12, name: 'Otros', icon: '📄' }
     ];
 
     const [showTransaction, setShowTransaction] = useState(false);
@@ -702,6 +729,13 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
             return;
         }
         console.log("[handlePurchase] Dirección (address) encontrada, procediendo...");
+        
+        // Encontrar el libro comprado para mostrar en la pantalla de contacto
+        const book = books.find(b => b.id === bookId);
+        if (book) {
+            setPurchasedBook(book);
+        }
+        
         try {
             // Pasando 'config' como primer argumento
             const tx = await writeContract(config, {
@@ -711,6 +745,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                 args: [BigInt(bookId)],
                 value: parseUnits(price, 18),
             });
+            setTxHash(tx);
             toast.success('Transacción enviada. Esperando confirmación...');
         } catch (error) {
             console.error('Error en handlePurchase:', error);
@@ -721,12 +756,15 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
     useEffect(() => {
         if (txWait.isSuccess) {
             toast.success('¡Libro comprado correctamente!');
-            // Aquí podrías actualizar el estado local de los libros si lo deseas
+            // Mostrar pantalla de contacto
+            if (purchasedBook) {
+                setShowContactScreen(true);
+            }
         }
         if (txWait.isError) {
             toast.error('Error al confirmar la transacción');
         }
-    }, [txWait.isSuccess, txWait.isError]);
+    }, [txWait.isSuccess, txWait.isError, purchasedBook]);
 
     return (
         <div className="space-y-8">
@@ -751,41 +789,84 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                     </button>
             </div>
 
-            {/* Barra de búsqueda y filtros */}
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                    <input
-                        type="text"
-                        placeholder="Buscar por título, autor o categoría..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
-                                 focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
-                                 transition-all pl-12"
-                    />
-                    <svg className="w-5 h-5 text-[#666666] absolute left-4 top-1/2 transform -translate-y-1/2" 
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
+            {/* Barra de búsqueda y filtros mejorada */}
+            <div className="space-y-4">
+                {/* Barra de búsqueda principal */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                        <input
+                            type="text"
+                            placeholder="Buscar libros, autores, materias..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-5 py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                                     focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
+                                     transition-all pl-12 text-lg"
+                        />
+                        <svg className="w-6 h-6 text-[#666666] absolute left-4 top-1/2 transform -translate-y-1/2" 
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="px-5 py-3 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
-                                 focus:outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700] 
-                                 transition-all appearance-none cursor-pointer w-full md:w-48"
+                        className="px-5 py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
+                                 focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
+                                 transition-all appearance-none cursor-pointer w-full md:w-64 text-lg"
                     >
-                        <option value="all">Todas las categorías</option>
+                        <option value="all">🔍 Todas las categorías</option>
                         {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                         ))}
                     </select>
+                </div>
+
+                {/* Categorías rápidas - Estilo Amazon */}
+                <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#333333]">
+                    <h3 className="text-lg font-semibold text-white mb-3">Categorías populares</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {categories.slice(0, 8).map(cat => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id.toString())}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    selectedCategory === cat.id.toString()
+                                        ? 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black'
+                                        : 'bg-[#2A2A2A] text-gray-300 hover:bg-[#3A3A3A] hover:text-white'
+                                }`}
+                            >
+                                {cat.icon} {cat.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            {/* Grid de Libros */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book) => {
+            {/* Grid de Libros - Diseño Responsivo */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {books
+                    .filter(book => {
+                        // Filtro por categoría
+                        if (selectedCategory !== 'all') {
+                            const categoryName = categories.find(cat => cat.id.toString() === selectedCategory)?.name;
+                            return book.category === categoryName;
+                        }
+                        return true;
+                    })
+                    .filter(book => {
+                        // Filtro por búsqueda
+                        if (!searchQuery) return true;
+                        const query = searchQuery.toLowerCase();
+                        return (
+                            book.title.toLowerCase().includes(query) ||
+                            book.author.toLowerCase().includes(query) ||
+                            book.category.toLowerCase().includes(query) ||
+                            book.description.toLowerCase().includes(query)
+                        );
+                    })
+                    .map((book) => {
                     const userAddress = address?.toLowerCase();
                     const sellerAddress = book.seller?.toLowerCase();
                     const buyerAddress = book.buyer?.toLowerCase();
@@ -857,7 +938,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                     });
 
                     return (
-                        <div key={book.id} className={`${cardStyle} group relative overflow-hidden transform transition-all duration-300 hover:-translate-y-2`}>
+                        <div key={book.id} className={`${cardStyle} group relative overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl`}>
                             {/* Imagen del libro */}
                             <div className="relative h-64 overflow-hidden rounded-t-2xl">
                                 <img 
@@ -865,19 +946,27 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                     alt={book.title}
                                     className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                                <div className="absolute top-4 right-4 bg-[#FFD700] text-black px-3 py-1 rounded-full text-sm font-medium">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                <div className="absolute top-4 right-4 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                                     {priceLabel}
+                                </div>
+                                {/* Badge de categoría */}
+                                <div className="absolute top-4 left-4 bg-black/70 text-white px-2 py-1 rounded-lg text-xs font-medium">
+                                    {book.category}
                                 </div>
                             </div>
                             {/* Contenido */}
                             <div className="p-6 space-y-4">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white mb-1 line-clamp-1">{book.title}</h3>
-                                    <p className="text-[#B8B8B8] text-sm">Por {book.author}</p>
-                                    <p className="text-[#FFD700] text-sm mt-1">{book.category}</p>
+                                    <h3 className="text-xl font-bold text-white mb-2 line-clamp-2 group-hover:text-[#FFD700] transition-colors">{book.title}</h3>
+                                    <p className="text-[#B8B8B8] text-sm mb-2">Por <span className="text-white font-medium">{book.author}</span></p>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[#FFD700] text-sm font-medium bg-[#FFD700]/10 px-2 py-1 rounded-full">
+                                            {book.category}
+                                        </span>
+                                    </div>
                                 </div>
-                                <p className="text-[#999999] text-sm line-clamp-2">{book.description}</p>
+                                <p className="text-[#999999] text-sm line-clamp-3 leading-relaxed">{book.description}</p>
                                 {/* Botones de acción */}
                                 <div className="flex flex-col space-y-2">
                                     {!address ? (
@@ -926,7 +1015,22 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
             </div>
 
             {/* Estado vacío */}
-            {books.length === 0 && (
+            {books.filter(book => {
+                if (selectedCategory !== 'all') {
+                    const categoryName = categories.find(cat => cat.id.toString() === selectedCategory)?.name;
+                    return book.category === categoryName;
+                }
+                return true;
+            }).filter(book => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
+                return (
+                    book.title.toLowerCase().includes(query) ||
+                    book.author.toLowerCase().includes(query) ||
+                    book.category.toLowerCase().includes(query) ||
+                    book.description.toLowerCase().includes(query)
+                );
+            }).length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                     <div className="w-24 h-24 bg-[#1A1A1A] rounded-full flex items-center justify-center mb-6">
                         <svg className="w-12 h-12 text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -935,11 +1039,13 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                         </svg>
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">
-                        No hay libros disponibles
+                        {searchQuery || selectedCategory !== 'all' ? 'No se encontraron resultados' : 'No hay libros disponibles'}
                     </h3>
                     <p className="text-[#B8B8B8] text-center max-w-md">
-                        No se encontraron libros que coincidan con tu búsqueda. 
-                        Intenta con otros términos o publica el primer libro.
+                        {searchQuery || selectedCategory !== 'all' 
+                            ? 'Intenta con otros términos de búsqueda o cambia la categoría.' 
+                            : 'No se encontraron libros que coincidan con tu búsqueda. Intenta con otros términos o publica el primer libro.'
+                        }
                     </p>
                 </div>
             )}
@@ -1064,8 +1170,8 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                         >
                                             <option value="">Seleccionar categoría</option>
                                             {categories.map(cat => (
-                                                <option key={cat.id} value={cat.id}>
-                                                    {cat.name}
+                                                <option key={cat.id} value={cat.name}>
+                                                    {cat.icon} {cat.name}
                                                 </option>
                                             ))}
                                         </select>
@@ -1142,6 +1248,24 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Pantalla de Contacto */}
+            {purchasedBook && (
+                <ContactScreen
+                    isOpen={showContactScreen}
+                    onClose={() => {
+                        setShowContactScreen(false);
+                        setPurchasedBook(null);
+                    }}
+                    bookTitle={purchasedBook.title}
+                    sellerAddress={purchasedBook.seller}
+                    buyerAddress={address || ''}
+                    onContactSent={(message, contactInfo) => {
+                        toast.success('¡Mensaje enviado! El vendedor se pondrá en contacto contigo pronto.');
+                        console.log('Mensaje enviado:', { message, contactInfo });
+                    }}
+                />
             )}
         </div>
     );

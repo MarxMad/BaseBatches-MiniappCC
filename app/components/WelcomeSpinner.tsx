@@ -27,6 +27,18 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [rotation, setRotation] = useState(0);
+  const [showParticles, setShowParticles] = useState(false);
+  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
+
+  const createParticles = () => {
+    const newParticles = Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 2
+    }));
+    setParticles(newParticles);
+  };
 
   const spinWheel = () => {
     if (isSpinning) return;
@@ -34,6 +46,8 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
     setIsSpinning(true);
     setSelectedDiscount(null);
     setShowCongratulations(false);
+    setShowParticles(true);
+    createParticles();
     
     // Calcular rotación aleatoria (múltiplo de 60 grados + extra)
     const randomIndex = Math.floor(Math.random() * discounts.length);
@@ -49,6 +63,7 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
     setTimeout(() => {
       setSelectedDiscount(discounts[randomIndex]);
       setShowCongratulations(true);
+      setShowParticles(false);
       console.log(`🎉 ¡JACKPOT! Descuento ganado: ${discounts[randomIndex]}%`);
       
       // Después de 4 segundos, proceder al marketplace
@@ -65,6 +80,34 @@ export default function WelcomeSpinner({ onComplete }: WelcomeSpinnerProps) {
         <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full filter blur-[100px] opacity-20 animate-pulse" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-[#FFA500] to-[#FF8C00] rounded-full filter blur-[120px] opacity-15 animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
+
+      {/* Efectos de partículas durante el giro */}
+      {showParticles && (
+        <div className="absolute inset-0 pointer-events-none">
+          {particles.map((particle) => (
+            <motion.div
+              key={particle.id}
+              className="absolute w-2 h-2 bg-[#FFD700] rounded-full"
+              style={{
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ 
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+                y: [0, -50, -100]
+              }}
+              transition={{
+                duration: 2,
+                delay: particle.delay,
+                repeat: Infinity,
+                repeatDelay: 0.5
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="relative z-10 text-center">
         {/* Título de bienvenida */}

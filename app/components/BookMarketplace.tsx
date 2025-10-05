@@ -298,20 +298,55 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
         tokenURI: ''
     });
 
-    // Categorías disponibles - Organizadas por carreras y tipos
+    // Categorías disponibles - Marketplace Global CU-Shop
     const categories: Category[] = [
-        { id: 1, name: 'Ingeniería', icon: '🔧' },
-        { id: 2, name: 'Medicina', icon: '⚕️' },
-        { id: 3, name: 'Derecho', icon: '⚖️' },
-        { id: 4, name: 'Economía', icon: '💰' },
-        { id: 5, name: 'Psicología', icon: '🧠' },
-        { id: 6, name: 'Arquitectura', icon: '🏗️' },
-        { id: 7, name: 'Ciencias', icon: '🔬' },
-        { id: 8, name: 'Humanidades', icon: '📚' },
-        { id: 9, name: 'Guías de Estudio', icon: '📖' },
-        { id: 10, name: 'Exámenes', icon: '📝' },
-        { id: 11, name: 'Idiomas', icon: '🌍' },
-        { id: 12, name: 'Otros', icon: '📄' }
+        // Educación y Conocimiento
+        { id: 1, name: 'Libros', icon: '📚' },
+        { id: 2, name: 'Cursos', icon: '🎓' },
+        { id: 3, name: 'Papelería', icon: '✏️' },
+        { id: 4, name: 'Guías de Estudio', icon: '📖' },
+        
+        // Comida y Bebidas
+        { id: 5, name: 'Comida', icon: '🍕' },
+        { id: 6, name: 'Bebidas', icon: '🥤' },
+        { id: 7, name: 'Snacks', icon: '🍿' },
+        { id: 8, name: 'Postres', icon: '🍰' },
+        
+        // Arte y Creatividad
+        { id: 9, name: 'Arte', icon: '🎨' },
+        { id: 10, name: 'Artesanías', icon: '🖼️' },
+        { id: 11, name: 'Diseño', icon: '🎭' },
+        { id: 12, name: 'Música', icon: '🎵' },
+        
+        // Tecnología
+        { id: 13, name: 'Tecnología', icon: '💻' },
+        { id: 14, name: 'Accesorios', icon: '📱' },
+        { id: 15, name: 'Gadgets', icon: '⌚' },
+        { id: 16, name: 'Software', icon: '💿' },
+        
+        // Ropa y Moda
+        { id: 17, name: 'Ropa', icon: '👕' },
+        { id: 18, name: 'Calzado', icon: '👟' },
+        { id: 19, name: 'Accesorios', icon: '👜' },
+        { id: 20, name: 'Joyería', icon: '💍' },
+        
+        // Hogar y Decoración
+        { id: 21, name: 'Hogar', icon: '🏠' },
+        { id: 22, name: 'Decoración', icon: '🕯️' },
+        { id: 23, name: 'Electrodomésticos', icon: '🔌' },
+        { id: 24, name: 'Jardín', icon: '🌱' },
+        
+        // Deportes y Fitness
+        { id: 25, name: 'Deportes', icon: '⚽' },
+        { id: 26, name: 'Fitness', icon: '🏋️' },
+        { id: 27, name: 'Outdoor', icon: '🏔️' },
+        { id: 28, name: 'Gimnasio', icon: '🏃' },
+        
+        // Servicios
+        { id: 29, name: 'Servicios', icon: '🔧' },
+        { id: 30, name: 'Tutoring', icon: '👨‍🏫' },
+        { id: 31, name: 'Delivery', icon: '🚚' },
+        { id: 32, name: 'Otros', icon: '📄' }
     ];
 
     const [showTransaction, setShowTransaction] = useState(false);
@@ -774,9 +809,9 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
                     <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
-                        📚 Marketplace
+                        🛍️ CU-Shop
                     </h2>
-                    <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Descubre y comparte libros académicos</p>
+                    <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Marketplace global - Todo lo que necesitas</p>
                     <div className="flex items-center space-x-4 mt-2">
                         <div className="flex items-center space-x-1 text-xs text-gray-400">
                             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -788,39 +823,39 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                         </div>
                     </div>
                 </div>
-                <button
+                    <button
                     onClick={() => setIsPublishModalOpen(true)}
                     className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                             hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
                              hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2 text-sm sm:text-base whitespace-nowrap"
-                >
+                    >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Publicar Libro</span>
-                </button>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                    <span>Publicar Producto</span>
+                    </button>
             </div>
 
             {/* Barra de búsqueda y filtros mejorada */}
             <div className="space-y-4">
                 {/* Barra de búsqueda principal */}
-                <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative min-w-0">
-                        <input
-                            type="text"
+                    <input
+                        type="text"
                             placeholder="Buscar libros, autores, materias..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#1A1A1A] text-white rounded-xl border border-[#333333] 
                                      focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
                                      transition-all pl-10 sm:pl-12 text-sm sm:text-lg"
                         />
                         <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#666666] absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2" 
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
@@ -833,7 +868,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                             <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                         ))}
                     </select>
-                </div>
+            </div>
 
                 {/* Categorías rápidas - Estilo Amazon */}
                 <div className="bg-[#1A1A1A] rounded-xl p-3 sm:p-4 border border-[#333333]">
@@ -978,7 +1013,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                         <span className="text-[#FFD700] text-xs sm:text-sm font-medium bg-[#FFD700]/10 px-2 py-1 rounded-full">
                                             {book.category}
                                         </span>
-                                    </div>
+                                </div>
                                 </div>
                                 <p className="text-[#999999] text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 leading-relaxed">{book.description}</p>
                                 {/* Botones de acción */}
@@ -1270,7 +1305,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                             type="submit"
                                             className="px-4 py-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-lg hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium"
                                         >
-                                            Publicar Libro
+                                            Publicar Producto
                                                 </button>
                                             </div>
                                 </div>

@@ -20,10 +20,10 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] mb-4">
-            CampusCoin
+            CU-Shop
           </h1>
           <p className="text-xl text-white mb-8">
-            Conecta tu wallet para acceder al marketplace
+            Conecta tu wallet para acceder al marketplace global
           </p>
           <ConnectWallet />
         </div>
@@ -41,8 +41,8 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
               <span className="text-2xl">📚</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">CampusCoin</h1>
-              <p className="text-gray-400 text-sm">Marketplace Universitario</p>
+              <h1 className="text-2xl font-bold text-white">CU-Shop</h1>
+              <p className="text-gray-400 text-sm">Marketplace Global</p>
             </div>
           </div>
           

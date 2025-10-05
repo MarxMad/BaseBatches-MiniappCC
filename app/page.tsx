@@ -25,7 +25,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
 import SimpleDashboard from "./components/SimpleDashboard";
-import WelcomeSpinner from "./components/WelcomeSpinner";
+import SlotMachine from "./components/SlotMachine";
 import { sdk } from "@farcaster/miniapp-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
 import Image from 'next/image';
@@ -693,7 +693,7 @@ export default function App() {
   }
 
   if (showWelcome) {
-    return <WelcomeSpinner onComplete={handleWelcomeComplete} />;
+    return <SlotMachine onComplete={handleWelcomeComplete} />;
   }
 
   if (showDashboard) {

@@ -40,15 +40,15 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A]">
       {/* Header */}
-      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] p-4">
+      <header className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] border-b border-[#3A3A3A] p-4 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📚</span>
+            <div className="w-12 h-12 bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-2xl">🛍️</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">CU-Shop</h1>
-              <p className="text-gray-400 text-sm">Marketplace Global</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] text-transparent bg-clip-text">CU-Shop</h1>
+              <p className="text-gray-300 text-sm font-medium">Marketplace Global</p>
             </div>
           </div>
           
@@ -63,18 +63,18 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
             <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={() => setShowNotifications(true)}
-                className="relative px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
+                className="relative px-3 sm:px-4 py-2 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-lg hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <span className="text-sm sm:text-base">🔔</span>
                 <span className="text-xs sm:text-sm font-medium hidden sm:inline">Notificaciones</span>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold animate-pulse">
                   3
                 </span>
               </button>
               
               <button
                 onClick={() => setShowAnalytics(true)}
-                className="px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
+                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-lg hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <span className="text-sm sm:text-base">📊</span>
                 <span className="text-xs sm:text-sm font-medium hidden sm:inline">Analytics</span>
@@ -82,7 +82,7 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
               
               <button
                 onClick={() => setShowCoupons(true)}
-                className="px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
+                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-lg hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <span className="text-sm sm:text-base">🎟️</span>
                 <span className="text-xs sm:text-sm font-medium hidden sm:inline">Cupones</span>
@@ -98,28 +98,34 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
       </header>
 
       {/* Navigation */}
-      <nav className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
+      <nav className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] border-b border-[#3A3A3A] shadow-lg">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex space-x-2 sm:space-x-4 overflow-x-auto">
             <button
               onClick={() => setActiveTab('marketplace')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'marketplace'
-                  ? 'border-[#FFD700] text-[#FFD700]'
-                  : 'border-transparent text-gray-400 hover:text-white'
+                  ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                  : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
               }`}
             >
-              📚 Marketplace
+              <span className="flex items-center space-x-2">
+                <span>🛍️</span>
+                <span>Marketplace</span>
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'profile'
-                  ? 'border-[#FFD700] text-[#FFD700]'
-                  : 'border-transparent text-gray-400 hover:text-white'
+                  ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                  : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
               }`}
             >
-              👤 Perfil
+              <span className="flex items-center space-x-2">
+                <span>👤</span>
+                <span>Perfil</span>
+              </span>
             </button>
           </div>
         </div>

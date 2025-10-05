@@ -817,7 +817,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
             {/* Header del Marketplace */}
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
-                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-transparent bg-clip-text">
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] text-transparent bg-clip-text">
                         🛍️ CU-Shop
                     </h2>
                     <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Marketplace global - Todo lo que necesitas</p>
@@ -834,8 +834,8 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                 </div>
                     <button
                     onClick={() => setIsPublishModalOpen(true)}
-                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl 
-                                 hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium shadow-lg 
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-xl 
+                                 hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium shadow-lg 
                              hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2 text-sm sm:text-base whitespace-nowrap"
                     >
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -903,7 +903,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                 <div className="flex justify-center">
                     <button 
                         onClick={() => setShowAdvancedSearch(true)}
-                        className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium flex items-center space-x-2"
+                        className="px-6 py-3 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-xl hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     >
                         <span>🔍</span>
                         <span>Búsqueda Avanzada</span>
@@ -1084,7 +1084,7 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                                 setSelectedProduct(book);
                                                 setShowReviewSystem(true);
                                             }}
-                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded text-xs hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 font-medium"
                                         >
                                             ⭐ Reseñas
                                         </button>
@@ -1093,13 +1093,13 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                                 setSelectedProduct(book);
                                                 setShowChatSystem(true);
                                             }}
-                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded text-xs hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 font-medium"
                                         >
                                             💬 Chat
                                         </button>
                                         <button
                                             onClick={() => setShowLocationServices(true)}
-                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded text-xs hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium"
                                         >
                                             📍 Ubicación
                                         </button>

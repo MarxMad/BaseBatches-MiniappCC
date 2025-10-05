@@ -19,6 +19,10 @@ import { config } from "../config/wagmi";
 import { ProofOfDelivery } from './ProofOfDelivery';
 import BookCard from './BookCard';
 import { ContactScreen } from './ContactScreen';
+import { AdvancedSearch } from './AdvancedSearch';
+import { ReviewSystem } from './ReviewSystem';
+import { LocationServices } from './LocationServices';
+import { ChatSystem } from './ChatSystem';
 
 interface Book {
     id: number;
@@ -262,6 +266,11 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
     const [purchasedBook, setPurchasedBook] = useState<Book | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const booksPerPage = 10;
+    const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+    const [showReviewSystem, setShowReviewSystem] = useState(false);
+    const [showLocationServices, setShowLocationServices] = useState(false);
+    const [showChatSystem, setShowChatSystem] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Book | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Función para calcular precio con descuento
@@ -889,6 +898,17 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                         ))}
                     </div>
                 </div>
+                
+                {/* Botón de búsqueda avanzada */}
+                <div className="flex justify-center">
+                    <button 
+                        onClick={() => setShowAdvancedSearch(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black rounded-xl hover:from-[#FFA500] hover:to-[#FF8C00] transition-all font-medium flex items-center space-x-2"
+                    >
+                        <span>🔍</span>
+                        <span>Búsqueda Avanzada</span>
+                    </button>
+                </div>
             </div>
 
             {/* Grid de Libros - 5 columnas, 10 libros por pantalla */}
@@ -1056,6 +1076,34 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                                             </span>
                                         </div>
                                     )}
+                                    
+                                    {/* Botones adicionales */}
+                                    <div className="flex space-x-1 mt-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedProduct(book);
+                                                setShowReviewSystem(true);
+                                            }}
+                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                        >
+                                            ⭐ Reseñas
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedProduct(book);
+                                                setShowChatSystem(true);
+                                            }}
+                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                        >
+                                            💬 Chat
+                                        </button>
+                                        <button
+                                            onClick={() => setShowLocationServices(true)}
+                                            className="flex-1 px-2 py-1 bg-[#333333] text-white rounded text-xs hover:bg-[#444444] transition-colors"
+                                        >
+                                            📍 Ubicación
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1378,6 +1426,45 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
                     }}
                 />
             )}
+            
+            {/* Nuevos componentes globales */}
+            <AdvancedSearch 
+                isOpen={showAdvancedSearch} 
+                onClose={() => setShowAdvancedSearch(false)} 
+                onSearch={(filters) => {
+                    console.log('Búsqueda avanzada:', filters);
+                    // Implementar lógica de búsqueda
+                }}
+                categories={categories}
+            />
+            
+            <ReviewSystem 
+                productId={selectedProduct?.id || 0}
+                isOpen={showReviewSystem} 
+                onClose={() => setShowReviewSystem(false)} 
+                onSubmitReview={(review) => {
+                    console.log('Nueva reseña:', review);
+                    // Implementar lógica de reseñas
+                }}
+            />
+            
+            <LocationServices 
+                isOpen={showLocationServices} 
+                onClose={() => setShowLocationServices(false)} 
+                onLocationSelect={(location) => {
+                    console.log('Ubicación seleccionada:', location);
+                    // Implementar lógica de ubicación
+                }}
+            />
+            
+            <ChatSystem 
+                isOpen={showChatSystem} 
+                onClose={() => setShowChatSystem(false)} 
+                sellerId="0x1234...5678"
+                sellerName={selectedProduct?.author || "Vendedor"}
+                productId={selectedProduct?.id || 0}
+                productName={selectedProduct?.title || "Producto"}
+            />
         </div>
     );
 };

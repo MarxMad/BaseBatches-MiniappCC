@@ -15,7 +15,7 @@ interface SimpleDashboardProps {
 
 export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) {
   const { isConnected, address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile'>('marketplace');
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'notifications' | 'analytics' | 'coupons'>('marketplace');
   const [userPoints, setUserPoints] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -59,35 +59,6 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
               </div>
             )}
             
-            {/* Botones de funcionalidades */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <button
-                onClick={() => setShowNotifications(true)}
-                className="relative px-3 sm:px-4 py-2 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-lg hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <span className="text-sm sm:text-base">🔔</span>
-                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Notificaciones</span>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold animate-pulse">
-                  3
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setShowAnalytics(true)}
-                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-lg hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <span className="text-sm sm:text-base">📊</span>
-                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Analytics</span>
-              </button>
-              
-              <button
-                onClick={() => setShowCoupons(true)}
-                className="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-lg hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 flex items-center space-x-1 sm:space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                <span className="text-sm sm:text-base">🎟️</span>
-                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Cupones</span>
-              </button>
-            </div>
             
             <div className="flex items-center space-x-2">
               <Avatar address={address} />
@@ -100,33 +71,78 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
       {/* Navigation */}
       <nav className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] border-b border-[#3A3A3A] shadow-lg">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-2 sm:space-x-4 overflow-x-auto">
+          <div className="flex justify-between items-center">
+            {/* Pestañas principales */}
+            <div className="flex space-x-2 sm:space-x-4 overflow-x-auto">
             <button
               onClick={() => setActiveTab('marketplace')}
-              className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
+                className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'marketplace'
-                  ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
-                  : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
+                    ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                    : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
               }`}
             >
-              <span className="flex items-center space-x-2">
-                <span>🛍️</span>
-                <span>Marketplace</span>
-              </span>
+                <span className="flex items-center space-x-2">
+                  <span>🛍️</span>
+                  <span>Marketplace</span>
+                </span>
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
+                className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'profile'
-                  ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
-                  : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
-              }`}
-            >
-              <span className="flex items-center space-x-2">
-                <span>👤</span>
-                <span>Perfil</span>
-              </span>
+                    ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                    : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
+                }`}
+              >
+                <span className="flex items-center space-x-2">
+                  <span>👤</span>
+                  <span>Perfil</span>
+                </span>
+              </button>
+            </div>
+            
+            {/* Botones de funcionalidades */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setActiveTab('notifications')}
+                className={`relative p-2 transition-colors ${
+                  activeTab === 'notifications' 
+                    ? 'text-[#3B82F6]' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="Notificaciones"
+              >
+                🔔
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
+                  3
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`p-2 transition-colors ${
+                  activeTab === 'analytics' 
+                    ? 'text-[#3B82F6]' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="Analytics"
+              >
+                📊
+              </button>
+              
+              <button
+                onClick={() => setActiveTab('coupons')}
+                className={`p-2 transition-colors ${
+                  activeTab === 'coupons' 
+                    ? 'text-[#3B82F6]' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                title="Cupones"
+              >
+                🎟️
             </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -255,6 +271,151 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
           </div>
         )}
 
+        {/* Sección de Notificaciones */}
+        {activeTab === 'notifications' && (
+          <div className="space-y-6">
+            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
+              <h2 className="text-2xl font-bold text-white mb-4">🔔 Notificaciones</h2>
+              <p className="text-gray-400 mb-6">Mantente al día con todas tus actividades</p>
+              
+              <div className="space-y-4">
+                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl">💰</div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-semibold">¡Compra exitosa!</h3>
+                      <p className="text-gray-300 text-sm">Tu producto "Libro de Matemáticas" ha sido comprado exitosamente.</p>
+                      <p className="text-gray-500 text-xs mt-1">Hace 2 horas</p>
+                    </div>
+                    <div className="w-2 h-2 bg-[#3B82F6] rounded-full"></div>
+                  </div>
+                </div>
+                
+                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl">💬</div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-semibold">Nuevo mensaje</h3>
+                      <p className="text-gray-300 text-sm">Tienes un nuevo mensaje de Carlos López sobre tu producto.</p>
+                      <p className="text-gray-500 text-xs mt-1">Hace 4 horas</p>
+                    </div>
+                    <div className="w-2 h-2 bg-[#3B82F6] rounded-full"></div>
+                  </div>
+                </div>
+                
+                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl">⭐</div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-semibold">Nueva reseña</h3>
+                      <p className="text-gray-300 text-sm">Ana García ha dejado una reseña de 5 estrellas en tu producto.</p>
+                      <p className="text-gray-500 text-xs mt-1">Ayer</p>
+                    </div>
+                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sección de Analytics */}
+        {activeTab === 'analytics' && (
+          <div className="space-y-6">
+            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
+              <h2 className="text-2xl font-bold text-white mb-4">📊 Analytics</h2>
+              <p className="text-gray-400 mb-6">Métricas y estadísticas de tus ventas</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-3xl">💰</div>
+                    <div className="text-green-400 text-sm">+12.5%</div>
+                  </div>
+                  <h3 className="text-white font-bold text-2xl">2.35 ETH</h3>
+                  <p className="text-gray-400 text-sm">Ingresos totales</p>
+                </div>
+
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-3xl">📦</div>
+                    <div className="text-green-400 text-sm">+8.2%</div>
+                  </div>
+                  <h3 className="text-white font-bold text-2xl">47</h3>
+                  <p className="text-gray-400 text-sm">Productos vendidos</p>
+                </div>
+
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-3xl">⭐</div>
+                    <div className="text-green-400 text-sm">+0.3</div>
+                  </div>
+                  <h3 className="text-white font-bold text-2xl">4.7</h3>
+                  <p className="text-gray-400 text-sm">Calificación promedio</p>
+                </div>
+
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-3xl">📈</div>
+                    <div className="text-green-400 text-sm">+2.1%</div>
+                  </div>
+                  <h3 className="text-white font-bold text-2xl">12.5%</h3>
+                  <p className="text-gray-400 text-sm">Tasa de conversión</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sección de Cupones */}
+        {activeTab === 'coupons' && (
+          <div className="space-y-6">
+            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
+              <h2 className="text-2xl font-bold text-white mb-4">🎟️ Cupones y Descuentos</h2>
+              <p className="text-gray-400 mb-6">Aplica cupones para obtener descuentos especiales</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333] hover:border-[#F59E0B] transition-colors cursor-pointer">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2">WELCOME10</h3>
+                      <p className="text-gray-400 text-sm">10% de descuento para nuevos usuarios</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-[#F59E0B]">10%</div>
+                      <div className="text-gray-400 text-sm">descuento</div>
+                    </div>
+                  </div>
+                  <div className="w-full bg-[#333333] rounded-full h-2 mb-4">
+                    <div className="bg-gradient-to-r from-[#F59E0B] to-[#D97706] h-2 rounded-full" style={{ width: '23%' }}></div>
+                  </div>
+                  <button className="w-full px-4 py-3 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-lg font-medium hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all">
+                    🎟️ Aplicar Cupón
+                  </button>
+                </div>
+
+                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333] hover:border-[#F59E0B] transition-colors cursor-pointer">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-2">STUDENT20</h3>
+                      <p className="text-gray-400 text-sm">Descuento especial para estudiantes</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-[#F59E0B]">20%</div>
+                      <div className="text-gray-400 text-sm">descuento</div>
+                    </div>
+                  </div>
+                  <div className="w-full bg-[#333333] rounded-full h-2 mb-4">
+                    <div className="bg-gradient-to-r from-[#F59E0B] to-[#D97706] h-2 rounded-full" style={{ width: '24%' }}></div>
+                  </div>
+                  <button className="w-full px-4 py-3 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-lg font-medium hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all">
+                    🎟️ Aplicar Cupón
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       
       {/* Nuevos componentes globales */}

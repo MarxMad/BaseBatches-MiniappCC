@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import { BookMarketplace } from './BookMarketplace';
+import { NotificationSystem } from './NotificationSystem';
+import { SellerAnalytics } from './SellerAnalytics';
+import { CouponSystem } from './CouponSystem';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
@@ -12,8 +15,11 @@ interface SimpleDashboardProps {
 
 export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) {
   const { isConnected, address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'stories' | 'leaderboard' | 'game'>('marketplace');
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile'>('marketplace');
   const [userPoints, setUserPoints] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showCoupons, setShowCoupons] = useState(false);
 
   if (!isConnected) {
     return (
@@ -52,6 +58,37 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
                 🎉 {userDiscount}% OFF
               </div>
             )}
+            
+            {/* Botones de funcionalidades */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowNotifications(true)}
+                className="relative p-2 text-gray-400 hover:text-white transition-colors"
+                title="Notificaciones"
+              >
+                🔔
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+                  3
+                </span>
+              </button>
+              
+              <button
+                onClick={() => setShowAnalytics(true)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Analytics"
+              >
+                📊
+              </button>
+              
+              <button
+                onClick={() => setShowCoupons(true)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+                title="Cupones"
+              >
+                🎟️
+              </button>
+            </div>
+            
             <div className="flex items-center space-x-2">
               <Avatar address={address} />
               <Name address={address} />
@@ -73,36 +110,6 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
               }`}
             >
               📚 Marketplace
-            </button>
-            <button
-              onClick={() => setActiveTab('stories')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'stories'
-                  ? 'border-[#FFD700] text-[#FFD700]'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              📖 Stories
-            </button>
-            <button
-              onClick={() => setActiveTab('leaderboard')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'leaderboard'
-                  ? 'border-[#FFD700] text-[#FFD700]'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              🏆 Ranking
-            </button>
-            <button
-              onClick={() => setActiveTab('game')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'game'
-                  ? 'border-[#FFD700] text-[#FFD700]'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              🎮 Juegos
             </button>
             <button
               onClick={() => setActiveTab('profile')}
@@ -242,91 +249,27 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
           </div>
         )}
 
-        {activeTab === 'stories' && (
-          <div className="space-y-6">
-            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-              <h2 className="text-2xl font-bold text-white mb-4">📖 Stories de Exámenes</h2>
-              <p className="text-gray-400 mb-6">Comparte y descubre respuestas de exámenes universitarios</p>
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📚</div>
-                <h3 className="text-xl font-bold text-white mb-2">Stories de Exámenes</h3>
-                <p className="text-gray-400 mb-6">Próximamente: Sistema completo de stories con respuestas de exámenes</p>
-                <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFA500]/10 rounded-xl p-6 border border-[#FFD700]/20">
-                  <div className="text-sm text-gray-300">
-                    <div className="mb-2">✨ Comparte respuestas de exámenes</div>
-                    <div className="mb-2">👍 Vota por las mejores contribuciones</div>
-                    <div className="mb-2">🏆 Gana puntos y badges</div>
-                    <div>📊 Aparece en el leaderboard</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'leaderboard' && (
-          <div className="space-y-6">
-            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-              <h2 className="text-2xl font-bold text-white mb-4">🏆 Leaderboard</h2>
-              <p className="text-gray-400 mb-6">Los mejores contribuidores de la comunidad</p>
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🏆</div>
-                <h3 className="text-xl font-bold text-white mb-2">Ranking de Usuarios</h3>
-                <p className="text-gray-400 mb-6">Próximamente: Sistema completo de ranking y recompensas</p>
-                <div className="bg-gradient-to-r from-[#FFD700]/10 to-[#FFA500]/10 rounded-xl p-6 border border-[#FFD700]/20">
-                  <div className="text-sm text-gray-300">
-                    <div className="mb-2">🥇 Top contribuidores</div>
-                    <div className="mb-2">⭐ Sistema de badges</div>
-                    <div className="mb-2">🎁 Recompensas especiales</div>
-                    <div>📈 Estadísticas detalladas</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'game' && (
-          <div className="space-y-6">
-            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-              <h2 className="text-2xl font-bold text-white mb-4">🎮 Minijuegos</h2>
-              <p className="text-gray-400 mb-6">Gana puntos jugando minijuegos académicos</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer">
-                  <div className="text-4xl mb-4">🧠</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Memory Match</h3>
-                  <p className="text-gray-400 text-sm mb-4">Encuentra las parejas de materias académicas</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#FFD700]">+100 pts por pareja</span>
-                    <span className="text-gray-400">60s</span>
-                  </div>
-                </div>
-                
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer opacity-50">
-                  <div className="text-4xl mb-4">🎯</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Quiz Rápido</h3>
-                  <p className="text-gray-400 text-sm mb-4">Responde preguntas de diferentes materias</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#FFD700]">+50 pts por respuesta</span>
-                    <span className="text-gray-400">Próximamente</span>
-                  </div>
-                </div>
-                
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333] hover:border-[#FFD700] transition-all cursor-pointer opacity-50">
-                  <div className="text-4xl mb-4">🔤</div>
-                  <h3 className="text-xl font-bold text-white mb-2">Palabras Académicas</h3>
-                  <p className="text-gray-400 text-sm mb-4">Forma palabras con términos universitarios</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#FFD700]">+25 pts por palabra</span>
-                    <span className="text-gray-400">Próximamente</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
+      
+      {/* Nuevos componentes globales */}
+      <NotificationSystem 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
+      
+      <SellerAnalytics 
+        isOpen={showAnalytics} 
+        onClose={() => setShowAnalytics(false)} 
+      />
+      
+      <CouponSystem 
+        isOpen={showCoupons} 
+        onClose={() => setShowCoupons(false)} 
+        onApplyCoupon={(coupon) => {
+          console.log('Cupón aplicado:', coupon);
+          // Implementar lógica de cupones
+        }}
+      />
     </div>
   );
 }

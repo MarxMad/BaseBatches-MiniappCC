@@ -60,32 +60,32 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
             )}
             
             {/* Botones de funcionalidades */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <button
                 onClick={() => setShowNotifications(true)}
-                className="relative p-2 text-gray-400 hover:text-white transition-colors"
-                title="Notificaciones"
+                className="relative px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
               >
-                🔔
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
+                <span className="text-sm sm:text-base">🔔</span>
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Notificaciones</span>
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
                   3
                 </span>
               </button>
               
               <button
                 onClick={() => setShowAnalytics(true)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Analytics"
+                className="px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
               >
-                📊
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Analytics</span>
               </button>
               
               <button
                 onClick={() => setShowCoupons(true)}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-                title="Cupones"
+                className="px-2 sm:px-4 py-2 bg-[#333333] text-white rounded-lg hover:bg-[#444444] transition-colors flex items-center space-x-1 sm:space-x-2"
               >
-                🎟️
+                <span className="text-sm sm:text-base">🎟️</span>
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline">Cupones</span>
               </button>
             </div>
             

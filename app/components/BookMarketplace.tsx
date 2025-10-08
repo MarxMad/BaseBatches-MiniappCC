@@ -23,6 +23,7 @@ import { AdvancedSearch } from './AdvancedSearch';
 import { ReviewSystem } from './ReviewSystem';
 import { LocationServices } from './LocationServices';
 import { ChatSystem } from './ChatSystem';
+import { Star, MessageCircle, MapPin, Search, Plus, Filter, ShoppingCart } from 'lucide-react';
 
 interface Book {
     id: number;
@@ -816,8 +817,9 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
             {/* Header del Marketplace */}
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
-                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] text-transparent bg-clip-text">
-                        🛍️ CU-Shop
+                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] text-transparent bg-clip-text flex items-center space-x-2">
+                        <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8" />
+                        <span>CU-Shop</span>
                     </h2>
                     <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Marketplace global - Todo lo que necesitas</p>
                     <div className="flex items-center space-x-4 mt-2">
@@ -840,6 +842,7 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
+                    <Plus className="w-4 h-4" />
                     <span>Publicar Producto</span>
                     </button>
             </div>
@@ -871,7 +874,7 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
                                  focus:outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] 
                                  transition-all appearance-none cursor-pointer w-full md:w-64 text-sm sm:text-lg"
                     >
-                        <option value="all">🔍 Todas las categorías</option>
+                        <option value="all">Todas las categorías</option>
                         {categories.map(cat => (
                             <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
                         ))}
@@ -904,7 +907,7 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
                         onClick={() => setShowAdvancedSearch(true)}
                         className="px-6 py-3 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-xl hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                     >
-                        <span>🔍</span>
+                        <Search className="w-4 h-4" />
                         <span>Búsqueda Avanzada</span>
                     </button>
                 </div>
@@ -1083,24 +1086,27 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
                                                 setSelectedProduct(book);
                                                 setShowReviewSystem(true);
                                             }}
-                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded text-xs hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 font-medium"
+                                            className="flex flex-col items-center justify-center px-1 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded text-xs hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 font-medium min-h-[40px]"
                                         >
-                                            ⭐ Reseñas
+                                            <Star className="w-3 h-3 mb-1" />
+                                            <span className="text-[10px] sm:text-xs leading-tight">Reseñas</span>
                                         </button>
                                         <button
                                             onClick={() => {
                                                 setSelectedProduct(book);
                                                 setShowChatSystem(true);
                                             }}
-                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded text-xs hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 font-medium"
+                                            className="flex flex-col items-center justify-center px-1 py-2 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded text-xs hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 font-medium min-h-[40px]"
                                         >
-                                            💬 Chat
+                                            <MessageCircle className="w-3 h-3 mb-1" />
+                                            <span className="text-[10px] sm:text-xs leading-tight">Chat</span>
                                         </button>
                                         <button
                                             onClick={() => setShowLocationServices(true)}
-                                            className="flex-1 px-2 py-1 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded text-xs hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium"
+                                            className="flex flex-col items-center justify-center px-1 py-2 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded text-xs hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 font-medium min-h-[40px]"
                                         >
-                                            📍 Ubicación
+                                            <MapPin className="w-3 h-3 mb-1" />
+                                            <span className="text-[10px] sm:text-xs leading-tight">Ubicación</span>
                                         </button>
                                     </div>
                                 </div>

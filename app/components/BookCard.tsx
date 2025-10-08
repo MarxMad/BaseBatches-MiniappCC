@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { Star, MessageCircle, MapPin, ShoppingCart, BookOpen } from 'lucide-react';
 
 interface Book {
   id: number;
@@ -95,7 +96,7 @@ export default function BookCard({ book, userTokens, onBuy, isBuying }: BookCard
           
           {/* Rating */}
           <div className="flex items-center space-x-1">
-            <span className="text-yellow-400">⭐</span>
+            <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="text-sm text-gray-400">{book.rating.toFixed(1)}</span>
           </div>
         </div>
@@ -115,7 +116,7 @@ export default function BookCard({ book, userTokens, onBuy, isBuying }: BookCard
             </div>
           ) : (
             <div className="flex items-center justify-center space-x-2">
-              <span>🛒</span>
+              <ShoppingCart className="w-4 h-4" />
               <span>Comprar Ahora</span>
             </div>
           )}
@@ -125,7 +126,7 @@ export default function BookCard({ book, userTokens, onBuy, isBuying }: BookCard
         <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
           <span>Vendido por: {book.seller.slice(0, 6)}...{book.seller.slice(-4)}</span>
           <span className="flex items-center space-x-1">
-            <span>📚</span>
+            <BookOpen className="w-3 h-3" />
             <span>Disponible</span>
           </span>
         </div>

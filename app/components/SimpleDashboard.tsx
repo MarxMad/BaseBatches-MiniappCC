@@ -9,6 +9,7 @@ import { ProofOfDelivery } from './ProofOfDelivery';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
+import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift } from 'lucide-react';
 
 interface SimpleDashboardProps {
   userTokens?: number | null;
@@ -81,30 +82,30 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             <div className="flex space-x-2 sm:space-x-4 overflow-x-auto">
             <button
               onClick={() => setActiveTab('marketplace')}
-                className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
+                        className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'marketplace'
-                    ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
-                    : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
+                            ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                            : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
               }`}
             >
-                <span className="flex items-center space-x-2">
-                  <span>🛍️</span>
-                  <span>Marketplace</span>
-                </span>
+                        <span className="flex flex-col items-center space-y-1">
+                          <ShoppingBag className="w-4 h-4" />
+                          <span className="text-xs">Marketplace</span>
+                        </span>
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-                className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
+                        className={`py-4 px-4 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap rounded-t-lg ${
                 activeTab === 'profile'
-                    ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
-                    : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
-                }`}
-              >
-                <span className="flex items-center space-x-2">
-                  <span>👤</span>
-                  <span>Perfil</span>
-                </span>
-              </button>
+                            ? 'border-[#3B82F6] text-[#3B82F6] bg-gradient-to-b from-[#3B82F6]/10 to-transparent'
+                            : 'border-transparent text-gray-400 hover:text-white hover:border-[#3B82F6]/50'
+                        }`}
+                      >
+                        <span className="flex flex-col items-center space-y-1">
+                          <User className="w-4 h-4" />
+                          <span className="text-xs">Perfil</span>
+                        </span>
+                      </button>
             </div>
             
             {/* Botones de funcionalidades */}
@@ -114,7 +115,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 className="px-3 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-lg hover:from-[#FBBF24] hover:to-[#F59E0B] transition-all duration-300 flex items-center space-x-1 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 title="Bonus Diario"
               >
-                <span className="text-sm">🎁</span>
+                <Gift className="w-4 h-4" />
                 <span className="text-xs font-medium">Bonus</span>
               </button>
               
@@ -127,7 +128,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 }`}
                 title="Notificaciones"
               >
-                🔔
+                <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
                   3
                 </span>
@@ -142,7 +143,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 }`}
                 title="Analytics"
               >
-                📊
+                <BarChart3 className="w-5 h-5" />
               </button>
               
               <button
@@ -154,7 +155,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 }`}
                 title="Cupones"
               >
-                🎟️
+                <Ticket className="w-5 h-5" />
               </button>
               
               <button
@@ -166,7 +167,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 }`}
                 title="Confirmar Entrega"
               >
-                📦
+                <Package className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -518,10 +519,10 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           <li>• El vendedor recibirá el pago automáticamente</li>
                           <li>• El sistema usa tecnología blockchain para garantizar la transparencia</li>
                         </ul>
-                      </div>
-                    </div>
-                  </div>
-                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       
       {/* Nuevos componentes globales */}

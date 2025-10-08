@@ -652,9 +652,11 @@ export default function App() {
   };
 
   const handleWelcomeComplete = (tokens: number) => {
+    console.log('🎁 Bonus diario completado:', tokens);
     setUserTokens(tokens);
     setShowWelcome(false);
     setShowDashboard(true);
+    console.log('📊 Navegando al dashboard...');
   };
 
   const saveFrameButton = useMemo(() => {
@@ -693,11 +695,14 @@ export default function App() {
   }
 
   if (showWelcome) {
+    console.log('🎰 Mostrando SlotMachine...');
     return <SlotMachine onComplete={handleWelcomeComplete} />;
   }
 
-
   if (showDashboard) {
+    console.log('📊 Mostrando SimpleDashboard con tokens:', userTokens);
+    console.log('🔗 Estado de conexión:', isConnected);
+    console.log('📍 Dirección:', address);
     return <SimpleDashboard userTokens={userTokens} />;
   }
 

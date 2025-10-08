@@ -18,7 +18,7 @@ interface SimpleDashboardProps {
 
 export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashboardProps) {
   const { isConnected, address } = useAccount();
-  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'notifications' | 'analytics' | 'coupons' | 'delivery'>('marketplace');
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'coupons' | 'delivery'>('marketplace');
   const [userPoints, setUserPoints] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -119,32 +119,6 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 <span className="text-xs font-medium">Bonus</span>
               </button>
               
-              <button
-                onClick={() => setActiveTab('notifications')}
-                className={`relative p-2 transition-colors ${
-                  activeTab === 'notifications' 
-                    ? 'text-[#3B82F6]' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-                title="Notificaciones"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white font-bold">
-                  3
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`p-2 transition-colors ${
-                  activeTab === 'analytics' 
-                    ? 'text-[#3B82F6]' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
-                title="Analytics"
-              >
-                <BarChart3 className="w-5 h-5" />
-              </button>
               
               <button
                 onClick={() => setActiveTab('coupons')}
@@ -295,104 +269,56 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Sección de Notificaciones */}
-        {activeTab === 'notifications' && (
-          <div className="space-y-6">
+            {/* Sección de Analytics dentro del perfil */}
             <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-              <h2 className="text-2xl font-bold text-white mb-4">🔔 Notificaciones</h2>
-              <p className="text-gray-400 mb-6">Mantente al día con todas tus actividades</p>
-              
-              <div className="space-y-4">
-                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
-                  <div className="flex items-start space-x-3">
-                    <div className="text-2xl">💰</div>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">¡Compra exitosa!</h3>
-                      <p className="text-gray-300 text-sm">Tu producto "Libro de Matemáticas" ha sido comprado exitosamente.</p>
-                      <p className="text-gray-500 text-xs mt-1">Hace 2 horas</p>
-                    </div>
-                    <div className="w-2 h-2 bg-[#3B82F6] rounded-full"></div>
-                  </div>
-                </div>
-                
-                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
-                  <div className="flex items-start space-x-3">
-                    <div className="text-2xl">💬</div>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">Nuevo mensaje</h3>
-                      <p className="text-gray-300 text-sm">Tienes un nuevo mensaje de Carlos López sobre tu producto.</p>
-                      <p className="text-gray-500 text-xs mt-1">Hace 4 horas</p>
-                    </div>
-                    <div className="w-2 h-2 bg-[#3B82F6] rounded-full"></div>
-                  </div>
-                </div>
-                
-                <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
-                  <div className="flex items-start space-x-3">
-                    <div className="text-2xl">⭐</div>
-                    <div className="flex-1">
-                      <h3 className="text-white font-semibold">Nueva reseña</h3>
-                      <p className="text-gray-300 text-sm">Ana García ha dejado una reseña de 5 estrellas en tu producto.</p>
-                      <p className="text-gray-500 text-xs mt-1">Ayer</p>
-                    </div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sección de Analytics */}
-        {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-              <h2 className="text-2xl font-bold text-white mb-4">📊 Analytics</h2>
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
+                <BarChart3 className="w-5 h-5 text-[#3B82F6]" />
+                <span>Analytics de Ventas</span>
+              </h3>
               <p className="text-gray-400 mb-6">Métricas y estadísticas de tus ventas</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl">💰</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl">💰</div>
                     <div className="text-green-400 text-sm">+12.5%</div>
                   </div>
-                  <h3 className="text-white font-bold text-2xl">2.35 ETH</h3>
+                  <h4 className="text-white font-bold text-xl">2.35 ETH</h4>
                   <p className="text-gray-400 text-sm">Ingresos totales</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl">📦</div>
+                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl">📦</div>
                     <div className="text-green-400 text-sm">+8.2%</div>
                   </div>
-                  <h3 className="text-white font-bold text-2xl">47</h3>
+                  <h4 className="text-white font-bold text-xl">47</h4>
                   <p className="text-gray-400 text-sm">Productos vendidos</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl">⭐</div>
+                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl">⭐</div>
                     <div className="text-green-400 text-sm">+0.3</div>
                   </div>
-                  <h3 className="text-white font-bold text-2xl">4.7</h3>
+                  <h4 className="text-white font-bold text-xl">4.7</h4>
                   <p className="text-gray-400 text-sm">Calificación promedio</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-6 border border-[#333333]">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl">📈</div>
+                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="text-2xl">📈</div>
                     <div className="text-green-400 text-sm">+2.1%</div>
                   </div>
-                  <h3 className="text-white font-bold text-2xl">12.5%</h3>
+                  <h4 className="text-white font-bold text-xl">12.5%</h4>
                   <p className="text-gray-400 text-sm">Tasa de conversión</p>
                 </div>
               </div>
             </div>
           </div>
         )}
+
 
                 {/* Sección de Cupones */}
                 {activeTab === 'coupons' && (

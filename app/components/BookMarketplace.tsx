@@ -814,6 +814,31 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
 
     return (
         <div className="space-y-8">
+            {/* Banner Promocional */}
+            <div className="bg-gradient-to-r from-[#3B82F6] via-[#1D4ED8] to-[#3B82F6] rounded-2xl p-6 mb-6 border border-[#3B82F6]/30 shadow-lg">
+                <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                            <span className="text-2xl">💰</span>
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-white">¡Gana $CAMPUS con cada compra!</h3>
+                            <p className="text-blue-100 text-sm">Compra productos y recibe tokens $CAMPUS como recompensa</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-white">x2</div>
+                            <div className="text-blue-100 text-xs">Multiplicador</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-white">500-3500</div>
+                            <div className="text-blue-100 text-xs">Tokens diarios</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Header del Marketplace */}
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">

@@ -48,15 +48,15 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
       {/* Header */}
       <header className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] border-b border-[#3A3A3A] p-4 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-                  <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-xl flex items-center justify-center shadow-lg">
                       <img src="/CampusCoin.png" alt="CAMPUS" className="w-8 h-8" />
-                    </div>
-                    <div>
+            </div>
+            <div>
                       <h1 className="text-2xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-transparent bg-clip-text">CAMPUS</h1>
                       <p className="text-gray-300 text-sm font-medium">Marketplace Global</p>
-                    </div>
-                  </div>
+            </div>
+          </div>
           
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
             {userTokens && (
@@ -142,7 +142,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 title="Confirmar Entrega"
               >
                 <Package className="w-5 h-5" />
-              </button>
+            </button>
             </div>
           </div>
         </div>
@@ -374,8 +374,8 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 {activeTab === 'delivery' && (
                   <div className="space-y-6">
                     <RealProofOfDelivery />
-                  </div>
-                )}
+          </div>
+        )}
       </main>
       
       {/* Nuevos componentes globales */}

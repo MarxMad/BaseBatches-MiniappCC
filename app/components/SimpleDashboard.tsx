@@ -21,6 +21,9 @@ export default function SimpleDashboard({ userTokens }: SimpleDashboardProps) {
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCoupons, setShowCoupons] = useState(false);
 
+  console.log('📊 SimpleDashboard renderizado con tokens:', userTokens);
+  console.log('🔗 Estado de conexión en SimpleDashboard:', isConnected);
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">

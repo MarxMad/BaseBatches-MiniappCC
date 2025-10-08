@@ -654,9 +654,13 @@ export default function App() {
   const handleWelcomeComplete = (tokens: number) => {
     console.log('🎁 Bonus diario completado:', tokens);
     setUserTokens(tokens);
-    setShowWelcome(false);
-    setShowDashboard(true);
-    console.log('📊 Navegando al dashboard...');
+    
+    // Pequeño delay para asegurar que el estado se actualice
+    setTimeout(() => {
+      setShowWelcome(false);
+      setShowDashboard(true);
+      console.log('📊 Navegando al dashboard...');
+    }, 100);
   };
 
   const saveFrameButton = useMemo(() => {
@@ -703,7 +707,45 @@ export default function App() {
     console.log('📊 Mostrando SimpleDashboard con tokens:', userTokens);
     console.log('🔗 Estado de conexión:', isConnected);
     console.log('📍 Dirección:', address);
-    return <SimpleDashboard userTokens={userTokens} />;
+    
+    // Fallback simple si no hay conexión
+    if (!isConnected) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white mb-4">🎉 ¡Bonus Diario Completado!</h1>
+            <p className="text-xl text-gray-300 mb-6">Has ganado {userTokens} tokens $CAMPUS</p>
+            <p className="text-gray-400 mb-8">Conecta tu wallet para acceder al marketplace</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
+            >
+              Conectar Wallet
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    try {
+      return <SimpleDashboard userTokens={userTokens} />;
+    } catch (error) {
+      console.error('❌ Error en SimpleDashboard:', error);
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white mb-4">Error al cargar el dashboard</h1>
+            <p className="text-gray-400 mb-4">Por favor, recarga la página</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Recargar
+            </button>
+          </div>
+        </div>
+      );
+    }
   }
 
   return (

@@ -704,48 +704,82 @@ export default function App() {
   }
 
   if (showDashboard) {
-    console.log('📊 Mostrando SimpleDashboard con tokens:', userTokens);
-    console.log('🔗 Estado de conexión:', isConnected);
-    console.log('📍 Dirección:', address);
+    console.log('📊 Mostrando pantalla de éxito con tokens:', userTokens);
     
-    // Fallback simple si no hay conexión
-    if (!isConnected) {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">🎉 ¡Bonus Diario Completado!</h1>
-            <p className="text-xl text-gray-300 mb-6">Has ganado {userTokens} tokens $CAMPUS</p>
-            <p className="text-gray-400 mb-8">Conecta tu wallet para acceder al marketplace</p>
+    // Pantalla de éxito simple y atractiva
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Efectos de fondo */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full filter blur-[100px] opacity-20 animate-pulse" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-full filter blur-[120px] opacity-15 animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
+
+        <div className="relative z-10 text-center max-w-4xl mx-auto">
+          {/* Título de éxito */}
+          <div className="mb-8">
+            <div className="text-8xl mb-6 animate-bounce">🎉</div>
+            <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] via-[#1D4ED8] to-[#10B981] mb-4">
+              ¡FELICIDADES!
+            </h1>
+            <p className="text-xl md:text-2xl text-white font-semibold mb-2">
+              Has ganado tu bonus diario
+            </p>
+          </div>
+
+          {/* Tokens ganados */}
+          <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-3xl p-8 mb-8 border-4 border-white shadow-2xl">
+            <div className="text-6xl md:text-8xl font-black text-white mb-4">
+              {userTokens}
+            </div>
+            <p className="text-2xl md:text-3xl font-bold text-white mb-2">
+              TOKENS $CAMPUS
+            </p>
+            <p className="text-lg text-blue-100">
+              ¡Tu bonus diario está listo!
+            </p>
+          </div>
+
+          {/* Información sobre tokens */}
+          <div className="bg-[#1A1A1A] rounded-2xl p-6 mb-8 border border-[#3B82F6]/30">
+            <h3 className="text-xl font-bold text-[#3B82F6] mb-4">💡 ¿Qué puedes hacer con tus tokens?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#3B82F6]/20">
+                <div className="text-2xl mb-2">📚</div>
+                <div className="font-semibold text-white">Comprar Libros</div>
+                <div className="text-gray-400">Textos y guías de estudio</div>
+              </div>
+              <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#3B82F6]/20">
+                <div className="text-2xl mb-2">🛍️</div>
+                <div className="font-semibold text-white">Marketplace</div>
+                <div className="text-gray-400">Productos y servicios</div>
+              </div>
+              <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#3B82F6]/20">
+                <div className="text-2xl mb-2">🎓</div>
+                <div className="font-semibold text-white">Cursos</div>
+                <div className="text-gray-400">Educación y capacitación</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones de acción */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => window.location.reload()} 
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
+              className="px-8 py-4 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white rounded-xl font-bold text-lg hover:from-[#2563EB] hover:to-[#1E40AF] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              Conectar Wallet
+              🎰 Girar Nuevamente
+            </button>
+            <button 
+              onClick={() => setShowDashboard(false)} 
+              className="px-8 py-4 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-xl font-bold text-lg hover:from-[#34D399] hover:to-[#10B981] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              🏠 Ir al Inicio
             </button>
           </div>
         </div>
-      );
-    }
-    
-    try {
-      return <SimpleDashboard userTokens={userTokens} />;
-    } catch (error) {
-      console.error('❌ Error en SimpleDashboard:', error);
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-4">Error al cargar el dashboard</h1>
-            <p className="text-gray-400 mb-4">Por favor, recarga la página</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Recargar
-            </button>
-          </div>
-        </div>
-      );
-    }
+      </div>
+    );
   }
 
   return (

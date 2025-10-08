@@ -26,6 +26,7 @@ import { useApp } from "./context/AppContext";
 import { FloatingChat } from "./components/FloatingChat";
 import SimpleDashboard from "./components/SimpleDashboard";
 import SlotMachine from "./components/SlotMachine";
+import DailyRewards from "./components/DailyRewards";
 import { sdk } from "@farcaster/miniapp-sdk";
 import { LoadingScreen } from './components/LoadingScreen';
 import Image from 'next/image';
@@ -540,6 +541,7 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [userTokens, setUserTokens] = useState<number | null>(null);
 
   const addFrame = useAddFrame();
@@ -654,6 +656,12 @@ export default function App() {
   const handleWelcomeComplete = (tokens: number) => {
     setUserTokens(tokens);
     setShowWelcome(false);
+    setShowDailyRewards(true);
+  };
+
+  const handleDailyRewardsComplete = (tokens: number) => {
+    setUserTokens(tokens);
+    setShowDailyRewards(false);
     setShowDashboard(true);
   };
 
@@ -694,6 +702,10 @@ export default function App() {
 
   if (showWelcome) {
     return <SlotMachine onComplete={handleWelcomeComplete} />;
+  }
+
+  if (showDailyRewards) {
+    return <DailyRewards onComplete={handleDailyRewardsComplete} />;
   }
 
   if (showDashboard) {

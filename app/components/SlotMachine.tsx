@@ -86,15 +86,15 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
   };
 
   const checkWinningCombination = (finalReels: typeof symbols) => {
-    const symbols = finalReels.map(reel => reel.emoji);
-    const names = finalReels.map(reel => reel.name);
+    const symbolEmojis = finalReels.map(reel => reel.emoji);
+    const symbolNames = finalReels.map(reel => reel.name);
     
     // Combinaciones ganadoras
     const winningCombinations = [
       // Tres iguales
-      { pattern: [symbols[0], symbols[0], symbols[0]], type: 'TRIPLE', multiplier: 3 },
+      { pattern: [symbolEmojis[0], symbolEmojis[0], symbolEmojis[0]], type: 'TRIPLE', multiplier: 3 },
       // Dos iguales
-      { pattern: [symbols[0], symbols[0], symbols[1]], type: 'DOUBLE', multiplier: 2 },
+      { pattern: [symbolEmojis[0], symbolEmojis[0], symbolEmojis[1]], type: 'DOUBLE', multiplier: 2 },
       // Secuencia
       { pattern: ['📚', '🎓', '💻'], type: 'SEQUENCE', multiplier: 5 },
       // Jackpot
@@ -105,7 +105,7 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
     let maxMultiplier = 0;
 
     winningCombinations.forEach(combo => {
-      if (JSON.stringify(symbols) === JSON.stringify(combo.pattern)) {
+      if (JSON.stringify(symbolEmojis) === JSON.stringify(combo.pattern)) {
         if (combo.multiplier > maxMultiplier) {
           maxMultiplier = combo.multiplier;
           bestMatch = combo;
@@ -114,9 +114,9 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
     });
 
     if (bestMatch) {
-      setWinningCombo(symbols);
+      setWinningCombo(symbolEmojis);
       const baseTokensAmount = baseTokens[Math.floor(Math.random() * baseTokens.length)];
-      const finalTokens = Math.min(baseTokensAmount * bestMatch.multiplier, 2000);
+      const finalTokens = Math.min(baseTokensAmount * (bestMatch as any).multiplier, 2000);
       setTokens(finalTokens);
       setShowResult(true);
       

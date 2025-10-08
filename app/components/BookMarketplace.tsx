@@ -843,7 +843,7 @@ export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0 flex-1">
                     <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-transparent bg-clip-text flex items-center space-x-2">
-                        <img src="/LOGOCAMPUS.png" alt="CAMPUS" className="w-6 h-6 sm:w-8 sm:h-8" />
+                        <img src="/CampusCoin.png" alt="CAMPUS" className="w-6 h-6 sm:w-8 sm:h-8" />
                         <span>CAMPUS</span>
                     </h2>
                     <p className="text-[#B8B8B8] mt-2 text-sm sm:text-base">Marketplace global - Todo lo que necesitas</p>

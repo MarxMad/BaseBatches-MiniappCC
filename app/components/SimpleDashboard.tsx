@@ -50,7 +50,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-xl flex items-center justify-center shadow-lg">
-                      <img src="/LOGOCAMPUS.png" alt="CAMPUS" className="w-8 h-8" />
+                      <img src="/CampusCoin.png" alt="CAMPUS" className="w-8 h-8" />
                     </div>
                     <div>
                       <h1 className="text-2xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-transparent bg-clip-text">CAMPUS</h1>

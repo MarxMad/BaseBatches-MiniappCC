@@ -731,8 +731,8 @@ export default function App() {
           <div className="book">
             <div className="book-cover">
               <Image
-                src="/Ensigna.svg"
-                alt="CampusCoin Logo"
+                src="/CampusCoin.png"
+                alt="CAMPUS Logo"
                 width={120}
                 height={120}
                 className="object-contain"
@@ -741,8 +741,8 @@ export default function App() {
             </div>
             <div className="book-pages">
               <div className="book-pages-content">
-                <h2>CampusCoin</h2>
-                <p>Revolución Financiera</p>
+                <h2>CAMPUS</h2>
+                <p>Marketplace Global</p>
               </div>
             </div>
           </div>

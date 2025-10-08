@@ -540,7 +540,7 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [userDiscount, setUserDiscount] = useState<number | null>(null);
+  const [userTokens, setUserTokens] = useState<number | null>(null);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -651,8 +651,8 @@ export default function App() {
     setShowDashboard(true);
   };
 
-  const handleWelcomeComplete = (discount: number) => {
-    setUserDiscount(discount);
+  const handleWelcomeComplete = (tokens: number) => {
+    setUserTokens(tokens);
     setShowWelcome(false);
     setShowDashboard(true);
   };
@@ -697,7 +697,7 @@ export default function App() {
   }
 
   if (showDashboard) {
-    return <SimpleDashboard userDiscount={userDiscount} />;
+    return <SimpleDashboard userTokens={userTokens} />;
   }
 
   return (

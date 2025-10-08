@@ -10,10 +10,10 @@ import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
 
 interface SimpleDashboardProps {
-  userDiscount?: number | null;
+  userTokens?: number | null;
 }
 
-export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) {
+export default function SimpleDashboard({ userTokens }: SimpleDashboardProps) {
   const { isConnected, address } = useAccount();
   const [activeTab, setActiveTab] = useState<'marketplace' | 'profile' | 'notifications' | 'analytics' | 'coupons'>('marketplace');
   const [userPoints, setUserPoints] = useState(0);
@@ -53,9 +53,9 @@ export default function SimpleDashboard({ userDiscount }: SimpleDashboardProps) 
           </div>
           
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-            {userDiscount && (
-              <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-4 py-2 rounded-full font-bold text-sm sm:text-base">
-                🎉 {userDiscount}% OFF
+            {userTokens && (
+              <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white px-4 py-2 rounded-full font-bold text-sm sm:text-base">
+                🎉 {userTokens} $CAMPUS
               </div>
             )}
             

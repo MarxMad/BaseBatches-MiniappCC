@@ -5,7 +5,7 @@ import { BookMarketplace } from './BookMarketplace';
 import { NotificationSystem } from './NotificationSystem';
 import { SellerAnalytics } from './SellerAnalytics';
 import { CouponSystem } from './CouponSystem';
-import { ProofOfDelivery } from './ProofOfDelivery';
+import { RealProofOfDelivery } from './RealProofOfDelivery';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
@@ -373,82 +373,9 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 {/* Sección de Confirmación de Entrega */}
                 {activeTab === 'delivery' && (
                   <div className="space-y-6">
-                    <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
-                      <h2 className="text-2xl font-bold text-white mb-4">📦 Confirmar Entrega</h2>
-                      <p className="text-gray-400 mb-6">Sube una foto como prueba de que recibiste tu producto</p>
-                      
-                      {/* Lista de pedidos pendientes */}
-                      <div className="space-y-4 mb-6">
-                        <h3 className="text-lg font-semibold text-white">Pedidos Pendientes de Confirmación</h3>
-                        
-                        <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-lg flex items-center justify-center">
-                                <span className="text-xl">📚</span>
-                              </div>
-                              <div>
-                                <h4 className="text-white font-semibold">Cálculo Diferencial</h4>
-                                <p className="text-gray-400 text-sm">Pedido #12345</p>
-                                <p className="text-gray-500 text-xs">Comprado hace 2 días</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-[#3B82F6]">0.01 ETH</div>
-                              <div className="text-gray-400 text-sm">Pendiente</div>
-                            </div>
-                          </div>
-                          
-                          {/* Componente ProofOfDelivery integrado */}
-                          <ProofOfDelivery 
-                            orderId={12345} 
-                            onProofSubmitted={() => {
-                              console.log('Entrega confirmada para pedido #12345');
-                              // Aquí podrías actualizar el estado de la UI
-                            }} 
-                          />
-                        </div>
-
-                        <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#333333]">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-12 h-12 bg-gradient-to-r from-[#10B981] to-[#059669] rounded-lg flex items-center justify-center">
-                                <span className="text-xl">🎨</span>
-                              </div>
-                              <div>
-                                <h4 className="text-white font-semibold">Cuadro Abstracto</h4>
-                                <p className="text-gray-400 text-sm">Pedido #12346</p>
-                                <p className="text-gray-500 text-xs">Comprado hace 1 día</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold text-[#10B981]">0.02 ETH</div>
-                              <div className="text-gray-400 text-sm">Pendiente</div>
-                            </div>
-                          </div>
-                          
-                          <ProofOfDelivery 
-                            orderId={12346} 
-                            onProofSubmitted={() => {
-                              console.log('Entrega confirmada para pedido #12346');
-                            }} 
-                          />
-                        </div>
-                      </div>
-
-                      {/* Información sobre el proceso */}
-                      <div className="bg-gradient-to-r from-[#3B82F6]/10 to-[#1D4ED8]/10 rounded-xl p-4 border border-[#3B82F6]/30">
-                        <h3 className="text-sm font-bold text-[#3B82F6] mb-2">💡 ¿Cómo funciona la confirmación de entrega?</h3>
-                        <ul className="text-xs text-gray-300 space-y-1">
-                          <li>• Sube una foto del producto recibido</li>
-                          <li>• Firma un mensaje para confirmar la recepción</li>
-                          <li>• El vendedor recibirá el pago automáticamente</li>
-                          <li>• El sistema usa tecnología blockchain para garantizar la transparencia</li>
-                        </ul>
-              </div>
-            </div>
-          </div>
-        )}
+                    <RealProofOfDelivery />
+                  </div>
+                )}
       </main>
       
       {/* Nuevos componentes globales */}

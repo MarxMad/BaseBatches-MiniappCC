@@ -54,7 +54,7 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
     createParticles();
 
     // Animar los carretes
-    const spinDuration = 2000 + Math.random() * 1000; // 2-3 segundos
+    const spinDuration = 3000; // 3 segundos fijos
     const spinInterval = 100; // Cambiar símbolos cada 100ms
 
     let currentTime = 0;
@@ -70,72 +70,20 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
     // Detener después del tiempo
     setTimeout(() => {
       clearInterval(interval);
+      setIsSpinning(false);
       
-      // Resultado final
-      const finalReels = reels.map(() => symbols[Math.floor(Math.random() * symbols.length)]);
-      setReels(prev => prev.map((reel, index) => ({
-        ...reel,
-        symbol: finalReels[index]
-      })));
-
-      // Verificar combinaciones ganadoras
+      // Resultado final - siempre dar bonus diario
+      const dailyBonus = Math.floor(Math.random() * 3001) + 500; // 500-3500
+      setTokens(dailyBonus);
+      setWinningCombo(['🎁', '🎁', '🎁']); // Símbolos de bonus diario
+      setShowResult(true);
+      
       setTimeout(() => {
-        checkWinningCombination(finalReels);
-      }, 500);
+        onComplete(dailyBonus);
+      }, 3000);
     }, spinDuration);
   };
 
-  const checkWinningCombination = (finalReels: typeof symbols) => {
-    const symbolEmojis = finalReels.map(reel => reel.emoji);
-    const symbolNames = finalReels.map(reel => reel.name);
-    
-    // Combinaciones ganadoras
-    const winningCombinations = [
-      // Tres iguales
-      { pattern: [symbolEmojis[0], symbolEmojis[0], symbolEmojis[0]], type: 'TRIPLE', multiplier: 3 },
-      // Dos iguales
-      { pattern: [symbolEmojis[0], symbolEmojis[0], symbolEmojis[1]], type: 'DOUBLE', multiplier: 2 },
-      // Secuencia
-      { pattern: ['📚', '🎓', '💻'], type: 'SEQUENCE', multiplier: 5 },
-      // Jackpot
-      { pattern: ['🎰', '🎰', '🎰'], type: 'JACKPOT', multiplier: 10 }
-    ];
-
-    let bestMatch = null;
-    let maxMultiplier = 0;
-
-    winningCombinations.forEach(combo => {
-      if (JSON.stringify(symbolEmojis) === JSON.stringify(combo.pattern)) {
-        if (combo.multiplier > maxMultiplier) {
-          maxMultiplier = combo.multiplier;
-          bestMatch = combo;
-        }
-      }
-    });
-
-    if (bestMatch) {
-      setWinningCombo(symbolEmojis);
-      const baseTokensAmount = baseTokens[Math.floor(Math.random() * baseTokens.length)];
-      const finalTokens = Math.min(baseTokensAmount * (bestMatch as any).multiplier, 2000);
-      setTokens(finalTokens);
-      setShowResult(true);
-      
-      setTimeout(() => {
-        onComplete(finalTokens);
-      }, 3000);
-    } else {
-      // Sin premio, pero dar tokens mínimos
-      const minTokens = 5;
-      setTokens(minTokens);
-      setShowResult(true);
-      
-      setTimeout(() => {
-        onComplete(minTokens);
-      }, 2000);
-    }
-
-    setIsSpinning(false);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden">
@@ -182,10 +130,10 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
           className="mb-4 sm:mb-8"
         >
           <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] via-[#1D4ED8] to-[#10B981] mb-2 sm:mb-4 leading-tight">
-            ¡Bienvenido a CU-Shop!
+            🎁 Bonus Diario
           </h1>
           <p className="text-sm sm:text-lg md:text-xl lg:text-2xl text-white font-semibold px-2">
-            Gira la máquina y gana tokens $CAMPUS para intercambiar por productos
+            Gira la máquina y gana tu bonus diario de tokens $CAMPUS
           </p>
         </motion.div>
 
@@ -274,7 +222,7 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
                 <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">🎉</div>
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black mb-2 sm:mb-4">¡FELICIDADES!</h2>
                 <div className="text-4xl sm:text-5xl lg:text-6xl font-black mb-2 sm:mb-4">{tokens}</div>
-                <p className="text-sm sm:text-base lg:text-xl font-bold mb-2 sm:mb-4">TOKENS $CAMPUS GANADOS</p>
+                <p className="text-sm sm:text-base lg:text-xl font-bold mb-2 sm:mb-4">BONUS DIARIO GANADO</p>
                 {winningCombo.length > 0 && (
                   <div className="text-sm sm:text-base lg:text-lg mb-2 sm:mb-4">
                     <span className="font-bold">Combinación: </span>
@@ -282,7 +230,7 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
                   </div>
                 )}
                 <div className="text-xs sm:text-sm opacity-80">
-                  Los tokens se agregarán a tu wallet automáticamente
+                  ¡Tu bonus diario de tokens $CAMPUS está listo!
                 </div>
               </motion.div>
             </motion.div>
@@ -297,37 +245,27 @@ export default function SlotMachine({ onComplete }: SlotMachineProps) {
           className="text-center text-gray-400 max-w-4xl mx-auto px-2 sm:px-4"
         >
           <p className="text-sm sm:text-base lg:text-lg mb-3 sm:mb-4">
-            🎰 Gira los carretes y combina símbolos para ganar tokens $CAMPUS
+            🎰 Gira los carretes y gana tu bonus diario de tokens $CAMPUS
           </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm">
             <div className="bg-[#1A1A1A] p-2 sm:p-3 rounded-lg border border-[#3B82F6]/20">
-              <div className="text-lg sm:text-2xl mb-1">🎯</div>
-              <div className="font-semibold text-xs sm:text-sm">3 Iguales</div>
-              <div className="text-xs">Tokens x3</div>
+              <div className="text-lg sm:text-2xl mb-1">🎁</div>
+              <div className="font-semibold text-xs sm:text-sm">Bonus Diario</div>
+              <div className="text-xs">500-3500 tokens</div>
             </div>
             <div className="bg-[#1A1A1A] p-2 sm:p-3 rounded-lg border border-[#3B82F6]/20">
-              <div className="text-lg sm:text-2xl mb-1">🎪</div>
-              <div className="font-semibold text-xs sm:text-sm">2 Iguales</div>
-              <div className="text-xs">Tokens x2</div>
-            </div>
-            <div className="bg-[#1A1A1A] p-2 sm:p-3 rounded-lg border border-[#3B82F6]/20">
-              <div className="text-lg sm:text-2xl mb-1">🎓</div>
-              <div className="font-semibold text-xs sm:text-sm">Secuencia</div>
-              <div className="text-xs">Tokens x5</div>
-            </div>
-            <div className="bg-[#1A1A1A] p-2 sm:p-3 rounded-lg border border-[#3B82F6]/20">
-              <div className="text-lg sm:text-2xl mb-1">🎰</div>
-              <div className="font-semibold text-xs sm:text-sm">JACKPOT</div>
-              <div className="text-xs">Tokens x10</div>
+              <div className="text-lg sm:text-2xl mb-1">🔥</div>
+              <div className="font-semibold text-xs sm:text-sm">Streak Bonus</div>
+              <div className="text-xs">x3 cada 5 días</div>
             </div>
           </div>
           
-          {/* Información sobre tokens */}
+          {/* Información sobre bonus diario */}
           <div className="mt-4 sm:mt-6 bg-gradient-to-r from-[#3B82F6]/10 to-[#1D4ED8]/10 rounded-xl p-3 sm:p-4 border border-[#3B82F6]/30">
-            <h3 className="text-sm sm:text-base font-bold text-[#3B82F6] mb-2">💡 ¿Qué son los tokens $CAMPUS?</h3>
+            <h3 className="text-sm sm:text-base font-bold text-[#3B82F6] mb-2">💡 ¿Cómo funciona el Bonus Diario?</h3>
             <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-              Los tokens $CAMPUS son la moneda digital de CU-Shop. Puedes intercambiarlos por libros, 
-              productos, cursos y más en nuestro marketplace global.
+              Cada día puedes girar la máquina para ganar entre 500-3500 tokens $CAMPUS. 
+              Si mantienes tu streak por 5 días consecutivos, ¡ganarás x3 tokens!
             </p>
           </div>
         </motion.div>

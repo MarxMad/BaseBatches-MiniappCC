@@ -749,18 +749,18 @@ export default function App() {
         </div>
         
         <div className="space-y-4 md:space-y-6 max-w-4xl w-full">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] animate-pulse-scale">
-            CampusCoin
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] animate-pulse-scale">
+            CAMPUS
           </h1>
           <p className="text-xl md:text-2xl lg:text-3xl text-white font-bold tracking-wide">
-            Tu Ecosistema Universitario
+            Tu Marketplace Global
           </p>
-          <p className="text-lg md:text-xl lg:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] font-semibold">
+          <p className="text-lg md:text-xl lg:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] font-semibold">
             Inteligente
           </p>
           <p className="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-            Únete a la <span className="text-[#FFD700] font-bold">revolución financiera universitaria</span>. 
-            Conecta tu wallet y descubre todas las posibilidades que CampusCoin tiene para ti.
+            Únete a la <span className="text-[#3B82F6] font-bold">experiencia de compra y venta universitaria</span>. 
+            Conecta tu wallet y descubre todas las posibilidades que CAMPUS tiene para ti.
           </p>
           <button
             className="cta-button"
@@ -773,11 +773,11 @@ export default function App() {
       
       <footer className="relative w-full text-center py-4 md:py-6 z-10 shrink-0">
         <div className="flex items-center justify-center space-x-2">
-          <div className="w-2 h-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full animate-pulse"></div>
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-xs md:text-sm font-semibold tracking-wider">
-            CampusCoin - Pagos Rápidos para Estudiantes
+          <div className="w-2 h-2 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full animate-pulse"></div>
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-xs md:text-sm font-semibold tracking-wider">
+            CAMPUS - Tu Marketplace Universitario Global
           </p>
-          <div className="w-2 h-2 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full animate-pulse"></div>
         </div>
       </footer>
     </div>

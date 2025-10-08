@@ -48,15 +48,15 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
       {/* Header */}
       <header className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] border-b border-[#3A3A3A] p-4 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">🛍️</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#3B82F6] text-transparent bg-clip-text">CU-Shop</h1>
-              <p className="text-gray-300 text-sm font-medium">Marketplace Global</p>
-            </div>
-          </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-xl flex items-center justify-center shadow-lg">
+                      <img src="/LOGOCAMPUS.png" alt="CAMPUS" className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-transparent bg-clip-text">CAMPUS</h1>
+                      <p className="text-gray-300 text-sm font-medium">Marketplace Global</p>
+                    </div>
+                  </div>
           
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
             {userTokens && (
@@ -170,10 +170,10 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
         {activeTab === 'profile' && (
           <div className="space-y-6">
             {/* Header del perfil */}
-            <div className="bg-gradient-to-r from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-6 border border-[#2A2A2A]">
+            <div className="bg-gradient-to-r from-[#1A1A1A] via-[#2A2A2A] to-[#1A1A1A] rounded-2xl p-6 border border-[#3B82F6]/30 shadow-lg">
               <div className="flex items-center space-x-4 mb-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center">
-                  <span className="text-2xl">👤</span>
+                <div className="w-16 h-16 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center shadow-lg">
+                  <User className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Mi Perfil</h2>
@@ -181,24 +181,24 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 </div>
               </div>
               {userTokens && (
-                <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white p-3 rounded-xl text-center">
-                  <span className="font-bold">🎉 Tokens activos: {userTokens} $CAMPUS</span>
+                <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white p-4 rounded-xl text-center shadow-lg border border-[#3B82F6]/30">
+                  <span className="font-bold text-lg">🎉 Tokens activos: {userTokens} $CAMPUS</span>
                 </div>
               )}
             </div>
 
             {/* Estadísticas principales */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
-                <div className="text-3xl font-bold text-[#FFD700] mb-2">0</div>
+              <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] p-6 rounded-xl border border-[#3B82F6]/30 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-3xl font-bold text-[#3B82F6] mb-2">0</div>
                 <div className="text-gray-400">Libros Comprados</div>
               </div>
-              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
-                <div className="text-3xl font-bold text-[#4CAF50] mb-2">0</div>
+              <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] p-6 rounded-xl border border-[#1D4ED8]/30 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-3xl font-bold text-[#1D4ED8] mb-2">0</div>
                 <div className="text-gray-400">Libros Vendidos</div>
               </div>
-              <div className="bg-[#1A1A1A] p-6 rounded-xl border border-[#2A2A2A] text-center">
-                <div className="text-3xl font-bold text-[#FF8C00] mb-2">0</div>
+              <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] p-6 rounded-xl border border-[#2563EB]/30 text-center shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="text-3xl font-bold text-[#2563EB] mb-2">0</div>
                 <div className="text-gray-400">En Venta</div>
               </div>
             </div>
@@ -247,31 +247,31 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             </div>
 
             {/* Libros del usuario */}
-            <div className="bg-[#1A1A1A] rounded-2xl p-6 border border-[#2A2A2A]">
+            <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-6 border border-[#3B82F6]/30 shadow-lg">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <span className="mr-2">📚</span> Mis Libros
+                <span className="mr-2 text-[#3B82F6]">📚</span> Mis Libros
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
-                  <div className="text-2xl mb-2">🛒</div>
+                <div className="text-center p-4 bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl border border-[#3B82F6]/30 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="text-2xl mb-2 text-[#3B82F6]">🛒</div>
                   <div className="text-sm text-gray-400">Comprados</div>
-                  <div className="text-xl font-bold text-white">0</div>
+                  <div className="text-xl font-bold text-[#3B82F6]">0</div>
                 </div>
-                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
-                  <div className="text-2xl mb-2">💰</div>
+                <div className="text-center p-4 bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl border border-[#1D4ED8]/30 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="text-2xl mb-2 text-[#1D4ED8]">💰</div>
                   <div className="text-sm text-gray-400">Vendidos</div>
-                  <div className="text-xl font-bold text-white">0</div>
+                  <div className="text-xl font-bold text-[#1D4ED8]">0</div>
                 </div>
-                <div className="text-center p-4 bg-[#0A0A0A] rounded-xl border border-[#2A2A2A]">
-                  <div className="text-2xl mb-2">⏳</div>
+                <div className="text-center p-4 bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl border border-[#2563EB]/30 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="text-2xl mb-2 text-[#2563EB]">⏳</div>
                   <div className="text-sm text-gray-400">En Venta</div>
-                  <div className="text-xl font-bold text-white">0</div>
+                  <div className="text-xl font-bold text-[#2563EB]">0</div>
                 </div>
               </div>
             </div>
 
             {/* Sección de Analytics dentro del perfil */}
-            <div className="bg-[#1A1A1A] rounded-xl p-6 border border-[#2A2A2A]">
+            <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-xl p-6 border border-[#3B82F6]/30 shadow-lg">
               <h3 className="text-xl font-bold text-white mb-4 flex items-center space-x-2">
                 <BarChart3 className="w-5 h-5 text-[#3B82F6]" />
                 <span>Analytics de Ventas</span>
@@ -279,37 +279,37 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
               <p className="text-gray-400 mb-6">Métricas y estadísticas de tus ventas</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                <div className="bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl p-4 border border-[#3B82F6]/30 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl">💰</div>
-                    <div className="text-green-400 text-sm">+12.5%</div>
+                    <div className="text-2xl text-[#3B82F6]">💰</div>
+                    <div className="text-[#3B82F6] text-sm font-bold">+12.5%</div>
                   </div>
                   <h4 className="text-white font-bold text-xl">2.35 ETH</h4>
                   <p className="text-gray-400 text-sm">Ingresos totales</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                <div className="bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl p-4 border border-[#1D4ED8]/30 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl">📦</div>
-                    <div className="text-green-400 text-sm">+8.2%</div>
+                    <div className="text-2xl text-[#1D4ED8]">📦</div>
+                    <div className="text-[#1D4ED8] text-sm font-bold">+8.2%</div>
                   </div>
                   <h4 className="text-white font-bold text-xl">47</h4>
                   <p className="text-gray-400 text-sm">Productos vendidos</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                <div className="bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl p-4 border border-[#2563EB]/30 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl">⭐</div>
-                    <div className="text-green-400 text-sm">+0.3</div>
+                    <div className="text-2xl text-[#2563EB]">⭐</div>
+                    <div className="text-[#2563EB] text-sm font-bold">+0.3</div>
                   </div>
                   <h4 className="text-white font-bold text-xl">4.7</h4>
                   <p className="text-gray-400 text-sm">Calificación promedio</p>
                 </div>
 
-                <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+                <div className="bg-gradient-to-br from-[#0A0A0A] to-[#1A1A1A] rounded-xl p-4 border border-[#1E40AF]/30 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-2xl">📈</div>
-                    <div className="text-green-400 text-sm">+2.1%</div>
+                    <div className="text-2xl text-[#1E40AF]">📈</div>
+                    <div className="text-[#1E40AF] text-sm font-bold">+2.1%</div>
                   </div>
                   <h4 className="text-white font-bold text-xl">12.5%</h4>
                   <p className="text-gray-400 text-sm">Tasa de conversión</p>

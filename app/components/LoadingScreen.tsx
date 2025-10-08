@@ -12,13 +12,13 @@ export const LoadingScreen = () => {
 
       <div className="text-center relative z-10">
         {/* Logo */}
-        <div className="w-32 h-32 mx-auto mb-8 relative">
+        <div className="w-96 h-96 mx-auto mb-8 relative">
           <div className="absolute inset-0 bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] rounded-2xl blur-xl opacity-50 animate-pulse" />
           <div className="relative w-full h-full bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-2xl flex items-center justify-center overflow-hidden border border-[#3B82F6]/30 shadow-2xl">
             <img 
               src="/CampusCoin.png" 
               alt="CAMPUS Logo" 
-              className="w-full h-full object-contain p-4"
+              className="w-full h-full object-contain p-8"
             />
           </div>
         </div>

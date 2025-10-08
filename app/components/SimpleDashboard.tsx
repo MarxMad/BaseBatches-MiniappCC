@@ -9,7 +9,7 @@ import { RealProofOfDelivery } from './RealProofOfDelivery';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
-import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift } from 'lucide-react';
+import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift, MessageCircle } from 'lucide-react';
 
 interface SimpleDashboardProps {
   userTokens?: number | null;
@@ -66,10 +66,16 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             )}
             
             
-            <div className="flex items-center space-x-2">
-              <Avatar address={address} />
-              <Name address={address} />
-            </div>
+                    <div className="flex items-center space-x-3">
+                      <Avatar address={address} />
+                      <div className="flex flex-col">
+                        <Name address={address} />
+                        <div className="flex items-center space-x-1 text-xs text-gray-400">
+                          <MessageCircle className="w-3 h-3" />
+                          <span>Farcaster</span>
+                        </div>
+                      </div>
+                    </div>
           </div>
         </div>
       </header>
@@ -242,6 +248,40 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                     <span className="text-gray-400">Nivel:</span>
                     <span className="text-[#4CAF50] font-medium">Principiante</span>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sección de Farcaster */}
+            <div className="bg-gradient-to-br from-[#1A1A1A] to-[#2A2A2A] rounded-2xl p-6 border border-[#3B82F6]/30 shadow-lg">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <MessageCircle className="w-5 h-5 text-[#3B82F6] mr-2" />
+                <span>Perfil de Farcaster</span>
+              </h3>
+              <div className="flex items-center space-x-4 mb-4">
+                <Avatar address={address} />
+                <div>
+                  <div className="text-white font-semibold">
+                    <Name address={address} />
+                  </div>
+                  <div className="text-gray-400 text-sm">Usuario de Farcaster</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-[#0A0A0A] p-4 rounded-xl border border-[#3B82F6]/30 text-center">
+                  <div className="text-2xl mb-2 text-[#3B82F6]">📝</div>
+                  <div className="text-sm text-gray-400">Casts</div>
+                  <div className="text-xl font-bold text-[#3B82F6]">0</div>
+                </div>
+                <div className="bg-[#0A0A0A] p-4 rounded-xl border border-[#1D4ED8]/30 text-center">
+                  <div className="text-2xl mb-2 text-[#1D4ED8]">👥</div>
+                  <div className="text-sm text-gray-400">Seguidores</div>
+                  <div className="text-xl font-bold text-[#1D4ED8]">0</div>
+                </div>
+                <div className="bg-[#0A0A0A] p-4 rounded-xl border border-[#2563EB]/30 text-center">
+                  <div className="text-2xl mb-2 text-[#2563EB]">❤️</div>
+                  <div className="text-sm text-gray-400">Likes</div>
+                  <div className="text-xl font-bold text-[#2563EB]">0</div>
                 </div>
               </div>
             </div>

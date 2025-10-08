@@ -9,7 +9,7 @@ import { RealProofOfDelivery } from './RealProofOfDelivery';
 import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
-import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift, MessageCircle } from 'lucide-react';
+import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift, MessageCircle, ExternalLink } from 'lucide-react';
 
 interface SimpleDashboardProps {
   userTokens?: number | null;
@@ -70,10 +70,14 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                       <Avatar address={address} />
                       <div className="flex flex-col">
                         <Name address={address} />
-                        <div className="flex items-center space-x-1 text-xs text-gray-400">
+                        <button
+                          onClick={() => window.open('https://warpcast.com', '_blank')}
+                          className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
+                        >
                           <MessageCircle className="w-3 h-3" />
                           <span>Farcaster</span>
-                        </div>
+                          <ExternalLink className="w-2 h-2" />
+                        </button>
                       </div>
                     </div>
           </div>
@@ -258,14 +262,23 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 <MessageCircle className="w-5 h-5 text-[#3B82F6] mr-2" />
                 <span>Perfil de Farcaster</span>
               </h3>
-              <div className="flex items-center space-x-4 mb-4">
-                <Avatar address={address} />
-                <div>
-                  <div className="text-white font-semibold">
-                    <Name address={address} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-4">
+                  <Avatar address={address} />
+                  <div>
+                    <div className="text-white font-semibold">
+                      <Name address={address} />
+                    </div>
+                    <div className="text-gray-400 text-sm">Usuario de Farcaster</div>
                   </div>
-                  <div className="text-gray-400 text-sm">Usuario de Farcaster</div>
                 </div>
+                <button
+                  onClick={() => window.open('https://warpcast.com', '_blank')}
+                  className="px-4 py-2 bg-gradient-to-r from-[#8A63D2] to-[#6B46C1] text-white rounded-lg hover:from-[#9F7AEA] hover:to-[#8A63D2] transition-all duration-300 flex items-center space-x-2 text-sm font-medium"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Abrir Farcaster</span>
+                </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-[#0A0A0A] p-4 rounded-xl border border-[#3B82F6]/30 text-center">

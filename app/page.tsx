@@ -717,7 +717,7 @@ export default function App() {
         <div>{saveFrameButton}</div>
         <Wallet className="z-[100] ml-4">
           <ConnectWallet onConnect={(...args) => { handleConnectAndRedirect(...args); handleOpenWalletModal(); }} />
-                  <WalletDropdown className="bg-white border border-gray-200 rounded-lg text-gray-900">
+                  <WalletDropdown className="bg-white border border-gray-200 rounded-lg text-gray-900 [&_*]:text-gray-900 [&_*]:text-black">
             <WalletAdvancedWalletActions />
             <WalletAdvancedAddressDetails />
             <WalletAdvancedTransactionActions />

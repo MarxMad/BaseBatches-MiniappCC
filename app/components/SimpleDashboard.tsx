@@ -154,18 +154,18 @@ export default function SimpleDashboard({ userTokens }: SimpleDashboardProps) {
       <main className="max-w-7xl mx-auto p-2 sm:p-4 overflow-x-hidden">
         {activeTab === 'marketplace' && (
           <div className="space-y-4">
-            {userDiscount && (
-              <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black p-4 sm:p-6 rounded-2xl text-center">
+            {userTokens && (
+              <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white p-4 sm:p-6 rounded-2xl text-center">
                 <h2 className="text-xl sm:text-2xl font-bold mb-2">🎉 ¡Felicidades!</h2>
                 <p className="text-base sm:text-lg">
-                  Tienes un descuento del <span className="font-black text-2xl sm:text-3xl">{userDiscount}%</span> en tu primer libro
+                  Has ganado <span className="font-black text-2xl sm:text-3xl">{userTokens}</span> tokens $CAMPUS
                 </p>
                 <p className="text-xs sm:text-sm mt-2 opacity-80">
-                  El descuento se aplicará automáticamente al checkout
+                  Los tokens están listos para usar en el marketplace
                 </p>
               </div>
             )}
-            <BookMarketplace userDiscount={userDiscount} />
+            <BookMarketplace userTokens={userTokens} />
           </div>
         )}
 
@@ -182,9 +182,9 @@ export default function SimpleDashboard({ userTokens }: SimpleDashboardProps) {
                   <p className="text-gray-400">Estudiante Universitario</p>
                 </div>
               </div>
-              {userDiscount && (
-                <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black p-3 rounded-xl text-center">
-                  <span className="font-bold">🎉 Descuento activo: {userDiscount}% OFF</span>
+              {userTokens && (
+                <div className="bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white p-3 rounded-xl text-center">
+                  <span className="font-bold">🎉 Tokens activos: {userTokens} $CAMPUS</span>
                 </div>
               )}
             </div>
@@ -222,7 +222,7 @@ export default function SimpleDashboard({ userTokens }: SimpleDashboardProps) {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-400">Descuento:</span>
-                    <span className="text-[#FFD700] font-medium">{userDiscount ? `${userDiscount}%` : 'Ninguno'}</span>
+                    <span className="text-[#3B82F6] font-medium">{userTokens ? `${userTokens} $CAMPUS` : 'Ninguno'}</span>
                   </div>
                 </div>
               </div>

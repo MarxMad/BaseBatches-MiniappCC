@@ -250,10 +250,10 @@ function MintNFTCard({
 }
 
 interface BookMarketplaceProps {
-    userDiscount?: number | null;
+  userTokens?: number | null;
 }
 
-export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
+export const BookMarketplace = ({ userTokens }: BookMarketplaceProps) => {
     const { address } = useAccount();
     const [books, setBooks] = useState<Book[]>([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -275,10 +275,9 @@ export const BookMarketplace = ({ userDiscount }: BookMarketplaceProps) => {
 
     // Función para calcular precio con descuento
     const calculateDiscountedPrice = (originalPrice: number | bigint) => {
-        if (!userDiscount) return originalPrice;
-        const price = typeof originalPrice === 'bigint' ? Number(originalPrice) : originalPrice;
-        const discountAmount = (price * userDiscount) / 100;
-        return price - discountAmount;
+        if (!userTokens) return originalPrice;
+        // Los tokens se pueden usar para descuentos, pero por ahora mostramos precio original
+        return originalPrice;
     };
 
     // Función para manejar la compra de un libro

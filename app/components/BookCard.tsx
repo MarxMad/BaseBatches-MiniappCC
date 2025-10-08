@@ -22,15 +22,15 @@ interface Book {
 
 interface BookCardProps {
   book: Book;
-  userDiscount?: number | null;
+  userTokens?: number | null;
   onBuy?: (bookId: number) => void;
   isBuying?: boolean;
 }
 
-export default function BookCard({ book, userDiscount, onBuy, isBuying }: BookCardProps) {
+export default function BookCard({ book, userTokens, onBuy, isBuying }: BookCardProps) {
   const originalPrice = typeof book.price === 'bigint' ? Number(book.price) : book.price;
-  const discountedPrice = userDiscount 
-    ? originalPrice - (originalPrice * userDiscount / 100)
+  const discountedPrice = userTokens 
+    ? originalPrice - (originalPrice * 10 / 100) // 10% de descuento por tokens
     : originalPrice;
 
   return (
@@ -51,9 +51,9 @@ export default function BookCard({ book, userDiscount, onBuy, isBuying }: BookCa
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         
         {/* Badge de descuento */}
-        {userDiscount && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-black px-3 py-1 rounded-full text-sm font-bold">
-            -{userDiscount}%
+        {userTokens && (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] text-white px-3 py-1 rounded-full text-sm font-bold">
+            -10%
           </div>
         )}
         
@@ -83,7 +83,7 @@ export default function BookCard({ book, userDiscount, onBuy, isBuying }: BookCa
         {/* Precio */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            {userDiscount && (
+            {userTokens && (
               <span className="text-lg text-gray-400 line-through">
                 ${originalPrice.toFixed(2)}
               </span>

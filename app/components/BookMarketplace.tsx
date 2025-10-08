@@ -23,7 +23,7 @@ import { AdvancedSearch } from './AdvancedSearch';
 import { ReviewSystem } from './ReviewSystem';
 import { LocationServices } from './LocationServices';
 import { ChatSystem } from './ChatSystem';
-import { Star, MessageCircle, MapPin, Search, Plus, Filter, ShoppingCart } from 'lucide-react';
+import { Star, MessageCircle, MapPin, Search, Plus, Filter, ShoppingCart, ShoppingBag } from 'lucide-react';
 
 interface Book {
     id: number;

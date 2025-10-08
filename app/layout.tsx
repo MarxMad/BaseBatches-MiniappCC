@@ -17,22 +17,22 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "CampusCoin",
-    description: "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
+    title: "CAMPUS",
+    description: "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
     manifest: "/manifest.json",
     icons: {
-      icon: "/Ensigna.png",
-      apple: "/Ensigna.png",
+      icon: "/CampusCoin.png",
+      apple: "/CampusCoin.png",
     },
     openGraph: {
-      title: "CampusCoin",
-      description: "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
+      title: "CAMPUS",
+      description: "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
       images: [
         {
-          url: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+          url: "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
           width: 1200,
           height: 630,
-          alt: "CampusCoin"
+          alt: "CAMPUS"
         }
       ],
       type: "website",
@@ -41,14 +41,14 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "fc:frame": JSON.stringify({
         version: "1",
-        imageUrl: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+        imageUrl: "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
         button: {
-          title: "🚀 Iniciar CampusCoin",
+          title: "🚀 Iniciar CAMPUS",
           action: {
             type: "launch_frame",
-            name: "CampusCoin",
+            name: "CAMPUS",
             url: "https://base-batches-miniapp-cc.vercel.app/",
-            splashImageUrl: "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+            splashImageUrl: "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
             splashBackgroundColor: "#0A0A0A",
           },
         },
@@ -67,15 +67,15 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0A0A0A" />
-        <meta property="og:title" content="CampusCoin" />
-        <meta property="og:description" content="Mini app universitaria para pagos, marketplace y juegos educativos en blockchain" />
-        <meta property="og:image" content="https://base-batches-miniapp-cc.vercel.app/Ensigna.png" />
+        <meta property="og:title" content="CAMPUS" />
+        <meta property="og:description" content="Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS" />
+        <meta property="og:image" content="https://base-batches-miniapp-cc.vercel.app/CampusCoin.png" />
         <meta property="og:url" content="https://base-batches-miniapp-cc.vercel.app/" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="CampusCoin" />
-        <meta name="twitter:description" content="Mini app universitaria para pagos, marketplace y juegos educativos en blockchain" />
-        <meta name="twitter:image" content="https://base-batches-miniapp-cc.vercel.app/Ensigna.png" />
+        <meta name="twitter:title" content="CAMPUS" />
+        <meta name="twitter:description" content="Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS" />
+        <meta name="twitter:image" content="https://base-batches-miniapp-cc.vercel.app/CampusCoin.png" />
       </head>
       <body className={inter.className}>
         <Providers>

@@ -55,82 +55,45 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
             
             if (token) {
-              // Usar múltiples APIs para obtener datos del usuario
+              // Usar Quick Auth fetch para obtener datos del usuario
               try {
-                // Intentar con API de Farcaster primero
-                let userData = null;
-                let apiUsed = '';
+                console.log('🔑 Usando token para obtener datos del usuario');
                 
-                try {
-                  const response = await fetch('https://api.farcaster.xyz/fc/user', {
-                    method: 'GET',
-                    headers: {
-                      'Authorization': `Bearer ${token}`,
-                      'Content-Type': 'application/json'
-                    }
-                  });
-                  
-                  console.log('📡 Respuesta de Farcaster API:', response.status);
-                  
-                  if (response.ok) {
-                    userData = await response.json();
-                    apiUsed = 'farcaster';
-                    console.log('👤 Datos del usuario (Farcaster):', userData);
-                  }
-                } catch (farcasterError) {
-                  console.log('❌ Error en Farcaster API, intentando Neynar:', farcasterError);
-                }
+                // Usar sdk.quickAuth.fetch que maneja automáticamente el token
+                const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
+                  method: 'GET'
+                });
                 
-                // Si Farcaster falla, intentar con Neynar API
-                if (!userData) {
-                  try {
-                    const neynarResponse = await fetch('https://api.neynar.com/v2/farcaster/user', {
-                      method: 'GET',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                      }
-                    });
-                    
-                    console.log('📡 Respuesta de Neynar API:', neynarResponse.status);
-                    
-                    if (neynarResponse.ok) {
-                      userData = await neynarResponse.json();
-                      apiUsed = 'neynar';
-                      console.log('👤 Datos del usuario (Neynar):', userData);
-                    }
-                  } catch (neynarError) {
-                    console.log('❌ Error en Neynar API:', neynarError);
-                  }
-                }
+                console.log('📡 Respuesta de Quick Auth:', response.status);
                 
-                // Procesar datos del usuario
-                if (userData) {
-                  let user = null;
+                if (response.ok) {
+                  const userData = await response.json();
+                  console.log('👤 Datos del usuario:', userData);
                   
-                  if (apiUsed === 'farcaster' && userData.result && userData.result.user) {
-                    user = userData.result.user;
-                  } else if (apiUsed === 'neynar' && userData.result) {
-                    user = userData.result;
-                  }
-                  
-                  if (user) {
+                  // Procesar datos del usuario
+                  if (userData.result && userData.result.user) {
+                    const user = userData.result.user;
                     setFarcasterFname(user.username || user.fname || user.fid?.toString() || 'farcaster_user');
-                    setFarcasterDisplayName(user.displayName || user.display_name || user.displayName || 'Usuario Farcaster');
-                    setFarcasterPfpUrl(user.pfpUrl || user.pfp_url || user.pfp_url || 'https://warpcast.com/~/channel-images/base.png');
-                    console.log('✅ Datos de Farcaster cargados desde', apiUsed, ':', {
+                    setFarcasterDisplayName(user.displayName || user.display_name || 'Usuario Farcaster');
+                    setFarcasterPfpUrl(user.pfpUrl || user.pfp_url || 'https://warpcast.com/~/channel-images/base.png');
+                    console.log('✅ Datos de Farcaster cargados:', {
                       fname: user.username || user.fname,
                       displayName: user.displayName || user.display_name,
                       pfpUrl: user.pfpUrl || user.pfp_url
                     });
                   } else {
-                    throw new Error('No se pudieron extraer datos del usuario');
+                    console.log('⚠️ Estructura de datos inesperada:', userData);
+                    // Usar datos básicos del token si no hay datos del usuario
+                    setFarcasterFname('farcaster_user');
+                    setFarcasterDisplayName('Usuario Farcaster');
+                    setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
                   }
                 } else {
-                  throw new Error('No se pudieron obtener datos del usuario');
+                  console.log('❌ Error en Quick Auth fetch:', response.status);
+                  throw new Error(`API error: ${response.status}`);
                 }
               } catch (apiError) {
-                console.log('❌ Error en todas las APIs:', apiError);
+                console.log('❌ Error en Quick Auth:', apiError);
                 throw apiError;
               }
             } else {
@@ -209,7 +172,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           className="rounded-full border-2 border-[#8A63D2]"
                         />
                       ) : (
-                        <Avatar address={address} />
+              <Avatar address={address} />
                       )}
                       <div className="flex flex-col">
                         <div className="text-white font-semibold">
@@ -224,7 +187,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           <ExternalLink className="w-2 h-2" />
                         </button>
                       </div>
-                    </div>
+            </div>
           </div>
         </div>
       </header>

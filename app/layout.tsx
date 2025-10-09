@@ -66,6 +66,7 @@ export default function RootLayout({
     <html lang="es">
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="preconnect" href="https://auth.farcaster.xyz" />
         <meta name="theme-color" content="#0A0A0A" />
         <meta property="og:title" content="CAMPUS" />
         <meta property="og:description" content="Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS" />

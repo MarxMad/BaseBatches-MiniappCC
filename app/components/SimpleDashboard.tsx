@@ -30,27 +30,38 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
   const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
 
-  // Integración con Farcaster Quick Auth
+  // Integración real con Farcaster Quick Auth
   useEffect(() => {
     const initializeFarcasterAuth = async () => {
       if (address) {
         try {
           // Verificar si estamos en un Mini App de Farcaster
-          if (typeof window !== 'undefined' && window.location.href.includes('farcaster')) {
+          if (typeof window !== 'undefined' && (window.location.href.includes('farcaster') || window.location.href.includes('warpcast'))) {
             // Importar SDK de Farcaster dinámicamente
             const { sdk } = await import('@farcaster/miniapp-sdk');
             
-            // Obtener token de autenticación
-            const token = await sdk.quickAuth.getToken();
+            // Obtener token de autenticación usando Quick Auth
+            const { token } = await sdk.quickAuth.getToken();
             
             if (token) {
-              // Hacer fetch autenticado para obtener datos del usuario
-              const userData = await sdk.quickAuth.fetch('/api/user/profile');
+              // Hacer fetch autenticado para obtener datos del usuario desde Farcaster
+              const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              });
               
-              if (userData) {
-                setFarcasterFname(userData.username);
-                setFarcasterDisplayName(userData.displayName);
-                setFarcasterPfpUrl(userData.pfpUrl);
+              if (response.ok) {
+                const userData = await response.json();
+                
+                // Extraer datos del usuario de Farcaster
+                if (userData.result && userData.result.user) {
+                  const user = userData.result.user;
+                  setFarcasterFname(user.username || user.fname);
+                  setFarcasterDisplayName(user.displayName || user.display_name);
+                  setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
+                }
               }
             }
           } else {
@@ -60,7 +71,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
           }
         } catch (error) {
-          console.log('Farcaster auth no disponible, usando fallback:', error);
+          console.log('Farcaster Quick Auth no disponible, usando fallback:', error);
           // Fallback a datos simulados
           setFarcasterFname('base.eth');
           setFarcasterDisplayName('Base Protocol');

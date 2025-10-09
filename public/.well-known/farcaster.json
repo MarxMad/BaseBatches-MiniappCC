@@ -1,4 +1,9 @@
 {
+  "accountAssociation": {
+    "header": "eyJmaWQiOjc0NDI5NiwidHlwZSI6ImF1dGgiLCJrZXkiOiIweGY2QzkxQTBmOTEwMkJmMGY1NzgyYmY1NjEwMGM0MDU1Yjg0MzFhQ2EifQ",
+    "payload": "eyJkb21haW4iOiJiYXNlLWJhdGNoZXMtbWluaWFwcC1jYy52ZXJjZWwuYXBwIn0",
+    "signature": "nimNSucuDR7fN4DHNBMq8Ed/wG9cIUnd7rYb63TGwNsbPek/23TxFhRch1L7rCNFF7IH2CNLs4Un76qcEHEA8xw="
+  },
   "miniapp": {
     "version": "1",
     "name": "CAMPUS",

@@ -11,8 +11,8 @@
     "homeUrl": "https://base-batches-miniapp-cc.vercel.app/",
     "splashImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
     "splashBackgroundColor": "#0A0A0A",
-    "subtitle": "Marketplace universitario global",
-    "description": "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
+    "subtitle": "Marketplace universitario",
+    "description": "Tu marketplace universitario global - Compra, vende y gana tokens CAMPUS",
     "primaryCategory": "shopping",
     "tags": [
       "marketplace",
@@ -22,9 +22,9 @@
       "estudiantes"
     ],
     "heroImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
-    "tagline": "Marketplace universitario global",
+    "tagline": "Marketplace universitario",
     "ogTitle": "CAMPUS",
-    "ogDescription": "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
+    "ogDescription": "Tu marketplace universitario global - Compra, vende y gana tokens CAMPUS",
     "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
     "requiredChains": [
       "eip155:8453"

@@ -199,42 +199,49 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             )}
             
             
-                    <div className="flex items-center space-x-3">
-                      {farcasterPfpUrl ? (
-                        <Image
-                          src={farcasterPfpUrl}
-                          alt={farcasterDisplayName || 'Farcaster Profile'}
-                          width={32}
-                          height={32}
-                          className="rounded-full border-2 border-[#8A63D2]"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">
-                            {address?.slice(2, 4).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex flex-col">
-                        <div className="text-white font-semibold">
-                          {farcasterDisplayName || `Usuario ${address?.slice(0, 6)}...${address?.slice(-4)}`}
-                        </div>
-                        {farcasterFname ? (
-                          <button
-                            onClick={() => window.open('https://warpcast.com', '_blank')}
-                            className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            <span>@{farcasterFname}</span>
-                            <ExternalLink className="w-2 h-2" />
-                          </button>
+                    {/* Solo mostrar datos de usuario si hay datos de Farcaster */}
+                    {(farcasterFname || farcasterDisplayName || farcasterPfpUrl) ? (
+                      <div className="flex items-center space-x-3">
+                        {farcasterPfpUrl ? (
+                          <Image
+                            src={farcasterPfpUrl}
+                            alt={farcasterDisplayName || 'Farcaster Profile'}
+                            width={32}
+                            height={32}
+                            className="rounded-full border-2 border-[#8A63D2]"
+                          />
                         ) : (
-                          <div className="flex items-center space-x-1 text-xs text-gray-400">
-                            <span>Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}</span>
+                          <div className="w-8 h-8 bg-gradient-to-r from-[#8A63D2] to-[#6B46C1] rounded-full flex items-center justify-center">
+                            <MessageCircle className="w-4 h-4 text-white" />
                           </div>
                         )}
+                        <div className="flex flex-col">
+                          <div className="text-white font-semibold">
+                            {farcasterDisplayName || 'Usuario Farcaster'}
+                          </div>
+                          {farcasterFname && (
+                            <button
+                              onClick={() => window.open('https://warpcast.com', '_blank')}
+                              className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              <span>@{farcasterFname}</span>
+                              <ExternalLink className="w-2 h-2" />
+                            </button>
+                          )}
+                        </div>
                       </div>
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">C</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <div className="text-white font-semibold">CAMPUS</div>
+                          <div className="text-xs text-gray-400">Marketplace Global</div>
+                        </div>
             </div>
+                    )}
           </div>
         </div>
       </header>

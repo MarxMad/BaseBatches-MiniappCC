@@ -36,42 +36,116 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
       if (address) {
         try {
           // Verificar si estamos en un Mini App de Farcaster
-          if (typeof window !== 'undefined' && (window.location.href.includes('farcaster') || window.location.href.includes('warpcast'))) {
+          const isFarcasterMiniApp = typeof window !== 'undefined' && 
+            (window.location.href.includes('farcaster') || 
+             window.location.href.includes('warpcast') ||
+             window.location.href.includes('miniapp') ||
+             window.parent !== window); // Detectar iframe de Farcaster
+          
+          console.log('🔍 Detectando Farcaster Mini App:', isFarcasterMiniApp);
+          console.log('🌐 URL actual:', window.location.href);
+          
+          if (isFarcasterMiniApp) {
             // Importar SDK de Farcaster dinámicamente
             const { sdk } = await import('@farcaster/miniapp-sdk');
+            console.log('📦 SDK de Farcaster cargado');
             
             // Obtener token de autenticación usando Quick Auth
             const { token } = await sdk.quickAuth.getToken();
+            console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
             
             if (token) {
-              // Hacer fetch autenticado para obtener datos del usuario desde Farcaster
-              const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
-                method: 'GET',
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-              
-              if (response.ok) {
-                const userData = await response.json();
+              // Usar múltiples APIs para obtener datos del usuario
+              try {
+                // Intentar con API de Farcaster primero
+                let userData = null;
+                let apiUsed = '';
                 
-                // Extraer datos del usuario de Farcaster
-                if (userData.result && userData.result.user) {
-                  const user = userData.result.user;
-                  setFarcasterFname(user.username || user.fname);
-                  setFarcasterDisplayName(user.displayName || user.display_name);
-                  setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
+                try {
+                  const response = await fetch('https://api.farcaster.xyz/fc/user', {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                    }
+                  });
+                  
+                  console.log('📡 Respuesta de Farcaster API:', response.status);
+                  
+                  if (response.ok) {
+                    userData = await response.json();
+                    apiUsed = 'farcaster';
+                    console.log('👤 Datos del usuario (Farcaster):', userData);
+                  }
+                } catch (farcasterError) {
+                  console.log('❌ Error en Farcaster API, intentando Neynar:', farcasterError);
                 }
+                
+                // Si Farcaster falla, intentar con Neynar API
+                if (!userData) {
+                  try {
+                    const neynarResponse = await fetch('https://api.neynar.com/v2/farcaster/user', {
+                      method: 'GET',
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                      }
+                    });
+                    
+                    console.log('📡 Respuesta de Neynar API:', neynarResponse.status);
+                    
+                    if (neynarResponse.ok) {
+                      userData = await neynarResponse.json();
+                      apiUsed = 'neynar';
+                      console.log('👤 Datos del usuario (Neynar):', userData);
+                    }
+                  } catch (neynarError) {
+                    console.log('❌ Error en Neynar API:', neynarError);
+                  }
+                }
+                
+                // Procesar datos del usuario
+                if (userData) {
+                  let user = null;
+                  
+                  if (apiUsed === 'farcaster' && userData.result && userData.result.user) {
+                    user = userData.result.user;
+                  } else if (apiUsed === 'neynar' && userData.result) {
+                    user = userData.result;
+                  }
+                  
+                  if (user) {
+                    setFarcasterFname(user.username || user.fname || user.fid?.toString() || 'farcaster_user');
+                    setFarcasterDisplayName(user.displayName || user.display_name || user.displayName || 'Usuario Farcaster');
+                    setFarcasterPfpUrl(user.pfpUrl || user.pfp_url || user.pfp_url || 'https://warpcast.com/~/channel-images/base.png');
+                    console.log('✅ Datos de Farcaster cargados desde', apiUsed, ':', {
+                      fname: user.username || user.fname,
+                      displayName: user.displayName || user.display_name,
+                      pfpUrl: user.pfpUrl || user.pfp_url
+                    });
+                  } else {
+                    throw new Error('No se pudieron extraer datos del usuario');
+                  }
+                } else {
+                  throw new Error('No se pudieron obtener datos del usuario');
+                }
+              } catch (apiError) {
+                console.log('❌ Error en todas las APIs:', apiError);
+                throw apiError;
               }
+            } else {
+              console.log('❌ No se pudo obtener token de Farcaster');
+              throw new Error('No se pudo obtener token');
             }
           } else {
+            console.log('🔄 Usando fallback para desarrollo');
             // Fallback para desarrollo o cuando no estamos en Farcaster
             setFarcasterFname('base.eth');
             setFarcasterDisplayName('Base Protocol');
             setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
           }
         } catch (error) {
-          console.log('Farcaster Quick Auth no disponible, usando fallback:', error);
+          console.log('❌ Farcaster Quick Auth no disponible, usando fallback:', error);
           // Fallback a datos simulados
           setFarcasterFname('base.eth');
           setFarcasterDisplayName('Base Protocol');

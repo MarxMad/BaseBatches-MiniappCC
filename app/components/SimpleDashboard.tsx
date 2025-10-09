@@ -101,18 +101,18 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
               throw new Error('No se pudo obtener token');
             }
           } else {
-            console.log('🔄 Usando fallback para desarrollo');
-            // Fallback para desarrollo o cuando no estamos en Farcaster
-            setFarcasterFname('base.eth');
-            setFarcasterDisplayName('Base Protocol');
-            setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+            console.log('🔄 No es Mini App de Farcaster, usando datos de wallet');
+            // Si no es Farcaster, usar datos de la wallet conectada
+            setFarcasterFname(null);
+            setFarcasterDisplayName(null);
+            setFarcasterPfpUrl(null);
           }
         } catch (error) {
-          console.log('❌ Farcaster Quick Auth no disponible, usando fallback:', error);
-          // Fallback a datos simulados
-          setFarcasterFname('base.eth');
-          setFarcasterDisplayName('Base Protocol');
-          setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+          console.log('❌ Farcaster Quick Auth no disponible:', error);
+          // Si falla, no mostrar datos de Farcaster
+          setFarcasterFname(null);
+          setFarcasterDisplayName(null);
+          setFarcasterPfpUrl(null);
         }
       }
     };
@@ -172,22 +172,28 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           className="rounded-full border-2 border-[#8A63D2]"
                         />
                       ) : (
-              <Avatar address={address} />
+                        <Avatar address={address} />
                       )}
                       <div className="flex flex-col">
                         <div className="text-white font-semibold">
                           {farcasterDisplayName || <Name address={address} />}
                         </div>
-                        <button
-                          onClick={() => window.open('https://warpcast.com', '_blank')}
-                          className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
-                        >
-                          <MessageCircle className="w-3 h-3" />
-                          <span>{farcasterFname || 'Farcaster'}</span>
-                          <ExternalLink className="w-2 h-2" />
-                        </button>
+                        {farcasterFname ? (
+                          <button
+                            onClick={() => window.open('https://warpcast.com', '_blank')}
+                            className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            <span>@{farcasterFname}</span>
+                            <ExternalLink className="w-2 h-2" />
+                          </button>
+                        ) : (
+                          <div className="flex items-center space-x-1 text-xs text-gray-400">
+                            <span>Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}</span>
+                          </div>
+                        )}
                       </div>
-            </div>
+                    </div>
           </div>
         </div>
       </header>
@@ -388,7 +394,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                       {farcasterDisplayName || <Name address={address} />}
                     </div>
                     <div className="text-gray-400 text-sm">
-                      {farcasterFname ? `@${farcasterFname}` : 'Usuario de Farcaster'}
+                      {farcasterFname ? `@${farcasterFname}` : `Wallet: ${address?.slice(0, 6)}...${address?.slice(-4)}`}
                     </div>
                   </div>
                 </div>

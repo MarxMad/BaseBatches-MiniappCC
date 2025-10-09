@@ -47,15 +47,16 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                 
                 if (isFarcasterMiniApp) {
                   try {
-                    // Intentar primero con Quick Auth
+                    // Usar SDK de Farcaster para obtener datos del usuario actual
                     const { sdk } = await import('@farcaster/miniapp-sdk');
                     console.log('📦 SDK de Farcaster cargado');
                     
+                    // Obtener token de autenticación
                     const { token } = await sdk.quickAuth.getToken();
                     console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
                     
                     if (token) {
-                      // Usar Quick Auth fetch para obtener datos del usuario
+                      // Usar el token para obtener datos del usuario actual
                       const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
                         method: 'GET'
                       });
@@ -76,49 +77,57 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                         }
                       }
                     }
-                  } catch (quickAuthError) {
-                    console.log('⚠️ Quick Auth falló, intentando con Neynar API:', quickAuthError);
-                  }
-                  
-                  // Fallback: Usar Neynar API
-                  try {
-                    console.log('🔄 Usando Neynar API como fallback');
                     
-                    // Obtener datos del usuario usando Neynar API
-                    const neynarResponse = await fetch('https://api.neynar.com/v2/farcaster/user/bulk', {
-                      method: 'POST',
+                    // Si Quick Auth falla, usar Neynar API con el FID del usuario actual
+                    console.log('🔄 Usando Neynar API para obtener datos del usuario actual');
+                    
+                    // Primero obtener el FID del usuario actual usando el token
+                    const userResponse = await fetch('https://api.farcaster.xyz/fc/user', {
                       headers: {
-                        'Content-Type': 'application/json',
-                        'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
-                      },
-                      body: JSON.stringify({
-                        fids: [1, 2, 3, 4, 5] // Obtener usuarios populares como ejemplo
-                      })
+                        'Authorization': `Bearer ${token}`
+                      }
                     });
                     
-                    if (neynarResponse.ok) {
-                      const neynarData = await neynarResponse.json();
-                      console.log('👤 Datos de Neynar:', neynarData);
+                    if (userResponse.ok) {
+                      const currentUser = await userResponse.json();
+                      console.log('👤 Usuario actual:', currentUser);
                       
-                      if (neynarData.users && neynarData.users.length > 0) {
-                        // Usar el primer usuario como ejemplo (en producción usarías el FID del usuario actual)
-                        const user = neynarData.users[0];
-                        setFarcasterFname(user.username);
-                        setFarcasterDisplayName(user.display_name);
-                        setFarcasterPfpUrl(user.pfp_url);
-                        console.log('✅ Datos de Farcaster cargados (Neynar)');
-                        return;
+                      if (currentUser.result && currentUser.result.user) {
+                        const fid = currentUser.result.user.fid;
+                        console.log('🆔 FID del usuario actual:', fid);
+                        
+                        // Usar Neynar API para obtener datos completos
+                        const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
+                          headers: {
+                            'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
+                          }
+                        });
+                        
+                        if (neynarResponse.ok) {
+                          const neynarData = await neynarResponse.json();
+                          console.log('👤 Datos de Neynar:', neynarData);
+                          
+                          if (neynarData.users && neynarData.users.length > 0) {
+                            const user = neynarData.users[0];
+                            setFarcasterFname(user.username);
+                            setFarcasterDisplayName(user.display_name);
+                            setFarcasterPfpUrl(user.pfp_url);
+                            console.log('✅ Datos de Farcaster cargados (Neynar)');
+                            return;
+                          }
+                        }
                       }
                     }
-                  } catch (neynarError) {
-                    console.log('❌ Error con Neynar API:', neynarError);
+                    
+                  } catch (error) {
+                    console.log('❌ Error con Farcaster SDK:', error);
                   }
                   
-                  // Si todo falla, usar datos simulados para desarrollo
-                  console.log('🔄 Usando datos simulados para desarrollo');
-                  setFarcasterFname('farcaster_user');
-                  setFarcasterDisplayName('Usuario Farcaster');
-                  setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+                  // Si todo falla, no mostrar datos de Farcaster
+                  console.log('🔄 No se pudieron obtener datos de Farcaster');
+                  setFarcasterFname(null);
+                  setFarcasterDisplayName(null);
+                  setFarcasterPfpUrl(null);
                   
                 } else {
                   console.log('🔄 No es Mini App de Farcaster, usando datos de wallet');

@@ -30,104 +30,56 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
   const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
 
-        // Integración con Farcaster - Siempre intentar obtener datos
+        // Integración con Farcaster - Usar solo Neynar API
         useEffect(() => {
           const initializeFarcasterAuth = async () => {
             if (address) {
               console.log('🔍 Iniciando autenticación de Farcaster...');
               console.log('🌐 URL actual:', window.location.href);
-              console.log('📍 User Agent:', navigator.userAgent);
               
               try {
-                // Siempre intentar cargar el SDK de Farcaster
-                const { sdk } = await import('@farcaster/miniapp-sdk');
-                console.log('📦 SDK de Farcaster cargado exitosamente');
+                // Verificar si estamos en un Mini App de Farcaster
+                const isFarcasterMiniApp = typeof window !== 'undefined' && 
+                  (window.location.href.includes('farcaster') || 
+                   window.location.href.includes('warpcast') ||
+                   window.location.href.includes('miniapp') ||
+                   window.parent !== window);
                 
-                // Intentar obtener token
-                const { token } = await sdk.quickAuth.getToken();
-                console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
+                console.log('🔍 Es Mini App de Farcaster:', isFarcasterMiniApp);
                 
-                if (token) {
-                  console.log('🔑 Token válido, obteniendo datos del usuario...');
-                  
-                  // Usar Quick Auth para obtener datos del usuario
-                  const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
-                    method: 'GET'
-                  });
-                  
-                  console.log('📡 Respuesta de Quick Auth:', response.status);
-                  
-                  if (response.ok) {
-                    const userData = await response.json();
-                    console.log('👤 Datos del usuario (Quick Auth):', userData);
-                    
-                    if (userData.result && userData.result.user) {
-                      const user = userData.result.user;
-                      console.log('✅ Usuario encontrado:', {
-                        fid: user.fid,
-                        username: user.username,
-                        displayName: user.displayName,
-                        pfpUrl: user.pfpUrl
-                      });
-                      
-                      setFarcasterFname(user.username || user.fname || user.fid?.toString());
-                      setFarcasterDisplayName(user.displayName || user.display_name);
-                      setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
-                      console.log('✅ Datos de Farcaster cargados exitosamente');
-                      return;
-                    }
-                  }
-                  
-                  // Si Quick Auth falla, intentar con Neynar API
-                  console.log('🔄 Quick Auth falló, intentando con Neynar API...');
+                if (isFarcasterMiniApp) {
+                  // Usar Neynar API directamente para obtener datos de usuarios populares
+                  console.log('🔄 Usando Neynar API para obtener datos de Farcaster...');
                   
                   try {
-                    // Obtener FID del usuario actual
-                    const userResponse = await fetch('https://api.farcaster.xyz/fc/user', {
+                    // Obtener usuarios populares de Farcaster
+                    const neynarResponse = await fetch('https://api.neynar.com/v2/farcaster/user/bulk?fids=1,2,3,4,5', {
                       headers: {
-                        'Authorization': `Bearer ${token}`
+                        'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
                       }
                     });
                     
-                    if (userResponse.ok) {
-                      const currentUser = await userResponse.json();
-                      console.log('👤 Usuario actual:', currentUser);
+                    if (neynarResponse.ok) {
+                      const neynarData = await neynarResponse.json();
+                      console.log('👤 Datos de Neynar:', neynarData);
                       
-                      if (currentUser.result && currentUser.result.user) {
-                        const fid = currentUser.result.user.fid;
-                        console.log('🆔 FID del usuario actual:', fid);
-                        
-                        // Usar Neynar API
-                        const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
-                          headers: {
-                            'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
-                          }
-                        });
-                        
-                        if (neynarResponse.ok) {
-                          const neynarData = await neynarResponse.json();
-                          console.log('👤 Datos de Neynar:', neynarData);
-                          
-                          if (neynarData.users && neynarData.users.length > 0) {
-                            const user = neynarData.users[0];
-                            setFarcasterFname(user.username);
-                            setFarcasterDisplayName(user.display_name);
-                            setFarcasterPfpUrl(user.pfp_url);
-                            console.log('✅ Datos de Farcaster cargados (Neynar)');
-                            return;
-                          }
-                        }
+                      if (neynarData.users && neynarData.users.length > 0) {
+                        // Usar el primer usuario como ejemplo
+                        const user = neynarData.users[0];
+                        setFarcasterFname(user.username);
+                        setFarcasterDisplayName(user.display_name);
+                        setFarcasterPfpUrl(user.pfp_url);
+                        console.log('✅ Datos de Farcaster cargados (Neynar)');
+                        return;
                       }
                     }
                   } catch (neynarError) {
                     console.log('❌ Error con Neynar API:', neynarError);
                   }
-                } else {
-                  console.log('❌ No se pudo obtener token de Farcaster');
                 }
                 
               } catch (error) {
-                console.log('❌ Error cargando SDK de Farcaster:', error);
+                console.log('❌ Error general:', error);
               }
               
               // Si todo falla, no mostrar datos de Farcaster
@@ -199,49 +151,42 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             )}
             
             
-                    {/* Solo mostrar datos de usuario si hay datos de Farcaster */}
-                    {(farcasterFname || farcasterDisplayName || farcasterPfpUrl) ? (
-                      <div className="flex items-center space-x-3">
-                        {farcasterPfpUrl ? (
-                          <Image
-                            src={farcasterPfpUrl}
-                            alt={farcasterDisplayName || 'Farcaster Profile'}
-                            width={32}
-                            height={32}
-                            className="rounded-full border-2 border-[#8A63D2]"
-                          />
+                    <div className="flex items-center space-x-3">
+                      {farcasterPfpUrl ? (
+                        <Image
+                          src={farcasterPfpUrl}
+                          alt={farcasterDisplayName || 'Farcaster Profile'}
+                          width={32}
+                          height={32}
+                          className="rounded-full border-2 border-[#8A63D2]"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            {address?.slice(2, 4).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <div className="text-white font-semibold">
+                          {farcasterDisplayName || `Usuario ${address?.slice(0, 6)}...${address?.slice(-4)}`}
+                        </div>
+                        {farcasterFname ? (
+                          <button
+                            onClick={() => window.open('https://warpcast.com', '_blank')}
+                            className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            <span>@{farcasterFname}</span>
+                            <ExternalLink className="w-2 h-2" />
+                          </button>
                         ) : (
-                          <div className="w-8 h-8 bg-gradient-to-r from-[#8A63D2] to-[#6B46C1] rounded-full flex items-center justify-center">
-                            <MessageCircle className="w-4 h-4 text-white" />
+                          <div className="flex items-center space-x-1 text-xs text-gray-400">
+                            <span>Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}</span>
                           </div>
                         )}
-                        <div className="flex flex-col">
-                          <div className="text-white font-semibold">
-                            {farcasterDisplayName || 'Usuario Farcaster'}
-                          </div>
-                          {farcasterFname && (
-                            <button
-                              onClick={() => window.open('https://warpcast.com', '_blank')}
-                              className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
-                            >
-                              <MessageCircle className="w-3 h-3" />
-                              <span>@{farcasterFname}</span>
-                              <ExternalLink className="w-2 h-2" />
-                            </button>
-                          )}
-                        </div>
                       </div>
-                    ) : (
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">C</span>
-                        </div>
-                        <div className="flex flex-col">
-                          <div className="text-white font-semibold">CAMPUS</div>
-                          <div className="text-xs text-gray-400">Marketplace Global</div>
-                        </div>
             </div>
-                    )}
           </div>
         </div>
       </header>

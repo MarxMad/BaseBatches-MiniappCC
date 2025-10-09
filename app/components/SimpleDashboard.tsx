@@ -188,11 +188,15 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           className="rounded-full border-2 border-[#8A63D2]"
                         />
                       ) : (
-              <Avatar address={address} />
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            {address?.slice(2, 4).toUpperCase()}
+                          </span>
+                        </div>
                       )}
                       <div className="flex flex-col">
                         <div className="text-white font-semibold">
-                          {farcasterDisplayName || <Name address={address} />}
+                          {farcasterDisplayName || `Usuario ${address?.slice(0, 6)}...${address?.slice(-4)}`}
                         </div>
                         {farcasterFname ? (
                           <button

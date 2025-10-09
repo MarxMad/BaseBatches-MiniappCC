@@ -67,9 +67,9 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             
             
                     <div className="flex items-center space-x-3">
-                      <Avatar address={address} />
+              <Avatar address={address} />
                       <div className="flex flex-col">
-                        <Name address={address} />
+              <Name address={address} />
                         <button
                           onClick={() => window.open('https://warpcast.com', '_blank')}
                           className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
@@ -79,7 +79,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           <ExternalLink className="w-2 h-2" />
                         </button>
                       </div>
-                    </div>
+            </div>
           </div>
         </div>
       </header>

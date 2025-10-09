@@ -758,10 +758,11 @@ export default function App() {
           <p className="text-lg md:text-xl lg:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#1D4ED8] font-semibold">
             Inteligente
           </p>
-          <p className="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-            Únete a la <span className="text-[#3B82F6] font-bold">experiencia de compra y venta universitaria</span>. 
-            Conecta tu wallet y descubre todas las posibilidades que CAMPUS tiene para ti.
-          </p>
+                  <p className="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
+                    Únete a la <span className="text-[#3B82F6] font-bold">experiencia de compra y venta universitaria</span>. 
+                    Aquí podrás vender y comprar <span className="text-[#3B82F6] font-bold">libros, guías, comida, juguetes, pósters, arte, electrónicos</span> y mucho más.
+                    Conecta tu wallet y descubre todas las posibilidades que CAMPUS tiene para ti.
+                  </p>
           <button
             className="cta-button"
             onClick={handleStartClick}

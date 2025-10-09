@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookMarketplace } from './BookMarketplace';
 import { NotificationSystem } from './NotificationSystem';
 import { SellerAnalytics } from './SellerAnalytics';
@@ -10,6 +10,7 @@ import { useAccount } from 'wagmi';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Name, Avatar } from '@coinbase/onchainkit/identity';
 import { ShoppingBag, User, Bell, BarChart3, Ticket, Package, Gift, MessageCircle, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
 
 interface SimpleDashboardProps {
   userTokens?: number | null;
@@ -23,6 +24,22 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCoupons, setShowCoupons] = useState(false);
+  
+  // Estados para perfil de Farcaster
+  const [farcasterFname, setFarcasterFname] = useState<string | null>(null);
+  const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
+  const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
+
+  // Simular obtención de datos de Farcaster
+  useEffect(() => {
+    if (address) {
+      // En un futuro, aquí se haría una llamada a la API de Farcaster
+      // Por ahora, simulamos datos de ejemplo
+      setFarcasterFname('base.eth');
+      setFarcasterDisplayName('Base Protocol');
+      setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+    }
+  }, [address]);
 
   console.log('📊 SimpleDashboard renderizado con tokens:', userTokens);
   console.log('🔗 Estado de conexión en SimpleDashboard:', isConnected);
@@ -67,19 +84,31 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
             
             
                     <div className="flex items-center space-x-3">
-              <Avatar address={address} />
+                      {farcasterPfpUrl ? (
+                        <Image
+                          src={farcasterPfpUrl}
+                          alt={farcasterDisplayName || 'Farcaster Profile'}
+                          width={32}
+                          height={32}
+                          className="rounded-full border-2 border-[#8A63D2]"
+                        />
+                      ) : (
+                        <Avatar address={address} />
+                      )}
                       <div className="flex flex-col">
-              <Name address={address} />
+                        <div className="text-white font-semibold">
+                          {farcasterDisplayName || <Name address={address} />}
+                        </div>
                         <button
                           onClick={() => window.open('https://warpcast.com', '_blank')}
                           className="flex items-center space-x-1 text-xs text-gray-400 hover:text-[#8A63D2] transition-colors"
                         >
                           <MessageCircle className="w-3 h-3" />
-                          <span>Farcaster</span>
+                          <span>{farcasterFname || 'Farcaster'}</span>
                           <ExternalLink className="w-2 h-2" />
                         </button>
                       </div>
-            </div>
+                    </div>
           </div>
         </div>
       </header>
@@ -264,12 +293,24 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
               </h3>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-4">
-                  <Avatar address={address} />
+                  {farcasterPfpUrl ? (
+                    <Image
+                      src={farcasterPfpUrl}
+                      alt={farcasterDisplayName || 'Farcaster Profile'}
+                      width={48}
+                      height={48}
+                      className="rounded-full border-2 border-[#8A63D2]"
+                    />
+                  ) : (
+                    <Avatar address={address} />
+                  )}
                   <div>
                     <div className="text-white font-semibold">
-                      <Name address={address} />
+                      {farcasterDisplayName || <Name address={address} />}
                     </div>
-                    <div className="text-gray-400 text-sm">Usuario de Farcaster</div>
+                    <div className="text-gray-400 text-sm">
+                      {farcasterFname ? `@${farcasterFname}` : 'Usuario de Farcaster'}
+                    </div>
                   </div>
                 </div>
                 <button

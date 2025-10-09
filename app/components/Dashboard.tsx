@@ -3051,7 +3051,7 @@ export function Dashboard({ onBackToHome }: { onBackToHome?: () => void }) {
                 <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full blur-xl opacity-50" />
                 <div className="relative w-full h-full bg-[#1A1A1A] rounded-full flex items-center justify-center border border-[#333333] p-6">
                   <Image
-                    src="/Ensigna.svg"
+                    src="/CampusCoin.png"
                     alt="CampusCoin Logo"
                     width={80}
                     height={80}

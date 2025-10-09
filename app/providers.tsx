@@ -17,8 +17,8 @@ export function Providers({ children }: { children: ReactNode }) {
           appearance: {
             mode: "dark",
             theme: "mini-app-theme",
-            name: "CampusCoin",
-            logo: "/Ensigna.svg",
+            name: "CAMPUS",
+            logo: "/CampusCoin.png",
           },
         }}
       >
@@ -29,8 +29,8 @@ export function Providers({ children }: { children: ReactNode }) {
             appearance: {
               mode: "dark",
               theme: "mini-app-theme",
-              name: "CampusCoin",
-              logo: "/Ensigna.svg",
+              name: "CAMPUS",
+              logo: "/CampusCoin.png",
             },
             wallet: {
               display: "modal",

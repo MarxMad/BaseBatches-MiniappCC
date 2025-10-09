@@ -1,16 +1,16 @@
 {
-  "name": "CampusCoin",
-  "description": "Tu ecosistema universitario inteligente para comprar y vender libros académicos",
-  "image": "/Ensigna.png",
-  "external_url": "https://campuscoin.app",
+  "name": "CAMPUS",
+  "description": "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
+  "image": "/CampusCoin.png",
+  "external_url": "https://base-batches-miniapp-cc.vercel.app",
   "attributes": [
     {
       "trait_type": "Categoría",
-      "value": "Educación"
+      "value": "Marketplace"
     },
     {
       "trait_type": "Tipo",
-      "value": "Marketplace"
+      "value": "Global"
     },
     {
       "trait_type": "Plataforma",
@@ -18,18 +18,18 @@
     },
     {
       "trait_type": "Versión",
-      "value": "1.0.0"
+      "value": "2.0.0"
     }
   ],
   "properties": {
     "splash_screen": {
       "background_color": "#0A0A0A",
-      "text_color": "#FFD700",
-      "logo_url": "/Ensigna.png"
+      "text_color": "#3B82F6",
+      "logo_url": "/CampusCoin.png"
     },
     "theme": {
-      "primary_color": "#FFD700",
-      "secondary_color": "#FFA500",
+      "primary_color": "#3B82F6",
+      "secondary_color": "#1D4ED8",
       "background_color": "#0A0A0A",
       "text_color": "#FFFFFF"
     }

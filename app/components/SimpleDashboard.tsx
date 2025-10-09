@@ -30,58 +30,59 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
   const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
 
-        // Integración con Farcaster usando Neynar API
+        // Integración con Farcaster - Siempre intentar obtener datos
         useEffect(() => {
           const initializeFarcasterAuth = async () => {
             if (address) {
+              console.log('🔍 Iniciando autenticación de Farcaster...');
+              console.log('🌐 URL actual:', window.location.href);
+              console.log('📍 User Agent:', navigator.userAgent);
+              
               try {
-                // Verificar si estamos en un Mini App de Farcaster
-                const isFarcasterMiniApp = typeof window !== 'undefined' && 
-                  (window.location.href.includes('farcaster') || 
-                   window.location.href.includes('warpcast') ||
-                   window.location.href.includes('miniapp') ||
-                   window.parent !== window); // Detectar iframe de Farcaster
+                // Siempre intentar cargar el SDK de Farcaster
+                const { sdk } = await import('@farcaster/miniapp-sdk');
+                console.log('📦 SDK de Farcaster cargado exitosamente');
                 
-                console.log('🔍 Detectando Farcaster Mini App:', isFarcasterMiniApp);
-                console.log('🌐 URL actual:', window.location.href);
+                // Intentar obtener token
+                const { token } = await sdk.quickAuth.getToken();
+                console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
                 
-                if (isFarcasterMiniApp) {
-                  try {
-                    // Usar SDK de Farcaster para obtener datos del usuario actual
-                    const { sdk } = await import('@farcaster/miniapp-sdk');
-                    console.log('📦 SDK de Farcaster cargado');
+                if (token) {
+                  console.log('🔑 Token válido, obteniendo datos del usuario...');
+                  
+                  // Usar Quick Auth para obtener datos del usuario
+                  const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
+                    method: 'GET'
+                  });
+                  
+                  console.log('📡 Respuesta de Quick Auth:', response.status);
+                  
+                  if (response.ok) {
+                    const userData = await response.json();
+                    console.log('👤 Datos del usuario (Quick Auth):', userData);
                     
-                    // Obtener token de autenticación
-                    const { token } = await sdk.quickAuth.getToken();
-                    console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
-                    
-                    if (token) {
-                      // Usar el token para obtener datos del usuario actual
-                      const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
-                        method: 'GET'
+                    if (userData.result && userData.result.user) {
+                      const user = userData.result.user;
+                      console.log('✅ Usuario encontrado:', {
+                        fid: user.fid,
+                        username: user.username,
+                        displayName: user.displayName,
+                        pfpUrl: user.pfpUrl
                       });
                       
-                      console.log('📡 Respuesta de Quick Auth:', response.status);
-                      
-                      if (response.ok) {
-                        const userData = await response.json();
-                        console.log('👤 Datos del usuario (Quick Auth):', userData);
-                        
-                        if (userData.result && userData.result.user) {
-                          const user = userData.result.user;
-                          setFarcasterFname(user.username || user.fname || user.fid?.toString());
-                          setFarcasterDisplayName(user.displayName || user.display_name);
-                          setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
-                          console.log('✅ Datos de Farcaster cargados (Quick Auth)');
-                          return;
-                        }
-                      }
+                      setFarcasterFname(user.username || user.fname || user.fid?.toString());
+                      setFarcasterDisplayName(user.displayName || user.display_name);
+                      setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
+                      console.log('✅ Datos de Farcaster cargados exitosamente');
+                      return;
                     }
-                    
-                    // Si Quick Auth falla, usar Neynar API con el FID del usuario actual
-                    console.log('🔄 Usando Neynar API para obtener datos del usuario actual');
-                    
-                    // Primero obtener el FID del usuario actual usando el token
+                  }
+                  
+                  // Si Quick Auth falla, intentar con Neynar API
+                  console.log('🔄 Quick Auth falló, intentando con Neynar API...');
+                  
+                  try {
+                    // Obtener FID del usuario actual
                     const userResponse = await fetch('https://api.farcaster.xyz/fc/user', {
                       headers: {
                         'Authorization': `Bearer ${token}`
@@ -96,7 +97,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                         const fid = currentUser.result.user.fid;
                         console.log('🆔 FID del usuario actual:', fid);
                         
-                        // Usar Neynar API para obtener datos completos
+                        // Usar Neynar API
                         const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
                           headers: {
                             'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
@@ -118,29 +119,22 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                         }
                       }
                     }
-                    
-                  } catch (error) {
-                    console.log('❌ Error con Farcaster SDK:', error);
+                  } catch (neynarError) {
+                    console.log('❌ Error con Neynar API:', neynarError);
                   }
-                  
-                  // Si todo falla, no mostrar datos de Farcaster
-                  console.log('🔄 No se pudieron obtener datos de Farcaster');
-                  setFarcasterFname(null);
-                  setFarcasterDisplayName(null);
-                  setFarcasterPfpUrl(null);
-                  
                 } else {
-                  console.log('🔄 No es Mini App de Farcaster, usando datos de wallet');
-                  setFarcasterFname(null);
-                  setFarcasterDisplayName(null);
-                  setFarcasterPfpUrl(null);
+                  console.log('❌ No se pudo obtener token de Farcaster');
                 }
+                
               } catch (error) {
-                console.log('❌ Error general en Farcaster Auth:', error);
-                setFarcasterFname(null);
-                setFarcasterDisplayName(null);
-                setFarcasterPfpUrl(null);
+                console.log('❌ Error cargando SDK de Farcaster:', error);
               }
+              
+              // Si todo falla, no mostrar datos de Farcaster
+              console.log('🔄 No se pudieron obtener datos de Farcaster, usando datos de wallet');
+              setFarcasterFname(null);
+              setFarcasterDisplayName(null);
+              setFarcasterPfpUrl(null);
             }
           };
 

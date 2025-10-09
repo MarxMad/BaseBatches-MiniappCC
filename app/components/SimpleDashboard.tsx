@@ -127,12 +127,28 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0A0A0A] flex flex-col items-center justify-center p-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FF8C00] mb-4">
-            CU-Shop
+          {/* Logo CAMPUS */}
+          <div className="mb-6">
+            <img 
+              src="/CampusCoin.png" 
+              alt="CAMPUS Logo" 
+              className="w-20 h-20 mx-auto mb-4"
+            />
+          </div>
+          
+          <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] via-[#1D4ED8] to-[#10B981] mb-4">
+            CAMPUS
           </h1>
-          <p className="text-xl text-white mb-8">
-            Conecta tu wallet para acceder al marketplace global
+          
+          <p className="text-xl text-white mb-4">
+            Tu Marketplace Universitario Global
           </p>
+          
+          <p className="text-base text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+            Conecta tu wallet para acceder al marketplace donde puedes vender y comprar 
+            <span className="text-[#3B82F6] font-semibold"> libros, guías, comida, juguetes, pósters, arte, electrónicos</span> y mucho más.
+          </p>
+          
           <ConnectWallet />
         </div>
       </div>
@@ -172,7 +188,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           className="rounded-full border-2 border-[#8A63D2]"
                         />
                       ) : (
-                        <Avatar address={address} />
+              <Avatar address={address} />
                       )}
                       <div className="flex flex-col">
                         <div className="text-white font-semibold">
@@ -193,7 +209,7 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
                           </div>
                         )}
                       </div>
-                    </div>
+            </div>
           </div>
         </div>
       </header>

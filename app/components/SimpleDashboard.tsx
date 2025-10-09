@@ -30,46 +30,134 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
   const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
 
-        // Integración con Farcaster - Optimizada para evitar rate limiting
+        // Integración con Farcaster - Datos reales usando SDK
         useEffect(() => {
           const initializeFarcasterAuth = async () => {
             if (address) {
               console.log('🔍 Iniciando autenticación de Farcaster...');
               console.log('🌐 URL actual:', window.location.href);
               
-              // Verificar si estamos en un Mini App de Farcaster
-              const isFarcasterMiniApp = typeof window !== 'undefined' && 
-                (window.location.href.includes('farcaster') || 
-                 window.location.href.includes('warpcast') ||
-                 window.location.href.includes('miniapp') ||
-                 window.parent !== window);
-              
-              console.log('🔍 Es Mini App de Farcaster:', isFarcasterMiniApp);
-              
-              if (isFarcasterMiniApp) {
-                // Usar datos simulados realistas para evitar rate limiting
-                console.log('🔄 Usando datos simulados de Farcaster para evitar rate limiting...');
+              try {
+                // Verificar si estamos en un Mini App de Farcaster
+                const isFarcasterMiniApp = typeof window !== 'undefined' && 
+                  (window.location.href.includes('farcaster') || 
+                   window.location.href.includes('warpcast') ||
+                   window.location.href.includes('miniapp') ||
+                   window.parent !== window);
                 
-                // Datos simulados realistas de Farcaster
-                setFarcasterFname('criptounam');
-                setFarcasterDisplayName('CriptoUnam');
-                setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+                console.log('🔍 Es Mini App de Farcaster:', isFarcasterMiniApp);
                 
-                console.log('✅ Datos de Farcaster simulados cargados');
-              } else {
-                // Si no es Mini App, no mostrar datos de Farcaster
-                console.log('🔄 No es Mini App de Farcaster, usando datos de wallet');
-                setFarcasterFname(null);
-                setFarcasterDisplayName(null);
-                setFarcasterPfpUrl(null);
+                if (isFarcasterMiniApp) {
+                  // Usar SDK de Farcaster para obtener datos reales
+                  console.log('🔄 Cargando SDK de Farcaster...');
+                  
+                  try {
+                    // Importar SDK de Farcaster dinámicamente
+                    const { sdk } = await import('@farcaster/miniapp-sdk');
+                    console.log('📦 SDK de Farcaster cargado exitosamente');
+                    
+                    // Obtener token de autenticación
+                    const { token } = await sdk.quickAuth.getToken();
+                    console.log('🔑 Token obtenido:', token ? 'Sí' : 'No');
+                    
+                    if (token) {
+                      console.log('🔑 Token válido, obteniendo datos del usuario...');
+                      
+                      // Usar Quick Auth para obtener datos del usuario
+                      const response = await sdk.quickAuth.fetch('https://api.farcaster.xyz/fc/user', {
+                        method: 'GET'
+                      });
+                      
+                      console.log('📡 Respuesta de Quick Auth:', response.status);
+                      
+                      if (response.ok) {
+                        const userData = await response.json();
+                        console.log('👤 Datos del usuario (Quick Auth):', userData);
+                        
+                        if (userData.result && userData.result.user) {
+                          const user = userData.result.user;
+                          console.log('✅ Usuario encontrado:', {
+                            fid: user.fid,
+                            username: user.username,
+                            displayName: user.displayName,
+                            pfpUrl: user.pfpUrl
+                          });
+                          
+                          setFarcasterFname(user.username || user.fname || user.fid?.toString());
+                          setFarcasterDisplayName(user.displayName || user.display_name);
+                          setFarcasterPfpUrl(user.pfpUrl || user.pfp_url);
+                          console.log('✅ Datos de Farcaster reales cargados exitosamente');
+                          return;
+                        }
+                      }
+                    }
+                    
+                    // Si Quick Auth falla, usar Neynar API como fallback
+                    console.log('🔄 Quick Auth falló, intentando con Neynar API...');
+                    
+                    try {
+                      // Obtener FID del usuario actual
+                      const userResponse = await fetch('https://api.farcaster.xyz/fc/user', {
+                        headers: {
+                          'Authorization': `Bearer ${token}`
+                        }
+                      });
+                      
+                      if (userResponse.ok) {
+                        const currentUser = await userResponse.json();
+                        console.log('👤 Usuario actual:', currentUser);
+                        
+                        if (currentUser.result && currentUser.result.user) {
+                          const fid = currentUser.result.user.fid;
+                          console.log('🆔 FID del usuario actual:', fid);
+                          
+                          // Usar Neynar API
+                          const neynarResponse = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
+                            headers: {
+                              'api_key': 'A3E90D38-9FC7-4755-9DAD-88A35CDE3EC3'
+                            }
+                          });
+                          
+                          if (neynarResponse.ok) {
+                            const neynarData = await neynarResponse.json();
+                            console.log('👤 Datos de Neynar:', neynarData);
+                            
+                            if (neynarData.users && neynarData.users.length > 0) {
+                              const user = neynarData.users[0];
+                              setFarcasterFname(user.username);
+                              setFarcasterDisplayName(user.display_name);
+                              setFarcasterPfpUrl(user.pfp_url);
+                              console.log('✅ Datos de Farcaster cargados (Neynar)');
+                              return;
+                            }
+                          }
+                        }
+                      }
+                    } catch (neynarError) {
+                      console.log('❌ Error con Neynar API:', neynarError);
+                    }
+                    
+                  } catch (error) {
+                    console.log('❌ Error cargando SDK de Farcaster:', error);
+                  }
+                }
+                
+              } catch (error) {
+                console.log('❌ Error general:', error);
               }
+              
+              // Si todo falla, no mostrar datos de Farcaster
+              console.log('🔄 No se pudieron obtener datos de Farcaster, usando datos de wallet');
+              setFarcasterFname(null);
+              setFarcasterDisplayName(null);
+              setFarcasterPfpUrl(null);
             }
           };
 
           // Delay para evitar rate limiting
           const timeoutId = setTimeout(() => {
             initializeFarcasterAuth();
-          }, 2000); // Aumentar delay para evitar rate limiting
+          }, 1000);
 
           return () => clearTimeout(timeoutId);
         }, [address]);

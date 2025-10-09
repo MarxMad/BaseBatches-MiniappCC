@@ -30,15 +30,46 @@ export default function SimpleDashboard({ userTokens, onGoToBonus }: SimpleDashb
   const [farcasterPfpUrl, setFarcasterPfpUrl] = useState<string | null>(null);
   const [farcasterDisplayName, setFarcasterDisplayName] = useState<string | null>(null);
 
-  // Simular obtención de datos de Farcaster
+  // Integración con Farcaster Quick Auth
   useEffect(() => {
-    if (address) {
-      // En un futuro, aquí se haría una llamada a la API de Farcaster
-      // Por ahora, simulamos datos de ejemplo
-      setFarcasterFname('base.eth');
-      setFarcasterDisplayName('Base Protocol');
-      setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
-    }
+    const initializeFarcasterAuth = async () => {
+      if (address) {
+        try {
+          // Verificar si estamos en un Mini App de Farcaster
+          if (typeof window !== 'undefined' && window.location.href.includes('farcaster')) {
+            // Importar SDK de Farcaster dinámicamente
+            const { sdk } = await import('@farcaster/miniapp-sdk');
+            
+            // Obtener token de autenticación
+            const token = await sdk.quickAuth.getToken();
+            
+            if (token) {
+              // Hacer fetch autenticado para obtener datos del usuario
+              const userData = await sdk.quickAuth.fetch('/api/user/profile');
+              
+              if (userData) {
+                setFarcasterFname(userData.username);
+                setFarcasterDisplayName(userData.displayName);
+                setFarcasterPfpUrl(userData.pfpUrl);
+              }
+            }
+          } else {
+            // Fallback para desarrollo o cuando no estamos en Farcaster
+            setFarcasterFname('base.eth');
+            setFarcasterDisplayName('Base Protocol');
+            setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+          }
+        } catch (error) {
+          console.log('Farcaster auth no disponible, usando fallback:', error);
+          // Fallback a datos simulados
+          setFarcasterFname('base.eth');
+          setFarcasterDisplayName('Base Protocol');
+          setFarcasterPfpUrl('https://warpcast.com/~/channel-images/base.png');
+        }
+      }
+    };
+
+    initializeFarcasterAuth();
   }, [address]);
 
   console.log('📊 SimpleDashboard renderizado con tokens:', userTokens);

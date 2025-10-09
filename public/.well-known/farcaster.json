@@ -1,39 +1,32 @@
 {
-  "accountAssociation": {
-    "header": "eyJmaWQiOjc0NDI5NiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEI1MzlDQTJiNDQ0YTA3QjEyOTVmZTVFMkNGNjBCNTA5YkE1QjFhNTQifQ",
-    "payload": "eyJkb21haW4iOiJiYXNlLWJhdGNoZXMtbWluaWFwcC1jYy52ZXJjZWwuYXBwIn0",
-    "signature": "MHg3ZjYzMmJlZTcxMGFjNTIwM2I2NGJhMjdkOTU5ZWFiNDBjYmI2NDBkODNkN2U5NDM0YmQ3YzQyMjBhYzBmMDcwMTM5ZjBkYzcyOTNlMGMxY2QyMjc1OTkzYzE0NzJkNmNlNWQ2YzUxYzVmNzFhOGIzNzdjZmI3Y2I1MjA4MzNhNjFj"
-  },
-  "frame": {
+  "miniapp": {
     "version": "1",
-    "name": "CampusCoin",
-    "iconUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+    "name": "CAMPUS",
+    "iconUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
     "homeUrl": "https://base-batches-miniapp-cc.vercel.app/",
-    "imageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
-    "buttonTitle": "🚀 Iniciar CampusCoin",
-    "splashImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
+    "splashImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
     "splashBackgroundColor": "#0A0A0A",
-    "webhookUrl": "https://base-batches-miniapp-cc.vercel.app/api/webhook",
-    "primaryCategory": "education",
-    "description": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
-    "subtitle": "Campus en blockchain",
-    "tags": ["education", "blockchain", "payments", "marketplace", "games"],
-    "heroImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
-    "tagline": "Tu campus en blockchain",
-    "ogTitle": "CampusCoin",
-    "ogDescription": "Mini app universitaria para pagos, marketplace y juegos educativos en blockchain",
-    "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/Ensigna.png",
-    "notifications": {
-      "enabled": true,
-      "defaultEnabled": true,
-      "description": "Recibe notificaciones sobre tus logros en los juegos y actualizaciones importantes."
-    },
-    "buttons": [
-      {
-        "label": "Conectar Wallet",
-        "action": "post"
-      }
+    "subtitle": "Marketplace universitario global",
+    "description": "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
+    "primaryCategory": "shopping",
+    "tags": [
+      "marketplace",
+      "universidad",
+      "tokens",
+      "blockchain",
+      "estudiantes"
     ],
-    "postUrl": "https://base-batches-miniapp-cc.vercel.app/api/frame"
+    "heroImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
+    "tagline": "Marketplace universitario global",
+    "ogTitle": "CAMPUS",
+    "ogDescription": "Tu marketplace universitario global - Compra, vende y gana tokens $CAMPUS",
+    "ogImageUrl": "https://base-batches-miniapp-cc.vercel.app/CampusCoin.png",
+    "requiredChains": [
+      "eip155:8453"
+    ],
+    "requiredCapabilities": [
+      "actions.signIn",
+      "wallet.getEthereumProvider"
+    ]
   }
 }
